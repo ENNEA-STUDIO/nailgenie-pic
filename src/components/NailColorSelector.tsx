@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { Check } from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
 import { 
   Tooltip,
   TooltipContent,
@@ -10,7 +11,6 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { ScrollArea } from './ui/scroll-area';
 
 // Organized color palette with categories
 const colorCategories = [
@@ -92,24 +92,26 @@ const NailColorSelector: React.FC = () => {
         className="space-y-4"
       >
         {/* Horizontal scrollable tabs for categories */}
-        <ScrollArea className="w-full">
-          <Tabs 
-            value={activeCategory} 
-            onValueChange={handleCategoryChange}
-            className="w-full"
-          >
-            <TabsList className="w-full justify-start p-1 h-auto bg-transparent">
-              {colorCategories.map((category) => (
-                <TabsTrigger
-                  key={category.name}
-                  value={category.name}
-                  className="px-3 py-1.5 text-sm rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  {category.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        <ScrollArea className="w-full" orientation="horizontal">
+          <div className="pb-4">
+            <Tabs 
+              value={activeCategory} 
+              onValueChange={handleCategoryChange}
+              className="w-full min-w-max"
+            >
+              <TabsList className="inline-flex gap-2 p-1 h-auto bg-transparent">
+                {colorCategories.map((category) => (
+                  <TabsTrigger
+                    key={category.name}
+                    value={category.name}
+                    className="px-3 py-1.5 text-sm rounded-full whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    {category.name}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
         </ScrollArea>
         
         {/* Display color grid for the active category */}
@@ -121,43 +123,54 @@ const NailColorSelector: React.FC = () => {
           transition={{ duration: 0.25 }}
           className="border border-muted rounded-xl p-3"
         >
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-            {currentCategory.colors.map((color) => {
-              const isSelected = nailColor === color.hex;
-              
-              return (
-                <div key={color.hex} className="flex flex-col items-center space-y-1">
-                  <button
-                    onClick={() => setNailColor(color.hex)}
-                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
-                      isSelected 
-                        ? 'border-gray-800 scale-110 shadow-md' 
-                        : 'border-transparent hover:border-gray-300 hover:scale-105'
-                    }`}
-                    style={color.gradient ? 
-                      { background: color.gradient } : 
-                      { backgroundColor: color.hex }
-                    }
-                    aria-label={`Select ${color.name} color`}
-                  >
-                    {isSelected && (
-                      <Check 
-                        size={14} 
-                        className={
-                          ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4'].includes(color.hex) 
-                            ? 'text-black' 
-                            : 'text-white'
-                        } 
-                      />
-                    )}
-                  </button>
-                  <span className="text-xs text-center truncate w-full">
-                    {color.name}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          <ScrollArea className="w-full" orientation="horizontal">
+            <div className="flex gap-3 min-w-max pb-4">
+              {currentCategory.colors.map((color) => {
+                const isSelected = nailColor === color.hex;
+                
+                return (
+                  <TooltipProvider key={color.hex} delayDuration={300}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex flex-col items-center space-y-2 w-16">
+                          <button
+                            onClick={() => setNailColor(color.hex)}
+                            className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
+                              isSelected 
+                                ? 'border-gray-800 scale-110 shadow-md' 
+                                : 'border-transparent hover:border-gray-300 hover:scale-105'
+                            }`}
+                            style={color.gradient ? 
+                              { background: color.gradient } : 
+                              { backgroundColor: color.hex }
+                            }
+                            aria-label={`Select ${color.name} color`}
+                          >
+                            {isSelected && (
+                              <Check 
+                                size={14} 
+                                className={
+                                  ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4'].includes(color.hex) 
+                                    ? 'text-black' 
+                                    : 'text-white'
+                                } 
+                              />
+                            )}
+                          </button>
+                          <span className="text-xs text-center truncate w-full">
+                            {color.name}
+                          </span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        {color.name}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+            </div>
+          </ScrollArea>
         </motion.div>
       </motion.div>
     </div>

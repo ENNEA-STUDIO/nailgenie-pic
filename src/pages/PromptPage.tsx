@@ -44,7 +44,7 @@ const PromptPage: React.FC = () => {
             />
           </motion.div>
           
-          <div className="px-4">
+          <div className="px-4 space-y-6">
             <NailShapeSelector />
             <NailLengthSelector />
             <NailColorSelector />
