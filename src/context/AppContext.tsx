@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
+import { Client } from "@gradio/client";
 
 // Types pour les options d'ongles
 export type NailShape = 'round' | 'square' | 'oval' | 'almond' | 'stiletto' | 'coffin';
@@ -25,6 +26,8 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const HUGGINGFACE_TOKEN = "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";
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [handImage, setHandImage] = useState<string | null>(null);
   const [generatedDesign, setGeneratedDesign] = useState<string | null>(null);
@@ -36,34 +39,50 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const generateDesign = useCallback(async () => {
     if (!handImage) {
-      toast.error("Please take a photo of your hand first");
+      toast.error("Veuillez prendre une photo de votre main d'abord");
       return;
     }
 
     if (!prompt.trim()) {
-      toast.error("Please provide a design description");
+      toast.error("Veuillez fournir une description de design");
       return;
     }
 
     setIsLoading(true);
     
     try {
-      // Simulate AI processing with a timeout
-      // This would be replaced with actual API call to an AI service
-      await new Promise(resolve => setTimeout(resolve, 2500));
+      // Convert the base64 image to a Blob
+      const base64Response = await fetch(handImage);
+      const imageBlob = await base64Response.blob();
       
-      // For demo purposes, we're just using the hand image as the result
-      // In a real app, this would be the AI-generated image
-      setGeneratedDesign(handImage);
+      // Prepare a full prompt that includes nail details
+      const fullPrompt = `${prompt} avec des ongles ${nailLength === 'short' ? 'courts' : 
+        nailLength === 'medium' ? 'moyens' : 'longs'} de forme ${nailShape} de couleur principale ${nailColor}`;
       
-      toast.success("Design generated successfully!");
+      // Connect to the Gemini Image Edit model
+      const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", { hf_token: HUGGINGFACE_TOKEN });
+      
+      // Make API call to generate the design
+      const result = await client.predict("/process_image_and_prompt", {
+        composite_pil: imageBlob,
+        prompt: fullPrompt,
+        gemini_api_key: "", // This is optional according to the API docs
+      });
+      
+      // The result data should contain the URL to the generated image
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        setGeneratedDesign(result.data[0]);
+        toast.success("Design généré avec succès!");
+      } else {
+        throw new Error("No image data received from API");
+      }
     } catch (error) {
       console.error("Error generating design:", error);
-      toast.error("Failed to generate design. Please try again.");
+      toast.error("Échec de la génération du design. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
     }
-  }, [handImage, prompt]);
+  }, [handImage, prompt, nailShape, nailLength, nailColor]);
 
   const resetState = useCallback(() => {
     setHandImage(null);

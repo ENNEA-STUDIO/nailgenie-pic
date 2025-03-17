@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Download, Redo } from 'lucide-react';
+import { Download, Redo, Share2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { toast } from 'sonner';
 
 interface ResultPreviewProps {
   onTryAgain?: () => void;
@@ -14,12 +15,37 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const handleDownload = () => {
     if (!generatedDesign) return;
     
+    // Create a link element and trigger download
     const link = document.createElement('a');
     link.href = generatedDesign;
     link.download = `nailgenie-design-${Date.now()}.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    toast.success("Image sauvegardée");
+  };
+  
+  const handleShare = async () => {
+    if (!generatedDesign || !navigator.share) return;
+    
+    try {
+      // Fetch the image and create a file to share
+      const response = await fetch(generatedDesign);
+      const blob = await response.blob();
+      const file = new File([blob], 'nailgenie-design.jpg', { type: 'image/jpeg' });
+      
+      await navigator.share({
+        title: 'Mon design NailGenie',
+        text: `Découvrez mon design d'ongles "${prompt}" créé avec NailGenie!`,
+        files: [file]
+      });
+      
+      toast.success("Design partagé avec succès!");
+    } catch (error) {
+      console.error("Erreur lors du partage:", error);
+      toast.error("Impossible de partager le design");
+    }
   };
 
   if (isLoading) {
@@ -32,9 +58,9 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           style={{ height: 'calc(100vh - 18rem)' }}
         >
           <div className="w-16 h-16 rounded-full border-4 border-t-transparent border-primary animate-spin mb-6"></div>
-          <h3 className="text-lg font-medium mb-2">Creating your design</h3>
+          <h3 className="text-lg font-medium mb-2">Création de votre design</h3>
           <p className="text-sm text-muted-foreground text-center max-w-xs">
-            We're working on your "{prompt}" design. This may take a moment...
+            Nous travaillons sur votre design "{prompt}". Cela peut prendre un moment...
           </p>
         </motion.div>
       </div>
@@ -42,6 +68,9 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   }
 
   if (!generatedDesign) return null;
+
+  // Check if the device supports Web Share API
+  const canShare = navigator.share && navigator.canShare;
 
   return (
     <motion.div 
@@ -79,18 +108,32 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
             className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-xl pressed-effect"
           >
             <Redo size={16} />
-            <span className="text-sm font-medium">Try Again</span>
+            <span className="text-sm font-medium">Réessayer</span>
           </motion.button>
           
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleDownload}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl pressed-effect"
-          >
-            <Download size={16} />
-            <span className="text-sm font-medium">Save</span>
-          </motion.button>
+          <div className="flex gap-2">
+            {canShare && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleShare}
+                className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-xl pressed-effect"
+              >
+                <Share2 size={16} />
+                <span className="text-sm font-medium">Partager</span>
+              </motion.button>
+            )}
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleDownload}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl pressed-effect"
+            >
+              <Download size={16} />
+              <span className="text-sm font-medium">Enregistrer</span>
+            </motion.button>
+          </div>
         </div>
       </div>
     </motion.div>
