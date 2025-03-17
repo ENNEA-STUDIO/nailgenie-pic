@@ -6,7 +6,7 @@ import Layout from '../components/Layout';
 import PromptInput from '../components/PromptInput';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '../hooks/use-mobile';
-import { Ruler, Square, Palette } from 'lucide-react';
+import { Ruler, Palette } from 'lucide-react';
 import {
   RoundNailIcon,
   SquareNailIcon,
@@ -85,10 +85,9 @@ const PromptInputPage: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex gap-3"
+                className="flex justify-center gap-3"
               >
                 <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
-                  <Square className="w-4 h-4" />
                   {getNailShapeIcon()}
                 </div>
                 <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
