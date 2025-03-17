@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Wand2 } from 'lucide-react';
@@ -64,17 +65,31 @@ const getRandomExamples = (count = 9) => {
 };
 
 const generateTagAnimations = (count: number) => {
+  // Each row will have 3 items (for a total of 3 rows)
+  const itemsPerRow = 3;
+  const rows = 3;
+  
   return Array.from({ length: count }).map((_, index) => {
-    const row = Math.floor(index / 3);
-    const positionInRow = index % 3;
+    const row = Math.floor(index / itemsPerRow);
+    const positionInRow = index % itemsPerRow;
     const direction = row % 2 === 0 ? 1 : -1;
+    
+    // Fixed duration for all animations
+    const duration = 20;
+    
+    // Calculate exact spacing to ensure consistent movement
+    // Bubbles in the same row will be equidistant
+    const spacing = window.innerWidth / itemsPerRow;
     
     return {
       row,
       positionInRow,
       direction,
-      duration: 15 + Math.random() * 10,
-      delay: positionInRow * 3 + Math.random() * 2,
+      duration,
+      // Stagger the starting times to create a train effect
+      // Items in the same position of different rows start together
+      delay: positionInRow * (duration / itemsPerRow),
+      spacing
     };
   });
 };
@@ -212,24 +227,31 @@ const PromptInput: React.FC = () => {
           const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
           const animation = tagAnimations[index];
           
+          // Fixed height for each row
           const rowHeight = 40;
-          const rowTop = 8 + (animation.row * rowHeight);
+          const rowGap = 4;
+          const rowTop = 8 + (animation.row * (rowHeight + rowGap));
           
+          // Calculate positions to ensure even spacing
+          // Each bubble starts off-screen and moves to the off-screen position on the other side
+          const screenWidth = window.innerWidth;
+          const bubbleWidth = 150; // Approximate width of a bubble
+          
+          // Starting position calculation
           const initialPosition = animation.direction > 0 
-            ? -200 - (animation.positionInRow * 250) 
-            : window.innerWidth + (animation.positionInRow * 250);
+            ? -bubbleWidth - (screenWidth * animation.positionInRow / 3) 
+            : screenWidth + (screenWidth * animation.positionInRow / 3);
           
+          // End position calculation
           const finalPosition = animation.direction > 0 
-            ? window.innerWidth + 100
-            : -300;
+            ? screenWidth + bubbleWidth
+            : -bubbleWidth - 100;
           
           return (
             <motion.button
               key={index}
               initial={{ x: initialPosition }}
-              animate={{
-                x: finalPosition,
-              }}
+              animate={{ x: finalPosition }}
               transition={{
                 duration: animation.duration,
                 delay: animation.delay,
@@ -244,7 +266,9 @@ const PromptInput: React.FC = () => {
                 height: '32px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                minWidth: '100px',
+                maxWidth: '180px'
               }}
             >
               {displayName}
