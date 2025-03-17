@@ -71,20 +71,14 @@ const colorCategories = [
 
 const NailColorSelector: React.FC = () => {
   const { nailColor, setNailColor } = useApp();
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    "Nude & Neutrals": true,
-    "Cool Tones": false,
-    "Warm Tones": false,
-    "Metallic & Effects": false,
-    "Dark & Deep Tones": false
-  });
-
-  const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
+  const [activeCategory, setActiveCategory] = useState<string>("Nude & Neutrals");
+  
+  const handleCategoryChange = (categoryName: string) => {
+    setActiveCategory(categoryName);
   };
+  
+  // Find the currently active category
+  const currentCategory = colorCategories.find(cat => cat.name === activeCategory) || colorCategories[0];
   
   return (
     <div className="mb-6">
@@ -95,74 +89,78 @@ const NailColorSelector: React.FC = () => {
         transition={{ delay: 0.2 }}
         className="space-y-4"
       >
-        <TooltipProvider>
+        {/* Category tabs in a single line */}
+        <div className="flex overflow-x-auto pb-2 scrollbar-none gap-2">
           {colorCategories.map((category) => (
-            <div key={category.name} className="rounded-xl border border-muted p-2">
-              <button 
-                onClick={() => toggleCategory(category.name)}
-                className="flex items-center justify-between w-full px-2 py-1.5 font-medium text-left"
-              >
-                <span>{category.name}</span>
-                {expandedCategories[category.name] ? 
-                  <ChevronUp size={18} className="text-muted-foreground" /> : 
-                  <ChevronDown size={18} className="text-muted-foreground" />
-                }
-              </button>
-              
-              {expandedCategories[category.name] && (
-                <motion.div 
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="grid grid-cols-6 gap-2 p-2"
-                >
-                  {category.colors.map((color) => {
-                    const isSelected = nailColor === color.hex;
-                    
-                    return (
-                      <Tooltip key={color.hex}>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => setNailColor(color.hex)}
-                            className={`w-full aspect-square rounded-full border-2 flex items-center justify-center transition-all ${
-                              isSelected 
-                                ? 'border-gray-800 scale-110 shadow-md' 
-                                : 'border-transparent hover:border-gray-300 hover:scale-105'
-                            }`}
-                            style={color.gradient ? 
-                              { background: color.gradient } : 
-                              { backgroundColor: color.hex }
-                            }
-                            aria-label={`Select ${color.name} color`}
-                          >
-                            {isSelected && (
-                              <Check 
-                                size={16} 
-                                className={
-                                  ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4'].includes(color.hex) 
-                                    ? 'text-black' 
-                                    : 'text-white'
-                                } 
-                              />
-                            )}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent 
-                          side="bottom"
-                          sideOffset={4}
-                          className="bg-background/90 backdrop-blur-sm border border-border/40 shadow animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
-                        >
-                          <span className="text-xs">{color.name}</span>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </div>
+            <button
+              key={category.name}
+              onClick={() => handleCategoryChange(category.name)}
+              className={`px-3 py-2 whitespace-nowrap text-sm font-medium rounded-full transition-all ${
+                activeCategory === category.name
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'bg-muted/50 hover:bg-muted/80'
+              }`}
+            >
+              {category.name}
+            </button>
           ))}
-        </TooltipProvider>
+        </div>
+        
+        {/* Display color grid for the active category */}
+        <motion.div 
+          key={activeCategory}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ duration: 0.25 }}
+          className="border border-muted rounded-xl p-3"
+        >
+          <TooltipProvider>
+            <div className="grid grid-cols-6 gap-3">
+              {currentCategory.colors.map((color) => {
+                const isSelected = nailColor === color.hex;
+                
+                return (
+                  <Tooltip key={color.hex}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setNailColor(color.hex)}
+                        className={`w-full aspect-square rounded-full border-2 flex items-center justify-center transition-all ${
+                          isSelected 
+                            ? 'border-gray-800 scale-110 shadow-md' 
+                            : 'border-transparent hover:border-gray-300 hover:scale-105'
+                        }`}
+                        style={color.gradient ? 
+                          { background: color.gradient } : 
+                          { backgroundColor: color.hex }
+                        }
+                        aria-label={`Select ${color.name} color`}
+                      >
+                        {isSelected && (
+                          <Check 
+                            size={16} 
+                            className={
+                              ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4'].includes(color.hex) 
+                                ? 'text-black' 
+                                : 'text-white'
+                            } 
+                          />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent 
+                      side="bottom"
+                      sideOffset={4}
+                      className="bg-background/90 backdrop-blur-sm border border-border/40 shadow animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
+                    >
+                      <span className="text-xs">{color.name}</span>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+          </TooltipProvider>
+        </motion.div>
       </motion.div>
     </div>
   );
