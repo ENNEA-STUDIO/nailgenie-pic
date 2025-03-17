@@ -14,6 +14,16 @@ const examplePrompts = [
   "Metallic Drips en rose gold",
   "Jelly Nails avec des paillettes holographiques",
   "Mermaid Scales en violet et turquoise",
+  "Crystal Embellishments sur base nude",
+  "Textured Velvet rouge profond",
+  "Candy Swirls multicolores",
+  "Cloud Nails effet pastel",
+  "Aurora Borealis inspiré",
+  "Psychedelic Swirls néon",
+  "Foil Marble avec effet doré",
+  "Reverse French Manicure en noir",
+  "Pop Art Designs colorés",
+  "Tropical Palm Leaves vertes",
   "Abstract Art avec des touches de noir et rouge"
 ];
 
@@ -118,8 +128,10 @@ const PromptInput: React.FC = () => {
         <span className="bg-muted/30 px-2 py-1 rounded-md">Geometric Lines</span>
         <span className="bg-muted/30 px-2 py-1 rounded-md">Foil Marble</span>
         <span className="bg-muted/30 px-2 py-1 rounded-md">Watercolor</span>
+        <span className="bg-muted/30 px-2 py-1 rounded-md">Pop Art</span>
         <span className="bg-muted/30 px-2 py-1 rounded-md">Pastel Gradient</span>
         <span className="bg-muted/30 px-2 py-1 rounded-md">Metallic Drips</span>
+        <span className="bg-muted/30 px-2 py-1 rounded-md">Crystal</span>
       </motion.div>
     </motion.div>
   );
