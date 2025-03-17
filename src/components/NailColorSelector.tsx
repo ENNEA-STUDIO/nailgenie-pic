@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { 
   Tooltip,
   TooltipContent,
@@ -91,13 +91,13 @@ const NailColorSelector: React.FC = () => {
         transition={{ delay: 0.2 }}
         className="space-y-4"
       >
-        {/* Simple tabs for categories */}
-        <Tabs 
-          value={activeCategory} 
-          onValueChange={handleCategoryChange}
-          className="w-full"
-        >
-          <ScrollArea className="w-full">
+        {/* Horizontal scrollable tabs for categories */}
+        <ScrollArea className="w-full" orientation="horizontal">
+          <Tabs 
+            value={activeCategory} 
+            onValueChange={handleCategoryChange}
+            className="w-full"
+          >
             <TabsList className="w-full justify-start p-1 h-auto bg-transparent">
               {colorCategories.map((category) => (
                 <TabsTrigger
@@ -109,8 +109,8 @@ const NailColorSelector: React.FC = () => {
                 </TabsTrigger>
               ))}
             </TabsList>
-          </ScrollArea>
-        </Tabs>
+          </Tabs>
+        </ScrollArea>
         
         {/* Display color grid for the active category */}
         <motion.div 
@@ -121,51 +121,43 @@ const NailColorSelector: React.FC = () => {
           transition={{ duration: 0.25 }}
           className="border border-muted rounded-xl p-3"
         >
-          <TooltipProvider>
-            <div className="grid grid-cols-6 gap-3">
-              {currentCategory.colors.map((color) => {
-                const isSelected = nailColor === color.hex;
-                
-                return (
-                  <Tooltip key={color.hex}>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => setNailColor(color.hex)}
-                        className={`w-full aspect-square rounded-full border-2 flex items-center justify-center transition-all ${
-                          isSelected 
-                            ? 'border-gray-800 scale-110 shadow-md' 
-                            : 'border-transparent hover:border-gray-300 hover:scale-105'
-                        }`}
-                        style={color.gradient ? 
-                          { background: color.gradient } : 
-                          { backgroundColor: color.hex }
-                        }
-                        aria-label={`Select ${color.name} color`}
-                      >
-                        {isSelected && (
-                          <Check 
-                            size={16} 
-                            className={
-                              ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4'].includes(color.hex) 
-                                ? 'text-black' 
-                                : 'text-white'
-                            } 
-                          />
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent 
-                      side="bottom"
-                      sideOffset={4}
-                      className="bg-background/90 backdrop-blur-sm border border-border/40 shadow animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
-                    >
-                      <span className="text-xs">{color.name}</span>
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })}
-            </div>
-          </TooltipProvider>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+            {currentCategory.colors.map((color) => {
+              const isSelected = nailColor === color.hex;
+              
+              return (
+                <div key={color.hex} className="flex flex-col items-center space-y-1">
+                  <button
+                    onClick={() => setNailColor(color.hex)}
+                    className={`w-full aspect-square rounded-full border-2 flex items-center justify-center transition-all ${
+                      isSelected 
+                        ? 'border-gray-800 scale-110 shadow-md' 
+                        : 'border-transparent hover:border-gray-300 hover:scale-105'
+                    }`}
+                    style={color.gradient ? 
+                      { background: color.gradient } : 
+                      { backgroundColor: color.hex }
+                    }
+                    aria-label={`Select ${color.name} color`}
+                  >
+                    {isSelected && (
+                      <Check 
+                        size={16} 
+                        className={
+                          ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4'].includes(color.hex) 
+                            ? 'text-black' 
+                            : 'text-white'
+                        } 
+                      />
+                    )}
+                  </button>
+                  <span className="text-xs text-center truncate w-full">
+                    {color.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </motion.div>
       </motion.div>
     </div>
