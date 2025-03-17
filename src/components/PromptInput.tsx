@@ -65,6 +65,16 @@ const getRandomExamples = (count = 7) => {
   return shuffled.slice(0, count);
 };
 
+// Generate random position and movement for the tags
+const generateTagAnimations = (count: number) => {
+  return Array.from({ length: count }).map(() => ({
+    x: Math.random() * 100 - 50, // initial position
+    duration: 15 + Math.random() * 10, // random duration between 15-25s
+    delay: Math.random() * 5, // random delay to start
+    direction: Math.random() > 0.5 ? 1 : -1, // random direction
+  }));
+};
+
 const PromptInput: React.FC = () => {
   const { prompt, setPrompt, generateDesign, isLoading } = useApp();
   const [isFocused, setIsFocused] = useState(false);
@@ -75,16 +85,20 @@ const PromptInput: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [exampleTags, setExampleTags] = useState(getRandomExamples());
+  const [tagAnimations, setTagAnimations] = useState(generateTagAnimations(exampleTags.length));
   const typingSpeed = 120; // Slower typing
   const deleteSpeed = 30; // Speed for deleting characters
   const pauseDuration = 1000; // 1 second pause after typing
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Shuffle example tags periodically
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isFocused && !prompt) {
-        setExampleTags(getRandomExamples());
+        const newExamples = getRandomExamples();
+        setExampleTags(newExamples);
+        setTagAnimations(generateTagAnimations(newExamples.length));
       }
     }, 10000); // Shuffle every 10 seconds
 
@@ -189,23 +203,39 @@ const PromptInput: React.FC = () => {
       </form>
       
       <motion.div 
+        ref={containerRef}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="text-xs text-muted-foreground mt-3 px-1 flex flex-wrap gap-2"
+        className="relative h-20 mt-3 px-1 overflow-hidden"
       >
         {exampleTags.map((example, index) => {
           // Extract shorter version of example for display
           const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
+          const animation = tagAnimations[index];
           
           return (
-            <button
+            <motion.button
               key={index}
+              initial={{ x: animation.direction > 0 ? -100 : "100vw" }}
+              animate={{
+                x: animation.direction > 0 ? "100vw" : -100,
+              }}
+              transition={{
+                duration: animation.duration,
+                delay: animation.delay,
+                repeat: Infinity,
+                repeatType: "loop",
+                ease: "linear"
+              }}
               onClick={() => handleExampleClick(example)}
-              className="bg-muted/30 px-2 py-1 rounded-md hover:bg-muted/50 transition-colors cursor-pointer active:scale-95"
+              className="absolute bg-muted/30 px-3 py-2 rounded-full hover:bg-muted/50 transition-colors cursor-pointer active:scale-95 text-xs whitespace-nowrap border border-muted/40"
+              style={{
+                top: `${25 + (index * 50) % 50}px`,
+              }}
             >
               {displayName}
-            </button>
+            </motion.button>
           );
         })}
       </motion.div>
