@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -33,7 +32,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [prompt, setPrompt] = useState<string>('');
   const [nailShape, setNailShape] = useState<NailShape>('oval');
   const [nailLength, setNailLength] = useState<NailLength>('medium');
-  const [nailColor, setNailColor] = useState<string>('#F2B8C6'); // Rose pastel par défaut
+  const [nailColor, setNailColor] = useState<string>('#E6CCAF'); // Beige as default
 
   const generateDesign = useCallback(async () => {
     if (!handImage) {
@@ -72,7 +71,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setPrompt('');
     setNailShape('oval');
     setNailLength('medium');
-    setNailColor('#F2B8C6');
+    setNailColor('#E6CCAF');
   }, []);
 
   const value = {
