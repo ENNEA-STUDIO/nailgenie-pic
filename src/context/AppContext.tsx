@@ -2,14 +2,24 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
 
+// Types pour les options d'ongles
+export type NailShape = 'round' | 'square' | 'oval' | 'almond' | 'stiletto' | 'coffin';
+export type NailLength = 'short' | 'medium' | 'long';
+
 interface AppContextType {
   handImage: string | null;
   generatedDesign: string | null;
   isLoading: boolean;
   prompt: string;
+  nailShape: NailShape;
+  nailLength: NailLength;
+  nailColor: string;
   setHandImage: (image: string | null) => void;
   setGeneratedDesign: (design: string | null) => void;
   setPrompt: (prompt: string) => void;
+  setNailShape: (shape: NailShape) => void;
+  setNailLength: (length: NailLength) => void;
+  setNailColor: (color: string) => void;
   generateDesign: () => Promise<void>;
   resetState: () => void;
 }
@@ -21,6 +31,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [generatedDesign, setGeneratedDesign] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [prompt, setPrompt] = useState<string>('');
+  const [nailShape, setNailShape] = useState<NailShape>('oval');
+  const [nailLength, setNailLength] = useState<NailLength>('medium');
+  const [nailColor, setNailColor] = useState<string>('#F2B8C6'); // Rose pastel par défaut
 
   const generateDesign = useCallback(async () => {
     if (!handImage) {
@@ -57,6 +70,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setHandImage(null);
     setGeneratedDesign(null);
     setPrompt('');
+    setNailShape('oval');
+    setNailLength('medium');
+    setNailColor('#F2B8C6');
   }, []);
 
   const value = {
@@ -64,9 +80,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     generatedDesign,
     isLoading,
     prompt,
+    nailShape,
+    nailLength,
+    nailColor,
     setHandImage,
     setGeneratedDesign,
     setPrompt,
+    setNailShape,
+    setNailLength,
+    setNailColor,
     generateDesign,
     resetState
   };

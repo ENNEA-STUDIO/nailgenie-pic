@@ -4,6 +4,9 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import PromptInput from '../components/PromptInput';
+import NailShapeSelector from '../components/NailShapeSelector';
+import NailLengthSelector from '../components/NailLengthSelector';
+import NailColorSelector from '../components/NailColorSelector';
 import { useApp } from '../context/AppContext';
 
 const PromptPage: React.FC = () => {
@@ -29,12 +32,12 @@ const PromptPage: React.FC = () => {
   return (
     <Layout showBackButton title="Design your nails">
       <div className="flex flex-col h-full">
-        <div className="flex-1 p-4 overflow-hidden">
+        <div className="flex-1 overflow-y-auto pb-4">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="glass-card rounded-3xl overflow-hidden shadow-sm h-full"
+            className="glass-card rounded-3xl overflow-hidden shadow-sm mx-4 mb-6"
           >
             <img 
               src={handImage} 
@@ -42,6 +45,12 @@ const PromptPage: React.FC = () => {
               className="w-full h-full object-cover"
             />
           </motion.div>
+          
+          <div className="px-4">
+            <NailShapeSelector />
+            <NailLengthSelector />
+            <NailColorSelector />
+          </div>
         </div>
         
         <div className="pt-2 pb-6">
