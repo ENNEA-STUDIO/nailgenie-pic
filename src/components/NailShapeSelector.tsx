@@ -1,20 +1,24 @@
 
 import React from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { motion } from 'framer-motion';
-import { NailShape, NailLength, useApp } from '../context/AppContext';
-import { Circle, Square, Triangle, Hexagon, Star, Diamond } from 'lucide-react';
+import { NailShape, useApp } from '../context/AppContext';
+import { 
+  RoundNailIcon, 
+  SquareNailIcon, 
+  OvalNailIcon, 
+  AlmondNailIcon, 
+  StilettoNailIcon, 
+  CoffinNailIcon 
+} from './NailShapeIcons';
 
 // Map des icônes pour chaque forme d'ongle
 const shapeIcons = {
-  round: Circle,
-  square: Square,
-  oval: Circle,
-  almond: Triangle,
-  stiletto: Diamond,
-  coffin: Hexagon,
+  round: RoundNailIcon,
+  square: SquareNailIcon,
+  oval: OvalNailIcon,
+  almond: AlmondNailIcon,
+  stiletto: StilettoNailIcon,
+  coffin: CoffinNailIcon,
 };
 
 // Description pour chaque forme
@@ -57,10 +61,9 @@ const NailShapeSelector: React.FC = () => {
                   : 'border-transparent hover:border-primary/30'
               }`}
             >
-              <div className={`p-3 rounded-full ${isSelected ? 'bg-primary/20' : 'bg-muted'}`}>
+              <div className={`p-3 rounded-full ${isSelected ? 'bg-primary/20' : 'bg-muted'} flex items-center justify-center`}>
                 <IconComponent 
-                  size={24} 
-                  className={isSelected ? 'text-primary' : 'text-muted-foreground'}
+                  className={`w-8 h-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`}
                 />
               </div>
               <span className="mt-2 text-sm font-medium capitalize">{shape}</span>
