@@ -50,6 +50,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsLoading(true);
     
     try {
+      console.log("Calling edge function with params:", { 
+        promptLength: prompt.length,
+        imageLength: handImage.length,
+        nailShape, 
+        nailLength, 
+        nailColor 
+      });
+
       // Appel à notre edge function Supabase
       const { data, error } = await supabase.functions.invoke('generate-nail-design', {
         body: {
@@ -61,14 +69,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       });
       
+      console.log("Edge function response:", data);
+      
       if (error) {
+        console.error("Supabase error:", error);
         throw new Error(error.message);
       }
       
       if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+        console.log("Generated design URL:", typeof data.data[0]);
         setGeneratedDesign(data.data[0]);
         toast.success("Design généré avec succès!");
       } else {
+        console.error("Unexpected data format:", data);
         throw new Error("Aucune donnée d'image reçue de l'API");
       }
     } catch (error) {
