@@ -10,6 +10,7 @@ import { AppProvider } from "./context/AppContext";
 import Index from "./pages/Index";
 import CameraPage from "./pages/CameraPage";
 import PromptPage from "./pages/PromptPage";
+import PromptInputPage from "./pages/PromptInputPage";
 import ResultPage from "./pages/ResultPage";
 import NotFound from "./pages/NotFound";
 
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/camera" element={<CameraPage />} />
               <Route path="/prompt" element={<PromptPage />} />
+              <Route path="/prompt-input" element={<PromptInputPage />} />
               <Route path="/result" element={<ResultPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

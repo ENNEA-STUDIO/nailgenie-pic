@@ -92,7 +92,7 @@ const NailColorSelector: React.FC = () => {
         className="space-y-4"
       >
         {/* Horizontal scrollable tabs for categories */}
-        <ScrollArea className="w-full" orientation="horizontal">
+        <ScrollArea className="w-full">
           <Tabs 
             value={activeCategory} 
             onValueChange={handleCategoryChange}
@@ -121,7 +121,7 @@ const NailColorSelector: React.FC = () => {
           transition={{ duration: 0.25 }}
           className="border border-muted rounded-xl p-3"
         >
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
             {currentCategory.colors.map((color) => {
               const isSelected = nailColor === color.hex;
               
@@ -129,7 +129,7 @@ const NailColorSelector: React.FC = () => {
                 <div key={color.hex} className="flex flex-col items-center space-y-1">
                   <button
                     onClick={() => setNailColor(color.hex)}
-                    className={`w-full aspect-square rounded-full border-2 flex items-center justify-center transition-all ${
+                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
                       isSelected 
                         ? 'border-gray-800 scale-110 shadow-md' 
                         : 'border-transparent hover:border-gray-300 hover:scale-105'
@@ -142,7 +142,7 @@ const NailColorSelector: React.FC = () => {
                   >
                     {isSelected && (
                       <Check 
-                        size={16} 
+                        size={14} 
                         className={
                           ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4'].includes(color.hex) 
                             ? 'text-black' 

@@ -3,15 +3,16 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import PromptInput from '../components/PromptInput';
 import NailShapeSelector from '../components/NailShapeSelector';
 import NailLengthSelector from '../components/NailLengthSelector';
 import NailColorSelector from '../components/NailColorSelector';
 import { useApp } from '../context/AppContext';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 const PromptPage: React.FC = () => {
   const navigate = useNavigate();
-  const { handImage, generatedDesign } = useApp();
+  const { handImage } = useApp();
   
   // Redirect if no hand image
   useEffect(() => {
@@ -19,18 +20,15 @@ const PromptPage: React.FC = () => {
       navigate('/camera');
     }
   }, [handImage, navigate]);
-  
-  // Redirect when we have generated design
-  useEffect(() => {
-    if (generatedDesign) {
-      navigate('/result');
-    }
-  }, [generatedDesign, navigate]);
+
+  const handleContinue = () => {
+    navigate('/prompt-input');
+  };
 
   if (!handImage) return null;
 
   return (
-    <Layout showBackButton title="Design your nails">
+    <Layout showBackButton title="Personnalisez vos ongles">
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-y-auto pb-4">
           <motion.div
@@ -53,8 +51,14 @@ const PromptPage: React.FC = () => {
           </div>
         </div>
         
-        <div className="pt-2 pb-6">
-          <PromptInput />
+        <div className="px-4 py-4 border-t border-muted">
+          <Button 
+            onClick={handleContinue} 
+            className="w-full py-6" 
+            size="lg"
+          >
+            Continuer <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
         </div>
       </div>
     </Layout>
