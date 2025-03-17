@@ -29,7 +29,7 @@ serve(async (req) => {
     
     // Parse the request body
     const requestBody = await req.text();
-    console.log("Request body (text):", requestBody);
+    console.log("Request body length:", requestBody.length);
     
     let body;
     try {
@@ -56,6 +56,10 @@ serve(async (req) => {
     console.log("Inputs validated. Nail details:", { nailShape, nailLength, nailColor });
     console.log("HF Token available:", !!HUGGINGFACE_TOKEN);
     console.log("Gemini API Key available:", !!GEMINI_API_KEY);
+
+    if (!HUGGINGFACE_TOKEN || !GEMINI_API_KEY) {
+      throw new Error("Les clés d'API nécessaires ne sont pas configurées");
+    }
 
     // Convert base64 to blob
     const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");

@@ -50,7 +50,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsLoading(true);
     
     try {
-      console.log("Calling edge function with params:", { 
+      console.log("Preparing to call edge function with params:", { 
         promptLength: prompt.length,
         imageLength: handImage.length,
         nailShape, 
@@ -69,15 +69,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       });
       
-      console.log("Edge function response:", data);
+      console.log("Edge function response received:", data ? "yes" : "no");
       
       if (error) {
         console.error("Supabase error:", error);
-        throw new Error(error.message);
+        throw new Error(error.message || "Une erreur s'est produite lors de l'appel à la fonction");
       }
       
+      console.log("Edge function success status:", data?.success);
+      console.log("Edge function data array:", data?.data ? "present" : "missing");
+      
       if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
-        console.log("Generated design URL:", typeof data.data[0]);
+        console.log("Generated design URL type:", typeof data.data[0]);
         setGeneratedDesign(data.data[0]);
         toast.success("Design généré avec succès!");
       } else {
@@ -86,7 +89,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     } catch (error) {
       console.error("Erreur lors de la génération du design:", error);
-      toast.error("Échec de la génération du design. Veuillez réessayer.");
+      toast.error(`Échec de la génération du design: ${error.message || "Veuillez réessayer."}`);
     } finally {
       setIsLoading(false);
     }
