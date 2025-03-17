@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export const RoundNailIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -96,12 +95,17 @@ export const StilettoNailIcon: React.FC<{ className?: string }> = ({ className }
         <stop offset="0%" stopColor="#F97316" />
         <stop offset="100%" stopColor="#FEC6A1" />
       </linearGradient>
+      <filter id="stilettoGlow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="2" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
     </defs>
     <path 
       d="M5 50 L5 20 Q5 5 20 5 Q35 5 35 20 L35 50 Q35 30 20 10 Q5 30 5 50 Z" 
       fill="url(#stilettoGradient)" 
       stroke="currentColor" 
       strokeWidth="1"
+      filter="url(#stilettoGlow)"
     />
     <path 
       d="M10 45 L10 22 Q10 10 20 10 Q30 10 30 22 L30 45 Q30 32 20 17 Q10 32 10 45 Z" 
@@ -109,11 +113,13 @@ export const StilettoNailIcon: React.FC<{ className?: string }> = ({ className }
       fillOpacity="0.3" 
     />
     <path 
-      d="M20 10 L20 30" 
+      d="M20 10 L20 40" 
       stroke="white" 
-      strokeWidth="0.5" 
-      strokeOpacity="0.5"
+      strokeWidth="0.8" 
+      strokeOpacity="0.6"
+      strokeDasharray="1 2"
     />
+    <circle cx="20" cy="10" r="1.5" fill="white" fillOpacity="0.8" />
   </svg>
 );
 
