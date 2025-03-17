@@ -54,6 +54,20 @@ const PromptInputPage: React.FC = () => {
     }
   };
 
+  // Function to get the nail length text
+  const getNailLengthText = () => {
+    switch (nailLength) {
+      case 'short':
+        return 'Courts';
+      case 'medium':
+        return 'Moyens';
+      case 'long':
+        return 'Longs';
+      default:
+        return 'Moyens';
+    }
+  };
+
   if (!handImage) return null;
 
   return (
@@ -78,10 +92,21 @@ const PromptInputPage: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex justify-center"
+                className="flex justify-center gap-2"
               >
                 <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
                   {getNailShapeIcon()}
+                </div>
+                
+                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center">
+                  {getNailLengthText()}
+                </div>
+                
+                <div 
+                  className="bg-background rounded-lg w-8 h-8 border flex items-center justify-center"
+                  style={{ backgroundColor: nailColor }}
+                >
+                  <div className="w-6 h-6 rounded-full border border-white/40" />
                 </div>
               </motion.div>
             </div>
