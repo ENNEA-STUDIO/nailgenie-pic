@@ -1,1 +1,5 @@
+
 project_id = "yvtdpfampfndlnjqoocm"
+
+[functions.generate-nail-design]
+verify_jwt = false

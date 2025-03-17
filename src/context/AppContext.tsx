@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
-import { Client } from "@gradio/client";
+import { supabase } from "@/integrations/supabase/client";
 
 // Types pour les options d'ongles
 export type NailShape = 'round' | 'square' | 'oval' | 'almond' | 'stiletto' | 'coffin';
@@ -27,9 +27,6 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const HUGGINGFACE_TOKEN = "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";
-const GEMINI_API_KEY = "AIzaSyBGxrpUue5FfIbrjhV5XPu4ZeImeR8RBRI";
-
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [handImage, setHandImage] = useState<string | null>(null);
   const [generatedDesign, setGeneratedDesign] = useState<string | null>(null);
@@ -53,33 +50,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsLoading(true);
     
     try {
-      // Convert the base64 image to a Blob
-      const base64Response = await fetch(handImage);
-      const imageBlob = await base64Response.blob();
-      
-      // Prepare a full prompt that includes nail details
-      const fullPrompt = `${prompt} avec des ongles ${nailLength === 'short' ? 'courts' : 
-        nailLength === 'medium' ? 'moyens' : 'longs'} de forme ${nailShape} de couleur principale ${nailColor}`;
-      
-      // Connect to the Gemini Image Edit model
-      const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", { hf_token: HUGGINGFACE_TOKEN });
-      
-      // Make API call to generate the design
-      const result = await client.predict("/process_image_and_prompt", {
-        composite_pil: imageBlob,
-        prompt: fullPrompt,
-        gemini_api_key: GEMINI_API_KEY, // Using the provided Gemini API key
+      // Appel à notre edge function Supabase
+      const { data, error } = await supabase.functions.invoke('generate-nail-design', {
+        body: {
+          imageBase64: handImage,
+          prompt,
+          nailShape,
+          nailLength,
+          nailColor
+        }
       });
       
-      // The result data should contain the URL to the generated image
-      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-        setGeneratedDesign(result.data[0]);
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+        setGeneratedDesign(data.data[0]);
         toast.success("Design généré avec succès!");
       } else {
-        throw new Error("No image data received from API");
+        throw new Error("Aucune donnée d'image reçue de l'API");
       }
     } catch (error) {
-      console.error("Error generating design:", error);
+      console.error("Erreur lors de la génération du design:", error);
       toast.error("Échec de la génération du design. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
