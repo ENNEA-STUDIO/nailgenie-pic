@@ -9,6 +9,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { ScrollArea } from './ui/scroll-area';
 
 // Organized color palette with categories
 const colorCategories = [
@@ -57,7 +59,7 @@ const colorCategories = [
     ]
   },
   {
-    name: "Dark & Deep Tones",
+    name: "Dark & Deep",
     colors: [
       { hex: '#000000', name: 'Black' },
       { hex: '#800020', name: 'Burgundy' },
@@ -89,22 +91,26 @@ const NailColorSelector: React.FC = () => {
         transition={{ delay: 0.2 }}
         className="space-y-4"
       >
-        {/* Category tabs in a single line */}
-        <div className="flex overflow-x-auto pb-2 scrollbar-none gap-2">
-          {colorCategories.map((category) => (
-            <button
-              key={category.name}
-              onClick={() => handleCategoryChange(category.name)}
-              className={`px-3 py-2 whitespace-nowrap text-sm font-medium rounded-full transition-all ${
-                activeCategory === category.name
-                  ? 'bg-primary text-primary-foreground shadow-md'
-                  : 'bg-muted/50 hover:bg-muted/80'
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
+        {/* Simple tabs for categories */}
+        <Tabs 
+          value={activeCategory} 
+          onValueChange={handleCategoryChange}
+          className="w-full"
+        >
+          <ScrollArea className="w-full">
+            <TabsList className="w-full justify-start p-1 h-auto bg-transparent">
+              {colorCategories.map((category) => (
+                <TabsTrigger
+                  key={category.name}
+                  value={category.name}
+                  className="px-3 py-1.5 text-sm rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  {category.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </ScrollArea>
+        </Tabs>
         
         {/* Display color grid for the active category */}
         <motion.div 
