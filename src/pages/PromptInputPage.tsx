@@ -6,6 +6,15 @@ import Layout from '../components/Layout';
 import PromptInput from '../components/PromptInput';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '../hooks/use-mobile';
+import { Ruler, Square, Palette } from 'lucide-react';
+import {
+  RoundNailIcon,
+  SquareNailIcon,
+  OvalNailIcon,
+  AlmondNailIcon,
+  StilettoNailIcon,
+  CoffinNailIcon
+} from '../components/NailShapeIcons';
 
 const PromptInputPage: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +34,32 @@ const PromptInputPage: React.FC = () => {
       navigate('/result');
     }
   }, [generatedDesign, navigate]);
+
+  // Function to get the correct nail shape icon
+  const getNailShapeIcon = () => {
+    switch (nailShape) {
+      case 'round':
+        return <RoundNailIcon className="w-5 h-5" />;
+      case 'square':
+        return <SquareNailIcon className="w-5 h-5" />;
+      case 'oval':
+        return <OvalNailIcon className="w-5 h-5" />;
+      case 'almond':
+        return <AlmondNailIcon className="w-5 h-5" />;
+      case 'stiletto':
+        return <StilettoNailIcon className="w-5 h-5" />;
+      case 'coffin':
+        return <CoffinNailIcon className="w-5 h-5" />;
+      default:
+        return <OvalNailIcon className="w-5 h-5" />;
+    }
+  };
+
+  // Function to get the nail length indicator
+  const getNailLengthIndicator = () => {
+    const width = nailLength === 'short' ? 'w-4' : nailLength === 'medium' ? 'w-8' : 'w-12';
+    return <div className={`h-1 ${width} bg-current rounded-full`} />;
+  };
 
   if (!handImage) return null;
 
@@ -50,20 +85,20 @@ const PromptInputPage: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex overflow-x-auto pb-2 gap-2"
+                className="flex gap-3"
               >
-                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border whitespace-nowrap">
-                  <span className="font-medium mr-1">Forme:</span> 
-                  <span className="capitalize">{nailShape}</span>
+                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
+                  <Square className="w-4 h-4" />
+                  {getNailShapeIcon()}
                 </div>
-                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border whitespace-nowrap">
-                  <span className="font-medium mr-1">Longueur:</span> 
-                  <span className="capitalize">{nailLength === 'short' ? 'Court' : nailLength === 'medium' ? 'Moyen' : 'Long'}</span>
+                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
+                  <Ruler className="w-4 h-4" />
+                  {getNailLengthIndicator()}
                 </div>
-                <div className="flex items-center bg-background rounded-lg px-3 py-1.5 text-sm border whitespace-nowrap">
-                  <span className="font-medium mr-2">Couleur:</span> 
+                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
+                  <Palette className="w-4 h-4" />
                   <span 
-                    className="w-5 h-5 rounded-full border" 
+                    className="w-4 h-4 rounded-full border" 
                     style={{ backgroundColor: nailColor }}
                   ></span>
                 </div>
