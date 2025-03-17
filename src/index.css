@@ -137,6 +137,19 @@
     }
   }
   
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 5px 1px rgba(79, 70, 229, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 15px 2px rgba(79, 70, 229, 0.7);
+    }
+  }
+  
+  .glow-effect {
+    animation: glow 2s ease-in-out infinite;
+  }
+  
   .shimmer-effect {
     @apply relative overflow-hidden;
   }
@@ -154,7 +167,6 @@
     }
   }
   
-  /* Ensure SVG gradients render correctly */
   svg {
     vector-effect: non-scaling-stroke;
   }
