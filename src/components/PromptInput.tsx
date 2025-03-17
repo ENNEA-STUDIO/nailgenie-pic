@@ -24,7 +24,39 @@ const examplePrompts = [
   "Reverse French Manicure en noir",
   "Pop Art Designs colorés",
   "Tropical Palm Leaves vertes",
-  "Abstract Art avec des touches de noir et rouge"
+  "Abstract Art avec des touches de noir et rouge",
+  "Color Block en néon et pastel",
+  "Splatter Paint multicolore",
+  "Flame Design rouge et orange",
+  "Wave Patterns en bleu océan",
+  "Cartoon Art style manga",
+  "Smiley Faces jaunes sur fond noir",
+  "Quartz Effect cristallin",
+  "Neon French Tips électrique",
+  "Tortoiseshell Print naturel",
+  "Sharp Edge Tips graphiques",
+  "Floral Stamping délicat",
+  "Minimalist Dots en noir et blanc",
+  "Starburst Design étincelant",
+  "Gemstone-Inspired turquoise et émeraude",
+  "Metallic Half-Moon argenté",
+  "Holo Glitter Tips scintillant",
+  "Abstract Splashes artistiques",
+  "Psychedelic Checkerboard multicolore",
+  "Edgy Negative Space géométrique",
+  "Bold Outlined Nails contrastés",
+  "Confetti Nails festifs",
+  "Transparent Layers effet verre",
+  "Swirling Stripes hypnotiques",
+  "Lace Pattern romantique",
+  "Snowflake Design hivernal",
+  "Pumpkin Spice Theme automnal",
+  "Spiderweb Accent gothique",
+  "Electric Lightning Bolts énergique",
+  "Holiday Ornament Nails festifs",
+  "Cosmic Dust stellaire",
+  "Multi-Texture Nails tactiles",
+  "Futuristic Cyberpunk Style"
 ];
 
 const PromptInput: React.FC = () => {
@@ -66,7 +98,14 @@ const PromptInput: React.FC = () => {
         } else {
           setIsDeleting(false);
           setIsTyping(true);
-          setCurrentExampleIndex((currentExampleIndex + 1) % examplePrompts.length);
+          setCurrentExampleIndex((prevIndex) => {
+            // Use a random next example that's different from the current one
+            let nextIndex;
+            do {
+              nextIndex = Math.floor(Math.random() * examplePrompts.length);
+            } while (nextIndex === prevIndex);
+            return nextIndex;
+          });
         }
       }
     }
