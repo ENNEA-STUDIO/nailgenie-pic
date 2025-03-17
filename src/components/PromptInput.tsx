@@ -65,13 +65,16 @@ const getRandomExamples = (count = 9) => {
 
 const generateTagAnimations = (count: number) => {
   return Array.from({ length: count }).map((_, index) => {
-    const row = index % 3;
+    const row = Math.floor(index / 3);
+    const positionInRow = index % 3;
     const direction = row % 2 === 0 ? 1 : -1;
+    
     return {
       row,
+      positionInRow,
       direction,
       duration: 15 + Math.random() * 10,
-      delay: Math.random() * 3,
+      delay: positionInRow * 3 + Math.random() * 2,
     };
   });
 };
@@ -209,14 +212,23 @@ const PromptInput: React.FC = () => {
           const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
           const animation = tagAnimations[index];
           
-          const rowTop = 8 + (animation.row * 40);
+          const rowHeight = 40;
+          const rowTop = 8 + (animation.row * rowHeight);
+          
+          const initialPosition = animation.direction > 0 
+            ? -200 - (animation.positionInRow * 250) 
+            : window.innerWidth + (animation.positionInRow * 250);
+          
+          const finalPosition = animation.direction > 0 
+            ? window.innerWidth + 100
+            : -300;
           
           return (
             <motion.button
               key={index}
-              initial={{ x: animation.direction > 0 ? -100 : "100vw" }}
+              initial={{ x: initialPosition }}
               animate={{
-                x: animation.direction > 0 ? "100vw" : -100,
+                x: finalPosition,
               }}
               transition={{
                 duration: animation.duration,
@@ -229,6 +241,10 @@ const PromptInput: React.FC = () => {
               className="absolute bg-muted/30 px-3 py-2 rounded-full hover:bg-muted/50 transition-colors cursor-pointer active:scale-95 text-xs whitespace-nowrap border border-muted/40"
               style={{
                 top: `${rowTop}px`,
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
               {displayName}
