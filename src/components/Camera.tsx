@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, X } from 'lucide-react';
@@ -22,20 +21,26 @@ const CameraComponent: React.FC = () => {
       
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        // Explicitly start playing the video
-        videoRef.current.onloadedmetadata = () => {
+        videoRef.current.muted = true;
+        
+        // Add event listeners for video loading
+        const playVideo = async () => {
+          console.log('Video metadata loaded, attempting to play');
           if (videoRef.current) {
-            videoRef.current.play()
-              .then(() => {
-                console.log('Camera started successfully');
-                setIsCameraActive(true);
-              })
-              .catch(err => {
-                console.error('Error playing video:', err);
-                setIsCameraAvailable(false);
-              });
+            try {
+              await videoRef.current.play();
+              console.log('Camera started successfully');
+              setIsCameraActive(true);
+            } catch (err) {
+              console.error('Error playing video:', err);
+              setIsCameraAvailable(false);
+            }
           }
         };
+        
+        // Try both events to ensure video plays
+        videoRef.current.onloadedmetadata = playVideo;
+        videoRef.current.oncanplay = playVideo;
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -126,13 +131,14 @@ const CameraComponent: React.FC = () => {
           )}
         </motion.div>
       ) : (
-        <div className="relative h-full">
+        <div className="relative h-full flex items-center justify-center">
           <video 
             ref={videoRef}
             autoPlay
             playsInline
             muted
             className="w-full h-full object-cover rounded-3xl"
+            style={{ display: 'block' }}
           />
           <motion.button
             initial={{ scale: 0.8, opacity: 0 }}
@@ -157,7 +163,6 @@ const CameraComponent: React.FC = () => {
         </div>
       )}
       
-      {/* Hidden canvas for capturing photos */}
       <canvas ref={canvasRef} className="hidden" />
     </div>
   );
