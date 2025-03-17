@@ -50,33 +50,35 @@ const PromptInputField: React.FC<PromptInputFieldProps> = ({
   const isButtonActive = prompt.trim().length > 0 && !isLoading;
 
   return (
-    <form onSubmit={handleSubmit} className="relative">
-      <input
-        ref={inputRef}
-        type="text"
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder={displayText || localPlaceholder}
-        className="prompt-input shadow-md hover:shadow-lg focus:shadow-lg transition-all duration-300 text-base"
-        disabled={isLoading}
-      />
-      
-      <motion.button
-        variants={buttonVariants}
-        animate={isButtonActive ? "active" : "idle"}
-        whileHover={isButtonActive ? { scale: 1.1 } : {}}
-        whileTap={isButtonActive ? { scale: 0.95 } : {}}
-        type="submit"
-        disabled={isLoading || !prompt.trim()}
-        className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2.5 rounded-lg transition-all duration-200
-          ${prompt.trim() ? 'bg-primary text-primary-foreground shadow-md' : 'bg-muted text-muted-foreground'}
-          ${isLoading ? 'opacity-70' : 'opacity-100'}`}
-        aria-label="Generate design"
-      >
-        <Wand2 size={20} className={isLoading ? 'animate-pulse-subtle' : ''} />
-      </motion.button>
+    <form onSubmit={handleSubmit} className="relative w-full">
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder={displayText || localPlaceholder}
+          className="prompt-input shadow-md hover:shadow-lg focus:shadow-lg transition-all duration-300 text-base w-full pr-16"
+          disabled={isLoading}
+        />
+        
+        <motion.button
+          variants={buttonVariants}
+          animate={isButtonActive ? "active" : "idle"}
+          whileHover={isButtonActive ? { scale: 1.1 } : {}}
+          whileTap={isButtonActive ? { scale: 0.95 } : {}}
+          type="submit"
+          disabled={isLoading || !prompt.trim()}
+          className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2.5 rounded-lg transition-all duration-200
+            ${prompt.trim() ? 'bg-primary text-primary-foreground shadow-md' : 'bg-muted text-muted-foreground'}
+            ${isLoading ? 'opacity-70' : 'opacity-100'}`}
+          aria-label="Generate design"
+        >
+          <Wand2 size={20} className={isLoading ? 'animate-pulse-subtle' : ''} />
+        </motion.button>
+      </div>
     </form>
   );
 };
