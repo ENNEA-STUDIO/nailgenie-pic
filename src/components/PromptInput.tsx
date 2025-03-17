@@ -15,50 +15,10 @@ const examplePrompts = [
   "Mermaid Scales en violet et turquoise",
   "Crystal Embellishments sur base nude",
   "Textured Velvet rouge profond",
-  "Candy Swirls multicolores",
-  "Cloud Nails effet pastel",
-  "Aurora Borealis inspiré",
-  "Psychedelic Swirls néon",
-  "Foil Marble avec effet doré",
-  "Reverse French Manicure en noir",
-  "Pop Art Designs colorés",
-  "Tropical Palm Leaves vertes",
-  "Abstract Art avec des touches de noir et rouge",
-  "Color Block en néon et pastel",
-  "Splatter Paint multicolore",
-  "Flame Design rouge et orange",
-  "Wave Patterns en bleu océan",
-  "Cartoon Art style manga",
-  "Smiley Faces jaunes sur fond noir",
-  "Quartz Effect cristallin",
-  "Neon French Tips électrique",
-  "Tortoiseshell Print naturel",
-  "Sharp Edge Tips graphiques",
-  "Floral Stamping délicat",
-  "Minimalist Dots en noir et blanc",
-  "Starburst Design étincelant",
-  "Gemstone-Inspired turquoise et émeraude",
-  "Metallic Half-Moon argenté",
-  "Holo Glitter Tips scintillant",
-  "Abstract Splashes artistiques",
-  "Psychedelic Checkerboard multicolore",
-  "Edgy Negative Space géométrique",
-  "Bold Outlined Nails contrastés",
-  "Confetti Nails festifs",
-  "Transparent Layers effet verre",
-  "Swirling Stripes hypnotiques",
-  "Lace Pattern romantique",
-  "Snowflake Design hivernal",
-  "Pumpkin Spice Theme automnal",
-  "Spiderweb Accent gothique",
-  "Electric Lightning Bolts énergique",
-  "Holiday Ornament Nails festifs",
-  "Cosmic Dust stellaire",
-  "Multi-Texture Nails tactiles",
-  "Futuristic Cyberpunk Style"
+  "Candy Swirls multicolores"
 ];
 
-const getRandomExamples = (count = 12) => {
+const getRandomExamples = (count = 8) => {
   const shuffled = [...examplePrompts].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 };
@@ -72,11 +32,7 @@ const getRandomColor = () => {
     'bg-purple-200/80 border-purple-300',
     'bg-indigo-200/80 border-indigo-300',
     'bg-pink-200/80 border-pink-300',
-    'bg-emerald-200/80 border-emerald-300',
-    'bg-orange-200/80 border-orange-300',
-    'bg-sky-200/80 border-sky-300',
-    'bg-violet-200/80 border-violet-300',
-    'bg-blue-200/80 border-blue-300',
+    'bg-emerald-200/80 border-emerald-300'
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 };
@@ -191,7 +147,7 @@ const PromptInput: React.FC = () => {
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className={`w-full px-4 mb-6 ${isFocused ? 'scale-[1.02]' : 'scale-100'} transition-transform duration-300`}
+      className={`w-full px-4 ${isFocused ? 'scale-[1.02]' : 'scale-100'} transition-transform duration-300`}
     >
       <form onSubmit={handleSubmit} className="relative">
         <input
@@ -224,9 +180,9 @@ const PromptInput: React.FC = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="relative mt-4 px-1 overflow-hidden"
+        className="relative mt-4 px-1"
       >
-        <div className="flex flex-wrap justify-center gap-2 py-3">
+        <div className="flex flex-wrap justify-center gap-2 py-2">
           {exampleTags.map((example, index) => {
             const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
             const style = tagStyles[index] || { color: getRandomColor(), size: getRandomSize() };

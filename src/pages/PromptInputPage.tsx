@@ -30,13 +30,13 @@ const PromptInputPage: React.FC = () => {
 
   return (
     <Layout showBackButton title="Décrivez votre design">
-      <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto pb-4">
+      <div className="flex flex-col h-full max-h-screen overflow-hidden">
+        <div className="flex-1">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="glass-card rounded-3xl overflow-hidden shadow-sm mx-4 mb-6"
+            className="glass-card rounded-3xl overflow-hidden shadow-sm mx-4 mb-4 h-1/2"
           >
             <img 
               src={handImage} 
@@ -46,7 +46,7 @@ const PromptInputPage: React.FC = () => {
           </motion.div>
           
           <div className="px-4">
-            <div className="mb-6">
+            <div className="mb-4">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -74,16 +74,16 @@ const PromptInputPage: React.FC = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="mb-6"
+              className="mb-4"
             >
-              <p className="text-sm text-muted-foreground mb-4">
-                Décrivez le design que vous souhaitez pour vos ongles. Soyez aussi précis que possible.
+              <p className="text-sm text-muted-foreground">
+                Décrivez le design que vous souhaitez pour vos ongles.
               </p>
             </motion.div>
           </div>
         </div>
         
-        <div className="pt-2 pb-6">
+        <div className="pt-2 pb-4">
           <PromptInput />
         </div>
       </div>
