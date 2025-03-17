@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, X } from 'lucide-react';
@@ -14,33 +15,36 @@ const CameraComponent: React.FC = () => {
   // Initialize camera
   const startCamera = async () => {
     try {
+      console.log('Starting camera...');
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' }
       });
+      
+      console.log('Media stream obtained:', mediaStream);
       setStream(mediaStream);
       
       if (videoRef.current) {
+        console.log('Setting video source...');
         videoRef.current.srcObject = mediaStream;
         videoRef.current.muted = true;
         
-        // Add event listeners for video loading
+        // Force play on both events
         const playVideo = async () => {
-          console.log('Video metadata loaded, attempting to play');
-          if (videoRef.current) {
-            try {
+          console.log('Attempting to play video...');
+          try {
+            if (videoRef.current) {
               await videoRef.current.play();
               console.log('Camera started successfully');
               setIsCameraActive(true);
-            } catch (err) {
-              console.error('Error playing video:', err);
-              setIsCameraAvailable(false);
             }
+          } catch (err) {
+            console.error('Error playing video:', err);
+            setIsCameraAvailable(false);
           }
         };
         
-        // Try both events to ensure video plays
-        videoRef.current.onloadedmetadata = playVideo;
-        videoRef.current.oncanplay = playVideo;
+        videoRef.current.addEventListener('loadedmetadata', playVideo);
+        videoRef.current.addEventListener('canplay', playVideo);
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -51,7 +55,11 @@ const CameraComponent: React.FC = () => {
   // Stop camera
   const stopCamera = () => {
     if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+      console.log('Stopping camera...');
+      stream.getTracks().forEach(track => {
+        console.log('Stopping track:', track);
+        track.stop();
+      });
       setStream(null);
       setIsCameraActive(false);
     }
@@ -60,12 +68,15 @@ const CameraComponent: React.FC = () => {
   // Take photo
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
+      console.log('Capturing photo...');
       const video = videoRef.current;
       const canvas = canvasRef.current;
       
       // Set canvas dimensions to match video
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+      
+      console.log('Canvas dimensions:', canvas.width, canvas.height);
       
       // Draw video frame to canvas
       const context = canvas.getContext('2d');
@@ -74,9 +85,12 @@ const CameraComponent: React.FC = () => {
         
         // Convert canvas to data URL
         const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        console.log('Photo captured, data URL length:', imageDataUrl.length);
         setHandImage(imageDataUrl);
         stopCamera();
       }
+    } else {
+      console.error('Video or canvas ref is null');
     }
   };
 
@@ -138,7 +152,6 @@ const CameraComponent: React.FC = () => {
             playsInline
             muted
             className="w-full h-full object-cover rounded-3xl"
-            style={{ display: 'block' }}
           />
           <motion.button
             initial={{ scale: 0.8, opacity: 0 }}
