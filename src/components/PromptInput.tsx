@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Wand2 } from 'lucide-react';
@@ -58,6 +59,12 @@ const examplePrompts = [
   "Futuristic Cyberpunk Style"
 ];
 
+// Get a random subset of examples
+const getRandomExamples = (count = 7) => {
+  const shuffled = [...examplePrompts].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
 const PromptInput: React.FC = () => {
   const { prompt, setPrompt, generateDesign, isLoading } = useApp();
   const [isFocused, setIsFocused] = useState(false);
@@ -67,10 +74,22 @@ const PromptInput: React.FC = () => {
   const [isTyping, setIsTyping] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const typingSpeed = 120; // Increased from 70 to 120 to slow down typing
+  const [exampleTags, setExampleTags] = useState(getRandomExamples());
+  const typingSpeed = 120; // Slower typing
   const deleteSpeed = 30; // Speed for deleting characters
   const pauseDuration = 1000; // 1 second pause after typing
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Shuffle example tags periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isFocused && !prompt) {
+        setExampleTags(getRandomExamples());
+      }
+    }, 10000); // Shuffle every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [isFocused, prompt]);
 
   useEffect(() => {
     if (!prompt && !isFocused) {
@@ -127,6 +146,15 @@ const PromptInput: React.FC = () => {
     generateDesign();
   };
 
+  const handleExampleClick = (example: string) => {
+    // Extract the main concept (before "avec" or similar phrases)
+    const mainConcept = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
+    setPrompt(mainConcept);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   return (
     <motion.div
       initial={{ y: 20, opacity: 0 }}
@@ -166,13 +194,20 @@ const PromptInput: React.FC = () => {
         transition={{ delay: 0.3 }}
         className="text-xs text-muted-foreground mt-3 px-1 flex flex-wrap gap-2"
       >
-        <span className="bg-muted/30 px-2 py-1 rounded-md">Geometric Lines</span>
-        <span className="bg-muted/30 px-2 py-1 rounded-md">Foil Marble</span>
-        <span className="bg-muted/30 px-2 py-1 rounded-md">Watercolor</span>
-        <span className="bg-muted/30 px-2 py-1 rounded-md">Pop Art</span>
-        <span className="bg-muted/30 px-2 py-1 rounded-md">Pastel Gradient</span>
-        <span className="bg-muted/30 px-2 py-1 rounded-md">Metallic Drips</span>
-        <span className="bg-muted/30 px-2 py-1 rounded-md">Crystal</span>
+        {exampleTags.map((example, index) => {
+          // Extract shorter version of example for display
+          const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
+          
+          return (
+            <button
+              key={index}
+              onClick={() => handleExampleClick(example)}
+              className="bg-muted/30 px-2 py-1 rounded-md hover:bg-muted/50 transition-colors cursor-pointer active:scale-95"
+            >
+              {displayName}
+            </button>
+          );
+        })}
       </motion.div>
     </motion.div>
   );
