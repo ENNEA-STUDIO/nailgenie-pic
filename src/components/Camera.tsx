@@ -22,7 +22,20 @@ const CameraComponent: React.FC = () => {
       
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        setIsCameraActive(true);
+        // Explicitly start playing the video
+        videoRef.current.onloadedmetadata = () => {
+          if (videoRef.current) {
+            videoRef.current.play()
+              .then(() => {
+                console.log('Camera started successfully');
+                setIsCameraActive(true);
+              })
+              .catch(err => {
+                console.error('Error playing video:', err);
+                setIsCameraAvailable(false);
+              });
+          }
+        };
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -87,9 +100,9 @@ const CameraComponent: React.FC = () => {
               >
                 <Camera size={48} className="text-primary" />
               </motion.div>
-              <h2 className="text-xl font-medium mb-2">Take a photo of your hand</h2>
+              <h2 className="text-xl font-medium mb-2">Prenez une photo de votre main</h2>
               <p className="text-sm text-muted-foreground mb-8 max-w-xs">
-                Position your hand clearly in the frame to get the best results
+                Positionnez clairement votre main dans le cadre pour obtenir les meilleurs résultats
               </p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -97,7 +110,7 @@ const CameraComponent: React.FC = () => {
                 onClick={startCamera}
                 className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium shadow-sm"
               >
-                Open Camera
+                Ouvrir la caméra
               </motion.button>
             </>
           ) : (
@@ -105,9 +118,9 @@ const CameraComponent: React.FC = () => {
               <div className="p-6 mb-6 rounded-full bg-destructive/10">
                 <X size={48} className="text-destructive" />
               </div>
-              <h2 className="text-xl font-medium mb-2">Camera not available</h2>
+              <h2 className="text-xl font-medium mb-2">Caméra non disponible</h2>
               <p className="text-sm text-muted-foreground mb-8 max-w-xs">
-                Please make sure your device has a camera and you've granted permission to use it.
+                Veuillez vous assurer que votre appareil dispose d'une caméra et que vous avez autorisé son utilisation.
               </p>
             </>
           )}
@@ -118,6 +131,7 @@ const CameraComponent: React.FC = () => {
             ref={videoRef}
             autoPlay
             playsInline
+            muted
             className="w-full h-full object-cover rounded-3xl"
           />
           <motion.button

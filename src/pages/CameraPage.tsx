@@ -18,12 +18,12 @@ const CameraPage: React.FC = () => {
   }, [handImage, navigate]);
 
   return (
-    <Layout showBackButton title="Take a photo">
+    <Layout showBackButton title="Prendre une photo">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
-        className="px-4 py-6"
+        className="px-4 py-6 h-full"
       >
         <CameraComponent />
       </motion.div>
