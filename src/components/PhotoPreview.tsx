@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface PhotoPreviewProps {
   photoSrc: string;
@@ -18,12 +19,14 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({ photoSrc, onAccept, onRetak
         animate={{ opacity: 1 }}
         className="flex-1 relative"
       >
-        <img 
-          src={photoSrc} 
-          alt="Photo preview" 
-          className="w-full h-full object-cover rounded-3xl"
-          style={{ backgroundColor: "#111" }}
-        />
+        <AspectRatio ratio={1} className="h-full">
+          <img 
+            src={photoSrc} 
+            alt="Photo preview" 
+            className="w-full h-full object-cover rounded-3xl"
+            style={{ backgroundColor: "#111" }}
+          />
+        </AspectRatio>
       </motion.div>
       
       <motion.div 

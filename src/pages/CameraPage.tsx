@@ -37,9 +37,11 @@ const CameraPage: React.FC = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
-        className="px-4 py-6 h-full"
+        className="px-4 py-6 h-full flex flex-col"
       >
-        <CameraComponent />
+        <div className="flex-1 flex items-center justify-center">
+          <CameraComponent />
+        </div>
       </motion.div>
     </Layout>
   );

@@ -96,7 +96,7 @@ const CameraComponent: React.FC = () => {
     }
   };
 
-  // Capture photo
+  // Capture photo - Modified to create a square image
   const capturePhoto = () => {
     if (!videoRef.current || !canvasRef.current) {
       console.error('Video or canvas ref is null during capture');
@@ -115,20 +115,32 @@ const CameraComponent: React.FC = () => {
         return;
       }
       
-      // Set canvas dimensions to match video
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      // Get the smallest dimension to create a square
+      const size = Math.min(video.videoWidth, video.videoHeight);
       
-      console.log('Canvas dimensions set to:', canvas.width, canvas.height);
+      // Calculate offsets to center the crop
+      const xOffset = (video.videoWidth - size) / 2;
+      const yOffset = (video.videoHeight - size) / 2;
       
-      // Draw video frame to canvas
+      // Set canvas to be square with the determined size
+      canvas.width = size;
+      canvas.height = size;
+      
+      console.log('Canvas dimensions set to square:', size, 'x', size);
+      
+      // Draw video frame to canvas, cropping to a square
       const context = canvas.getContext('2d');
       if (context) {
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Draw only the square portion of the video frame
+        context.drawImage(
+          video,
+          xOffset, yOffset, size, size,  // Source rectangle (crop)
+          0, 0, size, size               // Destination rectangle (canvas)
+        );
         
         // Convert canvas to data URL
-        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        console.log('Photo captured, data URL length:', imageDataUrl.length);
+        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        console.log('Square photo captured, data URL length:', imageDataUrl.length);
         
         if (imageDataUrl.length < 100) {
           console.error('Image data URL too short, likely empty canvas');
@@ -253,13 +265,13 @@ const CameraComponent: React.FC = () => {
         </motion.div>
       ) : (
         <div className="relative h-full flex items-center justify-center">
+          {/* Apply object-fit:contain to preserve aspect ratio but add black letterboxing */}
           <video 
             ref={videoRef}
             autoPlay
             playsInline
             muted
-            className="w-full h-full object-cover rounded-3xl"
-            style={{ backgroundColor: "#111" }}
+            className="w-full h-full object-contain bg-black rounded-3xl"
           />
           {videoError && (
             <Alert variant="destructive" className="absolute top-20 left-4 right-4 z-10">
