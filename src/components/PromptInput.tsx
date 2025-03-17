@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Wand2 } from 'lucide-react';
@@ -67,57 +66,45 @@ const PromptInput: React.FC = () => {
   const [displayText, setDisplayText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
   const typingSpeed = 70; // Speed in milliseconds per character
   const deleteSpeed = 30; // Speed for deleting characters
-  const pauseDuration = 1500; // Pause duration after typing or deleting
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!prompt && !isFocused) {
       const currentExample = examplePrompts[currentExampleIndex];
       
-      if (isTyping && !isPaused) {
+      if (isTyping) {
         if (displayText.length < currentExample.length) {
           const timer = setTimeout(() => {
             setDisplayText(currentExample.substring(0, displayText.length + 1));
           }, typingSpeed);
           return () => clearTimeout(timer);
         } else {
-          // Finished typing, start pause
-          setIsPaused(true);
-          const timer = setTimeout(() => {
-            setIsPaused(false);
-            setIsTyping(false);
-            setIsDeleting(true);
-          }, pauseDuration);
-          return () => clearTimeout(timer);
+          // Finished typing, start deleting immediately
+          setIsTyping(false);
+          setIsDeleting(true);
         }
-      } else if (isDeleting && !isPaused) {
+      } else if (isDeleting) {
         if (displayText.length > 0) {
           const timer = setTimeout(() => {
             setDisplayText(displayText.substring(0, displayText.length - 1));
           }, deleteSpeed);
           return () => clearTimeout(timer);
         } else {
-          // Finished deleting, start pause before new example
-          setIsPaused(true);
-          const timer = setTimeout(() => {
-            setIsPaused(false);
-            setIsDeleting(false);
-            setIsTyping(true);
-            // Select a random next example that's different from the current one
-            let nextIndex;
-            do {
-              nextIndex = Math.floor(Math.random() * examplePrompts.length);
-            } while (nextIndex === currentExampleIndex);
-            setCurrentExampleIndex(nextIndex);
-          }, 500); // Shorter pause after deletion
-          return () => clearTimeout(timer);
+          // Finished deleting, move to next example immediately
+          setIsDeleting(false);
+          setIsTyping(true);
+          // Select a random next example that's different from the current one
+          let nextIndex;
+          do {
+            nextIndex = Math.floor(Math.random() * examplePrompts.length);
+          } while (nextIndex === currentExampleIndex);
+          setCurrentExampleIndex(nextIndex);
         }
       }
     }
-  }, [displayText, isTyping, isDeleting, isPaused, currentExampleIndex, isFocused, prompt]);
+  }, [displayText, isTyping, isDeleting, currentExampleIndex, isFocused, prompt]);
 
   const handleFocus = () => {
     setIsFocused(true);
