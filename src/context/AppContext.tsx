@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { Client } from "@gradio/client";
@@ -27,6 +28,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const HUGGINGFACE_TOKEN = "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";
+const GEMINI_API_KEY = "AIzaSyBGxrpUue5FfIbrjhV5XPu4ZeImeR8RBRI";
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [handImage, setHandImage] = useState<string | null>(null);
@@ -66,7 +68,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const result = await client.predict("/process_image_and_prompt", {
         composite_pil: imageBlob,
         prompt: fullPrompt,
-        gemini_api_key: "", // This is optional according to the API docs
+        gemini_api_key: GEMINI_API_KEY, // Using the provided Gemini API key
       });
       
       // The result data should contain the URL to the generated image
