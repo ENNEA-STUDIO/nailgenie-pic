@@ -6,7 +6,6 @@ import Layout from '../components/Layout';
 import PromptInput from '../components/PromptInput';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '../hooks/use-mobile';
-import { Ruler, Palette } from 'lucide-react';
 import {
   RoundNailIcon,
   SquareNailIcon,
@@ -81,7 +80,7 @@ const PromptInputPage: React.FC = () => {
           </motion.div>
           
           <div className="px-4">
-            <div className="mb-4">
+            <div className="mb-6">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -90,12 +89,10 @@ const PromptInputPage: React.FC = () => {
                 <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
                   {getNailShapeIcon()}
                 </div>
-                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
-                  <Ruler className="w-4 h-4" />
+                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center">
                   {getNailLengthIndicator()}
                 </div>
-                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
-                  <Palette className="w-4 h-4" />
+                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center">
                   <span 
                     className="w-4 h-4 rounded-full border" 
                     style={{ backgroundColor: nailColor }}
@@ -103,21 +100,10 @@ const PromptInputPage: React.FC = () => {
                 </div>
               </motion.div>
             </div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="mb-4"
-            >
-              <p className="text-sm text-muted-foreground">
-                Décrivez le design que vous souhaitez pour vos ongles.
-              </p>
-            </motion.div>
           </div>
         </div>
         
-        <div className="pt-2 pb-4">
+        <div className="pt-2 pb-6">
           <PromptInput />
         </div>
       </div>

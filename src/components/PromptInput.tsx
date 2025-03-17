@@ -12,10 +12,6 @@ const examplePrompts = [
   "Negative Space avec des motifs minimalistes",
   "Metallic Drips en rose gold",
   "Jelly Nails avec des paillettes holographiques",
-  "Mermaid Scales en violet et turquoise",
-  "Crystal Embellishments sur base nude",
-  "Textured Velvet rouge profond",
-  "Candy Swirls multicolores"
 ];
 
 const getRandomExamples = (count = 8) => {
@@ -158,7 +154,7 @@ const PromptInput: React.FC = () => {
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={isFocused ? placeholder : displayText || placeholder}
-          className="prompt-input pr-16"
+          className="prompt-input shadow-md hover:shadow-lg focus:shadow-lg transition-all duration-300 text-base"
           disabled={isLoading}
         />
         
@@ -166,7 +162,7 @@ const PromptInput: React.FC = () => {
           whileTap={{ scale: 0.9 }}
           type="submit"
           disabled={isLoading || !prompt.trim()}
-          className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-lg 
+          className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2.5 rounded-lg 
             ${prompt.trim() ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}
             ${isLoading ? 'opacity-70' : 'opacity-100'} transition-all duration-200`}
           aria-label="Generate design"
@@ -180,9 +176,9 @@ const PromptInput: React.FC = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="relative mt-4 px-1"
+        className="relative mt-6 px-1"
       >
-        <div className="flex flex-wrap justify-center gap-2 py-2">
+        <div className="flex flex-wrap justify-center gap-2.5 py-2">
           {exampleTags.map((example, index) => {
             const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
             const style = tagStyles[index] || { color: getRandomColor(), size: getRandomSize() };
@@ -200,7 +196,7 @@ const PromptInput: React.FC = () => {
                 whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleExampleClick(example)}
-                className={`${style.color} ${style.size} px-3 py-2 rounded-full hover:shadow-md transition-all duration-200 cursor-pointer border whitespace-nowrap`}
+                className={`${style.color} ${style.size} px-3.5 py-2.5 rounded-full hover:shadow-md transition-all duration-200 cursor-pointer border whitespace-nowrap font-medium`}
               >
                 {displayName}
               </motion.button>

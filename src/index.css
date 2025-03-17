@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -116,6 +115,7 @@
   
   .prompt-input {
     @apply w-full py-4 px-6 border-0 focus:outline-none focus:ring-0 bg-secondary rounded-xl text-foreground placeholder:text-muted-foreground;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   }
   
   .page-container {
