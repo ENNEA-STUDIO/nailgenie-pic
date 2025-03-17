@@ -76,7 +76,6 @@ const PromptInputPage: React.FC = () => {
               transition={{ delay: 0.1 }}
               className="mb-6"
             >
-              <h3 className="text-lg font-medium mb-3">Description du design</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Décrivez le design que vous souhaitez pour vos ongles. Soyez aussi précis que possible.
               </p>

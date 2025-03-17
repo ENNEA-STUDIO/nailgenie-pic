@@ -1,12 +1,75 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Wand2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
+const examplePrompts = [
+  "Geometric Lines avec un dégradé de bleu",
+  "French Manicure avec des accents dorés",
+  "Effet Watercolor inspiré par un coucher de soleil",
+  "Dégradé pastel avec des motifs fleuris",
+  "Marble Effect avec des détails argentés",
+  "Negative Space avec des motifs minimalistes",
+  "Metallic Drips en rose gold",
+  "Jelly Nails avec des paillettes holographiques",
+  "Mermaid Scales en violet et turquoise",
+  "Abstract Art avec des touches de noir et rouge"
+];
+
 const PromptInput: React.FC = () => {
   const { prompt, setPrompt, generateDesign, isLoading } = useApp();
   const [isFocused, setIsFocused] = useState(false);
+  const [placeholder, setPlaceholder] = useState("Décrivez vos ongles de rêve...");
+  const [currentExampleIndex, setCurrentExampleIndex] = useState(0);
+  const [displayText, setDisplayText] = useState("");
+  const [isTyping, setIsTyping] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const typingSpeed = 70; // Speed in milliseconds per character
+  const deleteSpeed = 30; // Speed for deleting characters
+  const pauseDuration = 1500; // Pause duration after typing or deleting
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!prompt && !isFocused) {
+      const currentExample = examplePrompts[currentExampleIndex];
+      
+      if (isTyping) {
+        if (displayText.length < currentExample.length) {
+          const timer = setTimeout(() => {
+            setDisplayText(currentExample.substring(0, displayText.length + 1));
+          }, typingSpeed);
+          return () => clearTimeout(timer);
+        } else {
+          setIsTyping(false);
+          const timer = setTimeout(() => {
+            setIsDeleting(true);
+          }, pauseDuration);
+          return () => clearTimeout(timer);
+        }
+      } else if (isDeleting) {
+        if (displayText.length > 0) {
+          const timer = setTimeout(() => {
+            setDisplayText(displayText.substring(0, displayText.length - 1));
+          }, deleteSpeed);
+          return () => clearTimeout(timer);
+        } else {
+          setIsDeleting(false);
+          setIsTyping(true);
+          setCurrentExampleIndex((currentExampleIndex + 1) % examplePrompts.length);
+        }
+      }
+    }
+  }, [displayText, isTyping, isDeleting, currentExampleIndex, isFocused, prompt]);
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    setPlaceholder("Décrivez vos ongles de rêve...");
+  };
+  
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,12 +85,13 @@ const PromptInput: React.FC = () => {
     >
       <form onSubmit={handleSubmit} className="relative">
         <input
+          ref={inputRef}
           type="text"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          placeholder="Describe your dream nails..."
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder={isFocused ? placeholder : displayText || placeholder}
           className="prompt-input pr-16"
           disabled={isLoading}
         />
@@ -45,14 +109,18 @@ const PromptInput: React.FC = () => {
         </motion.button>
       </form>
       
-      <motion.p 
+      <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="text-xs text-muted-foreground mt-3 px-1"
+        className="text-xs text-muted-foreground mt-3 px-1 flex flex-wrap gap-2"
       >
-        Try: "French manicure with gold accents" or "Summer gradient with floral designs"
-      </motion.p>
+        <span className="bg-muted/30 px-2 py-1 rounded-md">Geometric Lines</span>
+        <span className="bg-muted/30 px-2 py-1 rounded-md">Foil Marble</span>
+        <span className="bg-muted/30 px-2 py-1 rounded-md">Watercolor</span>
+        <span className="bg-muted/30 px-2 py-1 rounded-md">Pastel Gradient</span>
+        <span className="bg-muted/30 px-2 py-1 rounded-md">Metallic Drips</span>
+      </motion.div>
     </motion.div>
   );
 };
