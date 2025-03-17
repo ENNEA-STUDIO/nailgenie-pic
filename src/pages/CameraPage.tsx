@@ -13,10 +13,15 @@ const CameraPage: React.FC = () => {
   
   // Show toast when page loads to guide the user
   useEffect(() => {
-    toast.info(
-      "Veuillez autoriser l'accès à la caméra lorsque demandé",
-      { duration: 4000 }
-    );
+    // Give browser a moment to load before showing the toast
+    const timer = setTimeout(() => {
+      toast.info(
+        "Veuillez autoriser l'accès à la caméra lorsque demandé",
+        { duration: 4000 }
+      );
+    }, 500);
+    
+    return () => clearTimeout(timer);
   }, []);
   
   // Redirect to prompt page when we have an image

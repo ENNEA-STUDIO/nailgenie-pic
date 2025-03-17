@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const CameraComponent: React.FC = () => {
   const { setHandImage } = useApp();
@@ -13,12 +14,10 @@ const CameraComponent: React.FC = () => {
   const [isCameraAvailable, setIsCameraAvailable] = useState(true);
   const [videoError, setVideoError] = useState<string | null>(null);
 
-  // Initialize camera with more robust error handling and debugging
+  // Start camera function
   const startCamera = async () => {
     try {
       console.log('Starting camera acquisition...');
-      
-      // Clear any previous errors
       setVideoError(null);
       
       const constraints = { 
@@ -31,25 +30,11 @@ const CameraComponent: React.FC = () => {
       
       console.log('Requesting media with constraints:', constraints);
       const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log('Media stream acquired successfully');
       
-      console.log('Media stream tracks:', mediaStream.getTracks().map(t => t.kind + ':' + t.label));
-      
-      // Store the stream first
+      // First set state that camera is active, then handle stream in useEffect
       setStream(mediaStream);
       setIsCameraActive(true);
-      
-      // Use a setTimeout to ensure the component has updated with isCameraActive=true
-      // before trying to access the video element
-      setTimeout(() => {
-        if (videoRef.current) {
-          console.log('Setting video source to stream...');
-          videoRef.current.srcObject = mediaStream;
-        } else {
-          console.error('Video ref is still null after timeout');
-          setVideoError('Video element not found after timeout');
-        }
-      }, 100);
-      
     } catch (error) {
       console.error('Error accessing camera:', error);
       setIsCameraAvailable(false);
@@ -57,81 +42,42 @@ const CameraComponent: React.FC = () => {
     }
   };
 
-  // Handle video element events
+  // Handle stream changes - attach to video element
   useEffect(() => {
-    const videoElement = videoRef.current;
+    if (!stream || !isCameraActive) return;
     
-    if (videoElement && stream) {
-      console.log('Setting up video element with stream...');
+    console.log('Stream changed, attaching to video element');
+    
+    // We need to make sure videoRef is available
+    if (videoRef.current) {
+      console.log('Video ref available, attaching stream');
+      videoRef.current.srcObject = stream;
       
-      const handleLoadedMetadata = () => {
-        console.log('Video metadata loaded');
-        tryPlayVideo();
-      };
-      
-      const handleCanPlay = () => {
-        console.log('Video can play now');
-        tryPlayVideo();
-      };
-      
-      const handleVideoError = (e: Event) => {
-        console.error('Video error event:', e);
-        const videoEl = e.target as HTMLVideoElement;
-        setVideoError(videoEl.error ? videoEl.error.message : 'Unknown video error');
-      };
-      
-      // Set properties
-      videoElement.srcObject = stream;
-      videoElement.muted = true;
-      videoElement.playsInline = true;
-      
-      // Add event listeners
-      videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
-      videoElement.addEventListener('canplay', handleCanPlay);
-      videoElement.addEventListener('error', handleVideoError);
-      
-      // Try playing immediately
-      tryPlayVideo();
-      
-      // Cleanup
-      return () => {
-        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        videoElement.removeEventListener('canplay', handleCanPlay);
-        videoElement.removeEventListener('error', handleVideoError);
-      };
-    }
-  }, [stream, videoRef.current]);
-  
-  const tryPlayVideo = async () => {
-    if (!videoRef.current) {
-      console.error('tryPlayVideo: Video ref is null');
-      return;
+      // Try to play the video
+      videoRef.current.play().catch(err => {
+        console.error('Error playing video:', err);
+        setVideoError('Could not play video: ' + err.message);
+      });
+    } else {
+      console.error('Video ref is null, cannot attach stream');
+      setVideoError('Video element not available');
     }
     
-    try {
-      console.log('Attempting to play video...');
-      await videoRef.current.play();
-      console.log('Play successful');
-    } catch (err) {
-      console.error('Error playing video:', err);
-      setVideoError('Could not play video stream');
-    }
-  };
+    // Cleanup function
+    return () => {
+      console.log('Cleaning up stream effect');
+    };
+  }, [stream, isCameraActive]);
 
-  // Stop camera with improved cleanup
+  // Stop camera
   const stopCamera = () => {
     if (stream) {
       console.log('Stopping camera...');
-      
-      // Clean up event listeners (handled by useEffect cleanup)
-      
-      // Stop all tracks
       stream.getTracks().forEach(track => {
         console.log('Stopping track:', track.kind, track.label);
         track.stop();
       });
       
-      // Clear video source
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
@@ -141,7 +87,7 @@ const CameraComponent: React.FC = () => {
     }
   };
 
-  // Take photo with improved error handling
+  // Capture photo
   const capturePhoto = () => {
     if (!videoRef.current || !canvasRef.current) {
       console.error('Video or canvas ref is null during capture');
@@ -223,9 +169,11 @@ const CameraComponent: React.FC = () => {
                 Positionnez clairement votre main dans le cadre pour obtenir les meilleurs résultats
               </p>
               {videoError && (
-                <p className="text-destructive mb-4 text-sm">
-                  Erreur: {videoError}
-                </p>
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>
+                    Erreur: {videoError}
+                  </AlertDescription>
+                </Alert>
               )}
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -246,9 +194,11 @@ const CameraComponent: React.FC = () => {
                 Veuillez vous assurer que votre appareil dispose d'une caméra et que vous avez autorisé son utilisation.
               </p>
               {videoError && (
-                <p className="text-destructive mb-4 text-sm">
-                  Détails: {videoError}
-                </p>
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>
+                    Détails: {videoError}
+                  </AlertDescription>
+                </Alert>
               )}
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -273,12 +223,14 @@ const CameraComponent: React.FC = () => {
             playsInline
             muted
             className="w-full h-full object-cover rounded-3xl"
-            style={{ backgroundColor: "#111" }} // Dark background while loading
+            style={{ backgroundColor: "#111" }}
           />
           {videoError && (
-            <div className="absolute top-20 left-0 right-0 bg-destructive text-destructive-foreground p-2 text-center text-sm">
-              {videoError}
-            </div>
+            <Alert variant="destructive" className="absolute top-20 left-4 right-4 z-10">
+              <AlertDescription>
+                {videoError}
+              </AlertDescription>
+            </Alert>
           )}
           <motion.button
             initial={{ scale: 0.8, opacity: 0 }}
