@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import PromptInput from '../components/PromptInput';
+import PromptInput from '../components/prompt/PromptInput';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '../hooks/use-mobile';
 import {
@@ -54,12 +54,6 @@ const PromptInputPage: React.FC = () => {
     }
   };
 
-  // Function to get the nail length indicator
-  const getNailLengthIndicator = () => {
-    const width = nailLength === 'short' ? 'w-4' : nailLength === 'medium' ? 'w-8' : 'w-12';
-    return <div className={`h-1 ${width} bg-current rounded-full`} />;
-  };
-
   if (!handImage) return null;
 
   return (
@@ -84,19 +78,10 @@ const PromptInputPage: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex justify-center gap-3"
+                className="flex justify-center"
               >
                 <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
                   {getNailShapeIcon()}
-                </div>
-                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center">
-                  {getNailLengthIndicator()}
-                </div>
-                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center">
-                  <span 
-                    className="w-4 h-4 rounded-full border" 
-                    style={{ backgroundColor: nailColor }}
-                  ></span>
                 </div>
               </motion.div>
             </div>
