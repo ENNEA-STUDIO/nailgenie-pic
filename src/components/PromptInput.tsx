@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Wand2 } from 'lucide-react';
@@ -59,39 +58,37 @@ const examplePrompts = [
   "Futuristic Cyberpunk Style"
 ];
 
-const getRandomExamples = (count = 9) => {
+const getRandomExamples = (count = 12) => {
   const shuffled = [...examplePrompts].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 };
 
-const generateTagAnimations = (count: number) => {
-  // Each row will have 3 items (for a total of 3 rows)
-  const itemsPerRow = 3;
-  const rows = 3;
-  
-  return Array.from({ length: count }).map((_, index) => {
-    const row = Math.floor(index / itemsPerRow);
-    const positionInRow = index % itemsPerRow;
-    const direction = row % 2 === 0 ? 1 : -1;
-    
-    // Fixed duration for all animations
-    const duration = 20;
-    
-    // Calculate exact spacing to ensure consistent movement
-    // Bubbles in the same row will be equidistant
-    const spacing = window.innerWidth / itemsPerRow;
-    
-    return {
-      row,
-      positionInRow,
-      direction,
-      duration,
-      // Stagger the starting times to create a train effect
-      // Items in the same position of different rows start together
-      delay: positionInRow * (duration / itemsPerRow),
-      spacing
-    };
-  });
+const getRandomColor = () => {
+  const colors = [
+    'bg-rose-200/80 border-rose-300',
+    'bg-amber-200/80 border-amber-300',
+    'bg-lime-200/80 border-lime-300',
+    'bg-cyan-200/80 border-cyan-300',
+    'bg-purple-200/80 border-purple-300',
+    'bg-indigo-200/80 border-indigo-300',
+    'bg-pink-200/80 border-pink-300',
+    'bg-emerald-200/80 border-emerald-300',
+    'bg-orange-200/80 border-orange-300',
+    'bg-sky-200/80 border-sky-300',
+    'bg-violet-200/80 border-violet-300',
+    'bg-blue-200/80 border-blue-300',
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
+const getRandomSize = () => {
+  const sizes = [
+    'text-xs min-w-24',
+    'text-sm min-w-28',
+    'text-base min-w-32',
+    'text-sm min-w-28 font-medium',
+  ];
+  return sizes[Math.floor(Math.random() * sizes.length)];
 };
 
 const PromptInput: React.FC = () => {
@@ -104,7 +101,7 @@ const PromptInput: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [exampleTags, setExampleTags] = useState(getRandomExamples());
-  const [tagAnimations, setTagAnimations] = useState(generateTagAnimations(exampleTags.length));
+  const [tagStyles, setTagStyles] = useState<Array<{color: string, size: string}>>([]);
   const typingSpeed = 120;
   const deleteSpeed = 30;
   const pauseDuration = 1000;
@@ -112,13 +109,19 @@ const PromptInput: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setTagStyles(exampleTags.map(() => ({
+      color: getRandomColor(),
+      size: getRandomSize()
+    })));
+  }, [exampleTags]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       if (!isFocused && !prompt) {
         const newExamples = getRandomExamples();
         setExampleTags(newExamples);
-        setTagAnimations(generateTagAnimations(newExamples.length));
       }
-    }, 10000);
+    }, 20000);
 
     return () => clearInterval(interval);
   }, [isFocused, prompt]);
@@ -221,60 +224,33 @@ const PromptInput: React.FC = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="relative h-36 mt-3 px-1 overflow-hidden"
+        className="relative mt-4 px-1 overflow-hidden"
       >
-        {exampleTags.map((example, index) => {
-          const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
-          const animation = tagAnimations[index];
-          
-          // Fixed height for each row
-          const rowHeight = 40;
-          const rowGap = 4;
-          const rowTop = 8 + (animation.row * (rowHeight + rowGap));
-          
-          // Calculate positions to ensure even spacing
-          // Each bubble starts off-screen and moves to the off-screen position on the other side
-          const screenWidth = window.innerWidth;
-          const bubbleWidth = 150; // Approximate width of a bubble
-          
-          // Starting position calculation
-          const initialPosition = animation.direction > 0 
-            ? -bubbleWidth - (screenWidth * animation.positionInRow / 3) 
-            : screenWidth + (screenWidth * animation.positionInRow / 3);
-          
-          // End position calculation
-          const finalPosition = animation.direction > 0 
-            ? screenWidth + bubbleWidth
-            : -bubbleWidth - 100;
-          
-          return (
-            <motion.button
-              key={index}
-              initial={{ x: initialPosition }}
-              animate={{ x: finalPosition }}
-              transition={{
-                duration: animation.duration,
-                delay: animation.delay,
-                repeat: Infinity,
-                repeatType: "loop",
-                ease: "linear"
-              }}
-              onClick={() => handleExampleClick(example)}
-              className="absolute bg-muted/30 px-3 py-2 rounded-full hover:bg-muted/50 transition-colors cursor-pointer active:scale-95 text-xs whitespace-nowrap border border-muted/40"
-              style={{
-                top: `${rowTop}px`,
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: '100px',
-                maxWidth: '180px'
-              }}
-            >
-              {displayName}
-            </motion.button>
-          );
-        })}
+        <div className="flex flex-wrap justify-center gap-2 py-3">
+          {exampleTags.map((example, index) => {
+            const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
+            const style = tagStyles[index] || { color: getRandomColor(), size: getRandomSize() };
+            
+            return (
+              <motion.button
+                key={index}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  duration: 0.4,
+                  delay: index * 0.05,
+                  ease: "easeOut"
+                }}
+                whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleExampleClick(example)}
+                className={`${style.color} ${style.size} px-3 py-2 rounded-full hover:shadow-md transition-all duration-200 cursor-pointer border whitespace-nowrap`}
+              >
+                {displayName}
+              </motion.button>
+            );
+          })}
+        </div>
       </motion.div>
     </motion.div>
   );
