@@ -33,42 +33,23 @@ const CameraComponent: React.FC = () => {
       const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       
       console.log('Media stream tracks:', mediaStream.getTracks().map(t => t.kind + ':' + t.label));
-      setStream(mediaStream);
       
-      if (videoRef.current) {
-        console.log('Setting video source and preparing to play...');
-        const video = videoRef.current;
-        
-        // Remove any existing event listeners to prevent duplicates
-        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        video.removeEventListener('canplay', handleCanPlay);
-        video.removeEventListener('error', handleVideoError);
-        
-        // Add our event listeners
-        video.addEventListener('loadedmetadata', handleLoadedMetadata);
-        video.addEventListener('canplay', handleCanPlay);
-        video.addEventListener('error', handleVideoError);
-        
-        // Set source and properties
-        video.srcObject = mediaStream;
-        video.muted = true;
-        video.autoplay = true;
-        video.playsInline = true;
-        
-        // Force play attempt here
-        try {
-          console.log('Attempting initial play...');
-          await video.play();
-          console.log('Initial play successful');
-          setIsCameraActive(true);
-        } catch (err) {
-          console.error('Initial play failed:', err);
-          // Don't set camera as unavailable yet, let the event handlers try
+      // Store the stream first
+      setStream(mediaStream);
+      setIsCameraActive(true);
+      
+      // Use a setTimeout to ensure the component has updated with isCameraActive=true
+      // before trying to access the video element
+      setTimeout(() => {
+        if (videoRef.current) {
+          console.log('Setting video source to stream...');
+          videoRef.current.srcObject = mediaStream;
+        } else {
+          console.error('Video ref is still null after timeout');
+          setVideoError('Video element not found after timeout');
         }
-      } else {
-        console.error('Video ref is null, cannot attach stream');
-        setVideoError('Video element not found');
-      }
+      }, 100);
+      
     } catch (error) {
       console.error('Error accessing camera:', error);
       setIsCameraAvailable(false);
@@ -76,33 +57,63 @@ const CameraComponent: React.FC = () => {
     }
   };
 
-  // Event handlers for video element
-  const handleLoadedMetadata = async () => {
-    console.log('Video metadata loaded');
-    await tryPlayVideo();
-  };
-
-  const handleCanPlay = async () => {
-    console.log('Video can play now');
-    await tryPlayVideo();
-  };
-
-  const handleVideoError = (e: Event) => {
-    console.error('Video error event:', e);
-    const videoEl = e.target as HTMLVideoElement;
-    setVideoError(videoEl.error ? videoEl.error.message : 'Unknown video error');
-  };
-
+  // Handle video element events
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    
+    if (videoElement && stream) {
+      console.log('Setting up video element with stream...');
+      
+      const handleLoadedMetadata = () => {
+        console.log('Video metadata loaded');
+        tryPlayVideo();
+      };
+      
+      const handleCanPlay = () => {
+        console.log('Video can play now');
+        tryPlayVideo();
+      };
+      
+      const handleVideoError = (e: Event) => {
+        console.error('Video error event:', e);
+        const videoEl = e.target as HTMLVideoElement;
+        setVideoError(videoEl.error ? videoEl.error.message : 'Unknown video error');
+      };
+      
+      // Set properties
+      videoElement.srcObject = stream;
+      videoElement.muted = true;
+      videoElement.playsInline = true;
+      
+      // Add event listeners
+      videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+      videoElement.addEventListener('canplay', handleCanPlay);
+      videoElement.addEventListener('error', handleVideoError);
+      
+      // Try playing immediately
+      tryPlayVideo();
+      
+      // Cleanup
+      return () => {
+        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        videoElement.removeEventListener('canplay', handleCanPlay);
+        videoElement.removeEventListener('error', handleVideoError);
+      };
+    }
+  }, [stream, videoRef.current]);
+  
   const tryPlayVideo = async () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current) {
+      console.error('tryPlayVideo: Video ref is null');
+      return;
+    }
     
     try {
-      console.log('Attempting to play video from event handler...');
+      console.log('Attempting to play video...');
       await videoRef.current.play();
-      console.log('Play successful from event handler');
-      setIsCameraActive(true);
+      console.log('Play successful');
     } catch (err) {
-      console.error('Error playing video from event handler:', err);
+      console.error('Error playing video:', err);
       setVideoError('Could not play video stream');
     }
   };
@@ -112,19 +123,18 @@ const CameraComponent: React.FC = () => {
     if (stream) {
       console.log('Stopping camera...');
       
-      // Clean up event listeners
-      if (videoRef.current) {
-        videoRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        videoRef.current.removeEventListener('canplay', handleCanPlay);
-        videoRef.current.removeEventListener('error', handleVideoError);
-        videoRef.current.srcObject = null;
-      }
+      // Clean up event listeners (handled by useEffect cleanup)
       
       // Stop all tracks
       stream.getTracks().forEach(track => {
         console.log('Stopping track:', track.kind, track.label);
         track.stop();
       });
+      
+      // Clear video source
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
       
       setStream(null);
       setIsCameraActive(false);
