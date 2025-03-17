@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Camera, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import PhotoPreview from './PhotoPreview';
 
 const CameraComponent: React.FC = () => {
   const { setHandImage } = useApp();
@@ -13,12 +14,14 @@ const CameraComponent: React.FC = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isCameraAvailable, setIsCameraAvailable] = useState(true);
   const [videoError, setVideoError] = useState<string | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
   // Start camera function
   const startCamera = async () => {
     try {
       console.log('Starting camera acquisition...');
       setVideoError(null);
+      setCapturedImage(null);
       
       const constraints = { 
         video: { 
@@ -31,6 +34,9 @@ const CameraComponent: React.FC = () => {
       console.log('Requesting media with constraints:', constraints);
       const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       console.log('Media stream acquired successfully');
+      
+      // Log tracks for debugging
+      console.log('Media stream tracks:', mediaStream.getVideoTracks().map(track => track.label));
       
       // First set state that camera is active, then handle stream in useEffect
       setStream(mediaStream);
@@ -48,24 +54,27 @@ const CameraComponent: React.FC = () => {
     
     console.log('Stream changed, attaching to video element');
     
-    // We need to make sure videoRef is available
-    if (videoRef.current) {
-      console.log('Video ref available, attaching stream');
-      videoRef.current.srcObject = stream;
-      
-      // Try to play the video
-      videoRef.current.play().catch(err => {
-        console.error('Error playing video:', err);
-        setVideoError('Could not play video: ' + err.message);
-      });
-    } else {
-      console.error('Video ref is null, cannot attach stream');
-      setVideoError('Video element not available');
-    }
+    // Use timeout to ensure DOM is ready
+    const timer = setTimeout(() => {
+      // We need to make sure videoRef is available
+      if (videoRef.current) {
+        console.log('Video ref available, attaching stream');
+        videoRef.current.srcObject = stream;
+        
+        // Try to play the video
+        videoRef.current.play().catch(err => {
+          console.error('Error playing video:', err);
+          setVideoError('Could not play video: ' + err.message);
+        });
+      } else {
+        console.error('Video ref is null, cannot attach stream');
+        setVideoError('Video element not available');
+      }
+    }, 100);
     
     // Cleanup function
     return () => {
-      console.log('Cleaning up stream effect');
+      clearTimeout(timer);
     };
   }, [stream, isCameraActive]);
 
@@ -127,8 +136,9 @@ const CameraComponent: React.FC = () => {
           return;
         }
         
-        setHandImage(imageDataUrl);
-        stopCamera();
+        // Instead of immediately saving to context, show preview for validation
+        setCapturedImage(imageDataUrl);
+        stopCamera(); // Stop camera after capture
       } else {
         console.error('Could not get canvas context');
         setVideoError('Could not create image');
@@ -139,12 +149,38 @@ const CameraComponent: React.FC = () => {
     }
   };
 
+  // Accept the captured photo
+  const acceptPhoto = () => {
+    if (capturedImage) {
+      setHandImage(capturedImage);
+    }
+  };
+  
+  // Retake the photo
+  const retakePhoto = () => {
+    setCapturedImage(null);
+    startCamera();
+  };
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopCamera();
     };
   }, []);
+
+  // If we have a captured image, show the preview with accept/retake buttons
+  if (capturedImage) {
+    return (
+      <div className="camera-container glass-card">
+        <PhotoPreview 
+          photoSrc={capturedImage}
+          onAccept={acceptPhoto}
+          onRetake={retakePhoto}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="camera-container glass-card">
