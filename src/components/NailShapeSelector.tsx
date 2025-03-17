@@ -49,7 +49,7 @@ const NailShapeSelector: React.FC = () => {
   return (
     <div className="mb-6">
       <h3 className="text-lg font-medium mb-3">Forme d'ongles</h3>
-      <ScrollArea className="w-full" orientation="horizontal">
+      <ScrollArea className="w-full">
         <div className="pb-4 pr-4">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}

@@ -92,7 +92,7 @@ const NailColorSelector: React.FC = () => {
         className="space-y-4"
       >
         {/* Horizontal scrollable tabs for categories */}
-        <ScrollArea className="w-full" orientation="horizontal">
+        <ScrollArea className="w-full">
           <div className="pb-4">
             <Tabs 
               value={activeCategory} 
@@ -123,7 +123,7 @@ const NailColorSelector: React.FC = () => {
           transition={{ duration: 0.25 }}
           className="border border-muted rounded-xl p-3"
         >
-          <ScrollArea className="w-full" orientation="horizontal">
+          <ScrollArea className="w-full">
             <div className="flex gap-3 min-w-max pb-4">
               {currentCategory.colors.map((color) => {
                 const isSelected = nailColor === color.hex;
