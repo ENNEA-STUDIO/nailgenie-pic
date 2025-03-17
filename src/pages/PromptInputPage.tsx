@@ -5,10 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import PromptInput from '../components/PromptInput';
 import { useApp } from '../context/AppContext';
+import { useIsMobile } from '../hooks/use-mobile';
 
 const PromptInputPage: React.FC = () => {
   const navigate = useNavigate();
   const { handImage, generatedDesign, nailShape, nailLength, nailColor } = useApp();
+  const isMobile = useIsMobile();
   
   // Redirects
   useEffect(() => {
@@ -48,17 +50,17 @@ const PromptInputPage: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-wrap gap-2 bg-muted/50 p-3 rounded-xl"
+                className="flex overflow-x-auto pb-2 gap-2"
               >
-                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border">
+                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border whitespace-nowrap">
                   <span className="font-medium mr-1">Forme:</span> 
                   <span className="capitalize">{nailShape}</span>
                 </div>
-                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border">
+                <div className="bg-background rounded-lg px-3 py-1.5 text-sm border whitespace-nowrap">
                   <span className="font-medium mr-1">Longueur:</span> 
                   <span className="capitalize">{nailLength === 'short' ? 'Court' : nailLength === 'medium' ? 'Moyen' : 'Long'}</span>
                 </div>
-                <div className="flex items-center bg-background rounded-lg px-3 py-1.5 text-sm border">
+                <div className="flex items-center bg-background rounded-lg px-3 py-1.5 text-sm border whitespace-nowrap">
                   <span className="font-medium mr-2">Couleur:</span> 
                   <span 
                     className="w-5 h-5 rounded-full border" 
