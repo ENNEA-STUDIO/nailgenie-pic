@@ -52,25 +52,29 @@ const NailShapeSelector: React.FC = () => {
           const isSelected = nailShape === shape;
           
           return (
-            <div 
+            <motion.div 
               key={shape}
               onClick={() => handleShapeChange(shape)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
               className={`flex flex-col items-center p-3 rounded-xl cursor-pointer border-2 transition-all ${
                 isSelected 
-                  ? 'border-primary bg-primary/10' 
-                  : 'border-transparent hover:border-primary/30'
+                  ? 'border-primary bg-primary/5 shadow-md' 
+                  : 'border-transparent hover:border-primary/30 hover:bg-secondary/50'
               }`}
             >
-              <div className={`p-3 rounded-full ${isSelected ? 'bg-primary/20' : 'bg-muted'} flex items-center justify-center`}>
+              <div className={`p-3 ${isSelected ? 'scale-110' : ''} transition-transform duration-200`}>
                 <IconComponent 
-                  className={`w-8 h-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`}
+                  className={`w-10 h-10 transition-all duration-300 drop-shadow-md ${
+                    isSelected ? '' : 'opacity-80'
+                  }`}
                 />
               </div>
               <span className="mt-2 text-sm font-medium capitalize">{shape}</span>
               <span className="text-xs text-muted-foreground text-center mt-1">
                 {shapeDescriptions[shape]}
               </span>
-            </div>
+            </motion.div>
           );
         })}
       </motion.div>
