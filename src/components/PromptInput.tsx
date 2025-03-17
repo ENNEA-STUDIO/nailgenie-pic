@@ -66,26 +66,33 @@ const PromptInput: React.FC = () => {
   const [displayText, setDisplayText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  const typingSpeed = 70; // Speed in milliseconds per character
+  const [isPaused, setIsPaused] = useState(false);
+  const typingSpeed = 120; // Increased from 70 to 120 to slow down typing
   const deleteSpeed = 30; // Speed for deleting characters
+  const pauseDuration = 1000; // 1 second pause after typing
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!prompt && !isFocused) {
       const currentExample = examplePrompts[currentExampleIndex];
       
-      if (isTyping) {
+      if (isTyping && !isPaused) {
         if (displayText.length < currentExample.length) {
           const timer = setTimeout(() => {
             setDisplayText(currentExample.substring(0, displayText.length + 1));
           }, typingSpeed);
           return () => clearTimeout(timer);
         } else {
-          // Finished typing, start deleting immediately
-          setIsTyping(false);
-          setIsDeleting(true);
+          // Finished typing, start pause
+          setIsPaused(true);
+          const timer = setTimeout(() => {
+            setIsPaused(false);
+            setIsTyping(false);
+            setIsDeleting(true);
+          }, pauseDuration);
+          return () => clearTimeout(timer);
         }
-      } else if (isDeleting) {
+      } else if (isDeleting && !isPaused) {
         if (displayText.length > 0) {
           const timer = setTimeout(() => {
             setDisplayText(displayText.substring(0, displayText.length - 1));
@@ -104,7 +111,7 @@ const PromptInput: React.FC = () => {
         }
       }
     }
-  }, [displayText, isTyping, isDeleting, currentExampleIndex, isFocused, prompt]);
+  }, [displayText, isTyping, isDeleting, isPaused, currentExampleIndex, isFocused, prompt]);
 
   const handleFocus = () => {
     setIsFocused(true);
