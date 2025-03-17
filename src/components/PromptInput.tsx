@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Wand2 } from 'lucide-react';
@@ -59,20 +58,22 @@ const examplePrompts = [
   "Futuristic Cyberpunk Style"
 ];
 
-// Get a random subset of examples
-const getRandomExamples = (count = 7) => {
+const getRandomExamples = (count = 9) => {
   const shuffled = [...examplePrompts].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 };
 
-// Generate random position and movement for the tags
 const generateTagAnimations = (count: number) => {
-  return Array.from({ length: count }).map(() => ({
-    x: Math.random() * 100 - 50, // initial position
-    duration: 15 + Math.random() * 10, // random duration between 15-25s
-    delay: Math.random() * 5, // random delay to start
-    direction: Math.random() > 0.5 ? 1 : -1, // random direction
-  }));
+  return Array.from({ length: count }).map((_, index) => {
+    const row = index % 3;
+    const direction = row % 2 === 0 ? 1 : -1;
+    return {
+      row,
+      direction,
+      duration: 15 + Math.random() * 10,
+      delay: Math.random() * 3,
+    };
+  });
 };
 
 const PromptInput: React.FC = () => {
@@ -86,13 +87,12 @@ const PromptInput: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [exampleTags, setExampleTags] = useState(getRandomExamples());
   const [tagAnimations, setTagAnimations] = useState(generateTagAnimations(exampleTags.length));
-  const typingSpeed = 120; // Slower typing
-  const deleteSpeed = 30; // Speed for deleting characters
-  const pauseDuration = 1000; // 1 second pause after typing
+  const typingSpeed = 120;
+  const deleteSpeed = 30;
+  const pauseDuration = 1000;
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Shuffle example tags periodically
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isFocused && !prompt) {
@@ -100,7 +100,7 @@ const PromptInput: React.FC = () => {
         setExampleTags(newExamples);
         setTagAnimations(generateTagAnimations(newExamples.length));
       }
-    }, 10000); // Shuffle every 10 seconds
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [isFocused, prompt]);
@@ -116,7 +116,6 @@ const PromptInput: React.FC = () => {
           }, typingSpeed);
           return () => clearTimeout(timer);
         } else {
-          // Finished typing, start pause
           setIsPaused(true);
           const timer = setTimeout(() => {
             setIsPaused(false);
@@ -132,10 +131,8 @@ const PromptInput: React.FC = () => {
           }, deleteSpeed);
           return () => clearTimeout(timer);
         } else {
-          // Finished deleting, move to next example immediately
           setIsDeleting(false);
           setIsTyping(true);
-          // Select a random next example that's different from the current one
           let nextIndex;
           do {
             nextIndex = Math.floor(Math.random() * examplePrompts.length);
@@ -161,7 +158,6 @@ const PromptInput: React.FC = () => {
   };
 
   const handleExampleClick = (example: string) => {
-    // Extract the main concept (before "avec" or similar phrases)
     const mainConcept = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
     setPrompt(mainConcept);
     if (inputRef.current) {
@@ -207,12 +203,13 @@ const PromptInput: React.FC = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="relative h-20 mt-3 px-1 overflow-hidden"
+        className="relative h-36 mt-3 px-1 overflow-hidden"
       >
         {exampleTags.map((example, index) => {
-          // Extract shorter version of example for display
           const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
           const animation = tagAnimations[index];
+          
+          const rowTop = 8 + (animation.row * 40);
           
           return (
             <motion.button
@@ -231,7 +228,7 @@ const PromptInput: React.FC = () => {
               onClick={() => handleExampleClick(example)}
               className="absolute bg-muted/30 px-3 py-2 rounded-full hover:bg-muted/50 transition-colors cursor-pointer active:scale-95 text-xs whitespace-nowrap border border-muted/40"
               style={{
-                top: `${25 + (index * 50) % 50}px`,
+                top: `${rowTop}px`,
               }}
             >
               {displayName}
