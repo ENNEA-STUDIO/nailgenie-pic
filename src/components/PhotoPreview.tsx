@@ -1,13 +1,16 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+
 interface PhotoPreviewProps {
   photoSrc: string;
   onAccept: () => void;
   onRetake: () => void;
 }
+
 const PhotoPreview: React.FC<PhotoPreviewProps> = ({
   photoSrc,
   onAccept,
@@ -57,15 +60,16 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({
     }} transition={{
       delay: 0.3,
       duration: 0.4
-    }} className="py-0 flex justify-center gap-6 px-[35px]">
-        <Button onClick={onRetake} variant="outline" size="icon" className="h-16 w-16 my-[77px] px-[2px] mx-0 rounded-3xl">
+    }} className="flex justify-center items-center gap-6 mt-4">
+        <Button onClick={onRetake} variant="outline" size="icon" className="h-16 w-16 rounded-full">
           <RefreshCcw className="h-8 w-8" />
         </Button>
         
-        <Button onClick={onAccept} variant="default" size="icon" className="h-16 w-16 rounded-full bg-primary hover:bg-primary/90 mx-[47px] py-0 my-[88px] px-[5px]">
+        <Button onClick={onAccept} variant="default" size="icon" className="h-16 w-16 rounded-full bg-primary hover:bg-primary/90">
           <Check className="h-8 w-8" />
         </Button>
       </motion.div>
     </motion.div>;
 };
+
 export default PhotoPreview;
