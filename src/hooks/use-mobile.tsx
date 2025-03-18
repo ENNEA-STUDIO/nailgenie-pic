@@ -18,15 +18,18 @@ export function useIsMobile(): DeviceInfo {
     // Get user agent
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
     
-    // Check for iOS in multiple ways
+    // More robust checks for Safari and iOS
+    // Safari has "Safari" in UA and "Apple Computer" in vendor
+    const isSafariBrowser = /^((?!chrome|android).)*safari/i.test(userAgent) && 
+                            /Apple Computer/.test(navigator.vendor);
+    
+    // iOS detection - multiple patterns to catch different iOS scenarios
     const isIOSDevice = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
-    const isIOSSafari = /Safari/i.test(userAgent) && /Apple Computer/.test(navigator.vendor);
+    const isIOSSafari = isSafariBrowser && /Mobile|iPad|iPhone|iPod/.test(userAgent);
     const isIOSWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(userAgent);
     
-    // Check for Safari browser
-    const isSafariBrowser = /^((?!chrome|android).)*safari/i.test(userAgent);
-    
     const finalIsIOS = isIOSDevice || isIOSSafari || isIOSWebView;
+    
     setIsIOS(finalIsIOS);
     setIsSafari(isSafariBrowser);
     

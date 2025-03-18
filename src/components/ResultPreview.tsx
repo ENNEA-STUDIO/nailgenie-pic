@@ -15,11 +15,8 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const [imageError, setImageError] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [retryCount, setRetryCount] = useState(0);
-  const isMobile = useIsMobile();
+  const { isMobile, isIOS, isSafari } = useIsMobile();
   const imgRef = useRef<HTMLImageElement>(null);
-  
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
   
   useEffect(() => {
     if (generatedDesign) {
@@ -29,9 +26,22 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       setRetryCount(0);
       
       if (isSafari || isIOS) {
-        const cacheBuster = `?t=${Date.now()}`;
+        const cacheBuster = `?origin=direct&t=${Date.now()}`;
         console.log("Safari/iOS detected, using cache-busted URL");
         setImageUrl(`${generatedDesign}${cacheBuster}`);
+        
+        fetch(generatedDesign, { 
+          mode: 'no-cors',
+          cache: 'reload',
+          headers: {
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          }
+        }).then(() => {
+          console.log("Safari pre-fetch successful");
+        }).catch(error => {
+          console.log("Safari pre-fetch failed, but continuing", error);
+        });
       } else {
         setImageUrl(generatedDesign);
       }
@@ -39,42 +49,72 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   }, [generatedDesign, isSafari, isIOS]);
 
   useEffect(() => {
-    if (imageError && imgRef.current && generatedDesign && retryCount < 3) {
-      console.log(`Attempting to reload image after error (retry ${retryCount + 1}/3)`);
+    if (imageError && imgRef.current && generatedDesign && retryCount < 5) {
+      console.log(`Attempting to reload image after error (retry ${retryCount + 1}/5)`);
       
-      if ((isSafari || isIOS) && retryCount >= 1) {
+      if (isSafari || isIOS) {
         const timer = setTimeout(() => {
-          console.log("Safari/iOS special retry with fetch first");
-          
-          fetch(generatedDesign, { 
-            mode: 'no-cors',
-            cache: 'no-cache'
-          })
-          .then(() => {
-            const newUrl = `${generatedDesign}?safari-retry=${Date.now()}`;
-            console.log("Safari fetch successful, retrying with new URL:", newUrl);
+          if (retryCount === 0) {
+            const newUrl = `${generatedDesign}?safari-retry=basic&t=${Date.now()}`;
+            console.log("Safari first retry with new URL:", newUrl);
             setImageUrl(newUrl);
             setImageError(false);
             setRetryCount(prev => prev + 1);
-          })
-          .catch(() => {
-            const newUrl = `${generatedDesign}?final-retry=${Date.now()}`;
-            console.log("Safari fetch failed, trying final URL:", newUrl);
+          } else if (retryCount === 1) {
+            fetch(generatedDesign, { 
+              mode: 'no-cors',
+              cache: 'reload'
+            })
+            .then(() => {
+              const newUrl = `${generatedDesign}?safari-retry=prefetch&t=${Date.now()}`;
+              console.log("Safari second retry after pre-fetch:", newUrl);
+              setImageUrl(newUrl);
+              setImageError(false);
+              setRetryCount(prev => prev + 1);
+            })
+            .catch(() => {
+              const newUrl = `${generatedDesign}?safari-retry=prefetch-failed&t=${Date.now()}`;
+              console.log("Safari pre-fetch failed, trying anyway:", newUrl);
+              setImageUrl(newUrl);
+              setImageError(false);
+              setRetryCount(prev => prev + 1);
+            });
+          } else if (retryCount === 2) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              const newUrl = `${generatedDesign}?safari-retry=new-image&t=${Date.now()}`;
+              console.log("Safari third retry with Image preload success:", newUrl);
+              setImageUrl(newUrl);
+              setImageError(false);
+              setRetryCount(prev => prev + 1);
+            };
+            img.onerror = () => {
+              const newUrl = `${generatedDesign}?safari-retry=new-image-failed&t=${Date.now()}`;
+              console.log("Safari Image preload failed, trying anyway:", newUrl);
+              setImageUrl(newUrl);
+              setImageError(false);
+              setRetryCount(prev => prev + 1);
+            };
+            img.src = generatedDesign;
+          } else {
+            const newUrl = `${generatedDesign}?safari-final-retry=${retryCount}&nocache=${Date.now()}&rand=${Math.random()}`;
+            console.log("Safari final retry attempt:", newUrl);
             setImageUrl(newUrl);
             setImageError(false);
             setRetryCount(prev => prev + 1);
-          });
-        }, 1500);
+          }
+        }, 1000 + (retryCount * 500));
         
         return () => clearTimeout(timer);
       } else {
         const timer = setTimeout(() => {
           const newUrl = `${generatedDesign}?reload=${Date.now()}`;
-          console.log("Reloading with new URL:", newUrl);
+          console.log("Standard retry with new URL:", newUrl);
           setImageUrl(newUrl);
           setImageError(false);
           setRetryCount(prev => prev + 1);
-        }, 1500);
+        }, 1000);
         
         return () => clearTimeout(timer);
       }
@@ -86,8 +126,20 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     
     try {
       if (isSafari || isIOS) {
-        window.open(generatedDesign, '_blank');
-        toast.success("Image ouverte dans un nouvel onglet. Appuyez longuement pour l'enregistrer.");
+        const win = window.open(generatedDesign, '_blank');
+        if (win) {
+          win.focus();
+          toast.success("Image ouverte dans un nouvel onglet. Appuyez longuement pour l'enregistrer.");
+        } else {
+          const link = document.createElement('a');
+          link.href = generatedDesign;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.success("Image ouverte dans un nouvel onglet. Appuyez longuement pour l'enregistrer.");
+        }
         return;
       }
       
@@ -165,7 +217,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     );
   }
 
-  if (imageError && retryCount >= 3) {
+  if (imageError && retryCount >= 5) {
     return (
       <div className="w-full p-4">
         <motion.div 
@@ -177,6 +229,11 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           <h3 className="text-lg font-medium mb-2 text-destructive">Erreur de chargement</h3>
           <p className="text-sm text-muted-foreground text-center max-w-xs mb-4">
             Impossible de charger l'image générée. Veuillez réessayer.
+            {(isSafari || isIOS) && (
+              <span className="block mt-2 text-xs">
+                Si vous utilisez Safari, essayez d'ouvrir cette application dans Chrome pour de meilleurs résultats.
+              </span>
+            )}
           </p>
           <button 
             onClick={onTryAgain}
@@ -191,7 +248,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
 
   if (!generatedDesign) return null;
 
-  const canShare = navigator.share && navigator.canShare;
+  const canShare = !!navigator.share && !!navigator.canShare;
 
   return (
     <motion.div 
@@ -219,6 +276,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
             style={{ maxHeight: 'calc(100vh - 22rem)' }}
             onLoad={handleImageLoad}
             onError={handleImageError}
+            crossOrigin="anonymous"
           />
           
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent pt-16 pb-4 px-6">
