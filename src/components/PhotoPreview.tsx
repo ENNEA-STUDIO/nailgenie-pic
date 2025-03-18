@@ -18,8 +18,8 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({ photoSrc, onAccept, onRetak
       animate={{ opacity: 1 }}
       className="relative h-full flex flex-col"
     >
-      <div className="flex-1 overflow-hidden p-4">
-        <AspectRatio ratio={4/5} className="rounded-3xl overflow-hidden shadow-lg border border-white/20">
+      <div className="flex-1 overflow-hidden p-2">
+        <AspectRatio ratio={1/1} className="rounded-3xl overflow-hidden shadow-lg border border-white/20">
           <motion.img 
             initial={{ scale: 0.95, filter: "blur(5px)" }}
             animate={{ scale: 1, filter: "blur(0px)" }}
@@ -47,7 +47,7 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({ photoSrc, onAccept, onRetak
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.4 }}
-        className="px-6 pb-8 pt-2 flex justify-center gap-6"
+        className="px-6 pb-4 pt-1 flex justify-center gap-6"
       >
         <Button 
           onClick={onRetake}
