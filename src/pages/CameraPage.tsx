@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import CameraComponent from '../components/Camera';
+import CameraComponent from '../components/camera/CameraComponent';
 import { useApp } from '../context/AppContext';
 import { toast } from 'sonner';
 
