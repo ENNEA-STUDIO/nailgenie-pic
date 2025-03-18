@@ -70,9 +70,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       
       const imageBlob = new Blob([buffer], { type: "image/jpeg" });
       
-      // Prepare a full prompt that includes nail details
-      const fullPrompt = `${prompt} avec des ongles ${nailLength === 'short' ? 'courts' : 
-        nailLength === 'medium' ? 'moyens' : 'longs'} de forme ${nailShape} de couleur principale ${nailColor}`;
+      // Create a standardized prompt format with user input only affecting the pattern part
+      const lengthText = nailLength === 'short' ? 'short' : nailLength === 'medium' ? 'medium' : 'long';
+      const colorName = getColorName(nailColor);
+      
+      // Template format where only the pattern (user input) changes
+      const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in a ${colorName} shade. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
       
       console.log("Full prompt:", fullPrompt);
       console.log("Connecting to Gemini Image Edit model...");
@@ -132,6 +135,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setIsLoading(false);
     }
   }, [handImage, prompt, nailShape, nailLength, nailColor]);
+
+  // Helper function to get a color name from hex code
+  const getColorName = (hexColor: string): string => {
+    // Basic color mapping - could be expanded for more precise color names
+    const colorMap: Record<string, string> = {
+      '#E6CCAF': 'beige',
+      '#FF0000': 'red',
+      '#FFA500': 'orange',
+      '#FFFF00': 'yellow',
+      '#00FF00': 'green',
+      '#0000FF': 'blue',
+      '#800080': 'purple',
+      '#FFC0CB': 'pink',
+      '#FFFFFF': 'white',
+      '#000000': 'black',
+      '#C0C0C0': 'silver',
+      '#FFD700': 'gold'
+    };
+    
+    // Return the color name if it's in our map, otherwise just call it a custom color
+    return colorMap[hexColor] || 'custom';
+  };
 
   const resetState = useCallback(() => {
     setHandImage(null);
