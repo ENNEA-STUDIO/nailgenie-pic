@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Redo, Share2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -14,33 +14,43 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const { generatedDesign, isLoading, prompt } = useApp();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>('');
   const isMobile = useIsMobile();
-
+  const imgRef = useRef<HTMLImageElement>(null);
+  
   // Reset image state when design URL changes
   useEffect(() => {
     if (generatedDesign) {
       console.log("Setting up new image with URL:", generatedDesign);
       setImageLoaded(false);
       setImageError(false);
+      
+      // For iOS devices, add a cache-busting parameter
+      const cacheBuster = `?t=${Date.now()}`;
+      const newUrl = /iPhone|iPad|iPod/.test(navigator.userAgent) 
+        ? `${generatedDesign}${cacheBuster}` 
+        : generatedDesign;
+      
+      console.log("Image URL with cache buster (if iOS):", newUrl);
+      setImageUrl(newUrl);
     }
   }, [generatedDesign]);
 
-  // Ensure image URL is valid for mobile devices
-  const getImageUrl = () => {
-    if (!generatedDesign) return '';
-    
-    // For debugging
-    console.log("Using image URL:", generatedDesign);
-    
-    // Make sure the URL is properly encoded
-    try {
-      // Return the URL as is - the issue might be with the loading rather than the URL
-      return generatedDesign;
-    } catch (error) {
-      console.error("Error with image URL:", error);
-      return generatedDesign; // Fallback to original URL
+  // Try to reload the image if initial load fails
+  useEffect(() => {
+    if (imageError && imgRef.current && imageUrl) {
+      console.log("Attempting to reload image after error");
+      // Wait a moment and try loading again with a new cache buster
+      const timer = setTimeout(() => {
+        const newUrl = `${generatedDesign}?reload=${Date.now()}`;
+        console.log("Reloading with new URL:", newUrl);
+        setImageUrl(newUrl);
+        setImageError(false);
+      }, 1500);
+      
+      return () => clearTimeout(timer);
     }
-  };
+  }, [imageError, generatedDesign]);
 
   const handleDownload = () => {
     if (!generatedDesign) return;
@@ -93,9 +103,15 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   };
 
   const handleImageError = () => {
-    console.error("Image failed to load:", generatedDesign);
+    console.error("Image failed to load:", imageUrl);
     setImageError(true);
     setImageLoaded(false);
+  };
+
+  const handleImageLoad = () => {
+    console.log("Image loaded successfully:", imageUrl);
+    setImageLoaded(true);
+    setImageError(false);
   };
 
   if (isLoading) {
@@ -165,11 +181,12 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           )}
           
           <img 
-            src={getImageUrl()} 
+            ref={imgRef}
+            src={imageUrl} 
             alt="Generated nail design" 
             className={`w-full object-cover rounded-t-3xl ${imageLoaded ? 'block' : 'hidden'}`}
             style={{ maxHeight: 'calc(100vh - 22rem)' }}
-            onLoad={() => setImageLoaded(true)}
+            onLoad={handleImageLoad}
             onError={handleImageError}
           />
           

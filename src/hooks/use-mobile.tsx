@@ -8,10 +8,16 @@ export function useIsMobile() {
   const [isIOS, setIsIOS] = React.useState<boolean>(false)
 
   React.useEffect(() => {
-    // Detect if device is iOS
+    // More comprehensive iOS detection
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    
+    // Check for iOS in multiple ways
     const isIOSDevice = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
-    setIsIOS(isIOSDevice);
+    const isIOSSafari = /Safari/i.test(userAgent) && /Apple Computer/.test(navigator.vendor);
+    const isIOSWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(userAgent);
+    
+    const finalIsIOS = isIOSDevice || isIOSSafari || isIOSWebView;
+    setIsIOS(finalIsIOS);
     
     // Detect if screen size is mobile
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
@@ -24,8 +30,12 @@ export function useIsMobile() {
     // Log device detection for debugging
     console.log("Device detection:", { 
       isMobile: window.innerWidth < MOBILE_BREAKPOINT, 
-      isIOS: isIOSDevice, 
-      userAgent
+      isIOS: finalIsIOS,
+      isIOSDevice,
+      isIOSSafari,
+      isIOSWebView,
+      userAgent,
+      vendor: navigator.vendor
     });
     
     return () => mql.removeEventListener("change", onChange)
