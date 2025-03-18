@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Redo, Share2 } from 'lucide-react';
@@ -15,48 +14,83 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>('');
+  const [retryCount, setRetryCount] = useState(0);
   const isMobile = useIsMobile();
   const imgRef = useRef<HTMLImageElement>(null);
   
-  // Reset image state when design URL changes
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  
   useEffect(() => {
     if (generatedDesign) {
       console.log("Setting up new image with URL:", generatedDesign);
       setImageLoaded(false);
       setImageError(false);
+      setRetryCount(0);
       
-      // For iOS devices, add a cache-busting parameter
-      const cacheBuster = `?t=${Date.now()}`;
-      const newUrl = /iPhone|iPad|iPod/.test(navigator.userAgent) 
-        ? `${generatedDesign}${cacheBuster}` 
-        : generatedDesign;
-      
-      console.log("Image URL with cache buster (if iOS):", newUrl);
-      setImageUrl(newUrl);
+      if (isSafari || isIOS) {
+        const cacheBuster = `?t=${Date.now()}`;
+        console.log("Safari/iOS detected, using cache-busted URL");
+        setImageUrl(`${generatedDesign}${cacheBuster}`);
+      } else {
+        setImageUrl(generatedDesign);
+      }
     }
-  }, [generatedDesign]);
+  }, [generatedDesign, isSafari, isIOS]);
 
-  // Try to reload the image if initial load fails
   useEffect(() => {
-    if (imageError && imgRef.current && imageUrl) {
-      console.log("Attempting to reload image after error");
-      // Wait a moment and try loading again with a new cache buster
-      const timer = setTimeout(() => {
-        const newUrl = `${generatedDesign}?reload=${Date.now()}`;
-        console.log("Reloading with new URL:", newUrl);
-        setImageUrl(newUrl);
-        setImageError(false);
-      }, 1500);
+    if (imageError && imgRef.current && generatedDesign && retryCount < 3) {
+      console.log(`Attempting to reload image after error (retry ${retryCount + 1}/3)`);
       
-      return () => clearTimeout(timer);
+      if ((isSafari || isIOS) && retryCount >= 1) {
+        const timer = setTimeout(() => {
+          console.log("Safari/iOS special retry with fetch first");
+          
+          fetch(generatedDesign, { 
+            mode: 'no-cors',
+            cache: 'no-cache'
+          })
+          .then(() => {
+            const newUrl = `${generatedDesign}?safari-retry=${Date.now()}`;
+            console.log("Safari fetch successful, retrying with new URL:", newUrl);
+            setImageUrl(newUrl);
+            setImageError(false);
+            setRetryCount(prev => prev + 1);
+          })
+          .catch(() => {
+            const newUrl = `${generatedDesign}?final-retry=${Date.now()}`;
+            console.log("Safari fetch failed, trying final URL:", newUrl);
+            setImageUrl(newUrl);
+            setImageError(false);
+            setRetryCount(prev => prev + 1);
+          });
+        }, 1500);
+        
+        return () => clearTimeout(timer);
+      } else {
+        const timer = setTimeout(() => {
+          const newUrl = `${generatedDesign}?reload=${Date.now()}`;
+          console.log("Reloading with new URL:", newUrl);
+          setImageUrl(newUrl);
+          setImageError(false);
+          setRetryCount(prev => prev + 1);
+        }, 1500);
+        
+        return () => clearTimeout(timer);
+      }
     }
-  }, [imageError, generatedDesign]);
+  }, [imageError, generatedDesign, retryCount, isSafari, isIOS]);
 
   const handleDownload = () => {
     if (!generatedDesign) return;
     
     try {
-      // Create a link element and trigger download
+      if (isSafari || isIOS) {
+        window.open(generatedDesign, '_blank');
+        toast.success("Image ouverte dans un nouvel onglet. Appuyez longuement pour l'enregistrer.");
+        return;
+      }
+      
       const link = document.createElement('a');
       link.href = generatedDesign;
       link.download = `nailgenie-design-${Date.now()}.jpg`;
@@ -75,7 +109,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     if (!generatedDesign || !navigator.share) return;
     
     try {
-      // For iOS/mobile, use the direct URL for sharing
       if (isMobile) {
         await navigator.share({
           title: 'Mon design NailGenie',
@@ -83,7 +116,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           url: generatedDesign
         });
       } else {
-        // For desktop, fetch the image and create a file to share
         const response = await fetch(generatedDesign);
         const blob = await response.blob();
         const file = new File([blob], 'nailgenie-design.jpg', { type: 'image/jpeg' });
@@ -133,7 +165,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     );
   }
 
-  if (imageError) {
+  if (imageError && retryCount >= 3) {
     return (
       <div className="w-full p-4">
         <motion.div 
@@ -159,7 +191,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
 
   if (!generatedDesign) return null;
 
-  // Check if the device supports Web Share API
   const canShare = navigator.share && navigator.canShare;
 
   return (

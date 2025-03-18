@@ -15,27 +15,43 @@ const ResultPage: React.FC = () => {
     if (generatedDesign) {
       console.log("Result Page - Generated design URL:", generatedDesign);
       
-      // Force reload the image on iOS by adding a cache buster and preloading
+      // Check if the browser is Safari
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
       const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-      if (isIOS) {
-        const cacheBuster = `?t=${Date.now()}`;
-        const preloadUrl = `${generatedDesign}${cacheBuster}`;
+      
+      if (isSafari || isIOS) {
+        console.log("Safari/iOS browser detected, attempting special image loading strategy");
         
-        console.log("iOS device detected, preloading image with cache buster:", preloadUrl);
-        
-        const img = new Image();
-        img.crossOrigin = "anonymous"; // Try to avoid CORS issues
-        img.onload = () => {
-          console.log("Image preloaded successfully on iOS");
+        // For Safari, we'll use a more reliable approach with an actual fetch request first
+        fetch(generatedDesign, { 
+          mode: 'no-cors',
+          cache: 'no-cache'
+        })
+        .then(() => {
+          console.log("Image fetch preflight successful on Safari/iOS");
+          // Now preload the image after we've confirmed we can reach it
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            console.log("Image preloaded successfully on Safari/iOS");
+            setImagePreloaded(true);
+          };
+          img.onerror = (error) => {
+            console.error("Error preloading image on Safari/iOS after fetch:", error);
+            // Still show the component and let it handle errors
+            setImagePreloaded(true);
+          };
+          // Add cache buster for Safari
+          const cacheBuster = `?t=${Date.now()}`;
+          img.src = `${generatedDesign}${cacheBuster}`;
+        })
+        .catch(error => {
+          console.error("Safari/iOS image fetch failed:", error);
+          // Still show the component and let it handle errors
           setImagePreloaded(true);
-        };
-        img.onerror = (error) => {
-          console.error("Error preloading image on iOS:", error);
-          // We'll still show the component and let it handle errors
-          setImagePreloaded(true);
-        };
-        img.src = preloadUrl;
+        });
       } else {
+        // For other browsers, just set to preloaded
         setImagePreloaded(true);
       }
     } else {
@@ -58,9 +74,10 @@ const ResultPage: React.FC = () => {
 
   if (!generatedDesign) return null;
   
-  // Only show the ResultPreview once the image is preloaded (on iOS)
+  // Only show the ResultPreview once the image is preloaded (on Safari/iOS)
   // or immediately on other platforms
-  if (!imagePreloaded && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+  if (!imagePreloaded && (/^((?!chrome|android).)*safari/i.test(navigator.userAgent) || 
+                         /iPhone|iPad|iPod/.test(navigator.userAgent))) {
     return (
       <Layout showBackButton title="Votre design">
         <div className="w-full h-full flex items-center justify-center">
