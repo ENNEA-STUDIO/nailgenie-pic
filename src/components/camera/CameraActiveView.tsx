@@ -32,37 +32,78 @@ const CameraActiveView: React.FC<CameraActiveViewProps> = ({
       {/* Hand positioning guide overlay */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
         <div className="w-[85%] h-[85%] border-2 border-white/30 rounded-3xl flex items-center justify-center">
-          {/* Semi-transparent hand outline */}
-          <div className="relative w-[70%] h-[70%]">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.7 }}
-              transition={{ delay: 0.5 }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <svg width="100%" height="100%" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path 
-                  d="M60,50 Q75,30 90,45 L90,110 Q90,125 105,125 L105,70 Q105,55 120,55 L120,115 Q120,130 135,130 L135,75 Q135,60 150,60 L150,120 Q150,135 165,135 L165,90 Q165,75 180,75 L180,140 C180,170 150,185 120,185 Q90,185 75,170 L50,145 Q35,130 40,115 L60,50" 
-                  stroke="white" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  fill="rgba(255,255,255,0.1)"
-                />
-              </svg>
-            </motion.div>
-            
-            {/* Instructional text */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-              className="absolute -top-14 left-0 right-0 text-center"
-            >
-              <span className="px-3 py-1 bg-black/40 backdrop-blur-sm text-white text-xs rounded-full">
-                Placez votre main dans le cadre
-              </span>
-            </motion.div>
-          </div>
+          {/* Improved hand outline SVG */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.7 }}
+            transition={{ delay: 0.5 }}
+            className="w-[70%] h-[70%] flex items-center justify-center"
+          >
+            <svg width="100%" height="100%" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Palm base */}
+              <path 
+                d="M60,120 Q60,170 120,170 Q180,170 180,120 L180,140 C180,170 150,185 120,185 Q90,185 75,170 L50,145 Q35,130 40,115 L60,120"
+                stroke="white" 
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="rgba(255,255,255,0.05)"
+              />
+              
+              {/* Thumb */}
+              <path 
+                d="M60,120 L60,80 Q60,65 75,65 Q90,65 90,80 L90,110"
+                stroke="white" 
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+              
+              {/* Index finger */}
+              <path 
+                d="M90,110 L90,60 Q90,45 105,45 Q120,45 120,60 L120,110"
+                stroke="white" 
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+              
+              {/* Middle finger */}
+              <path 
+                d="M120,110 L120,50 Q120,35 135,35 Q150,35 150,50 L150,110"
+                stroke="white" 
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+              
+              {/* Ring finger */}
+              <path 
+                d="M150,110 L150,60 Q150,45 165,45 Q180,45 180,60 L180,110"
+                stroke="white" 
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+              
+              {/* Highlight lines */}
+              <path 
+                d="M80,85 Q90,80 100,85 M110,75 Q120,70 130,75 M140,65 Q150,60 160,65"
+                stroke="white" 
+                strokeWidth="0.7" 
+                strokeOpacity="0.6"
+                fill="none"
+              />
+              
+              {/* Fingernails subtle hints */}
+              <path
+                d="M90,60 L120,60 M120,50 L150,50 M150,60 L180,60"
+                stroke="white"
+                strokeWidth="0.5"
+                strokeOpacity="0.5"
+                strokeDasharray="1 2"
+              />
+            </svg>
+          </motion.div>
         </div>
       </div>
       
