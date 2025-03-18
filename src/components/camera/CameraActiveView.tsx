@@ -29,9 +29,41 @@ const CameraActiveView: React.FC<CameraActiveViewProps> = ({
       {/* Overlay flash effect for photo capture */}
       <div className="capture-flash absolute inset-0 bg-white opacity-0 z-10 pointer-events-none"></div>
       
-      {/* Camera frame guidelines */}
+      {/* Hand positioning guide overlay */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-        <div className="w-[85%] h-[85%] border-2 border-white/30 rounded-3xl"></div>
+        <div className="w-[85%] h-[85%] border-2 border-white/30 rounded-3xl flex items-center justify-center">
+          {/* Semi-transparent hand outline */}
+          <div className="relative w-[70%] h-[70%]">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.7 }}
+              transition={{ delay: 0.5 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <svg width="100%" height="100%" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path 
+                  d="M60,50 Q75,30 90,45 L90,110 Q90,125 105,125 L105,70 Q105,55 120,55 L120,115 Q120,130 135,130 L135,75 Q135,60 150,60 L150,120 Q150,135 165,135 L165,90 Q165,75 180,75 L180,140 C180,170 150,185 120,185 Q90,185 75,170 L50,145 Q35,130 40,115 L60,50" 
+                  stroke="white" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  fill="rgba(255,255,255,0.1)"
+                />
+              </svg>
+            </motion.div>
+            
+            {/* Instructional text */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+              className="absolute -top-14 left-0 right-0 text-center"
+            >
+              <span className="px-3 py-1 bg-black/40 backdrop-blur-sm text-white text-xs rounded-full">
+                Placez votre main dans le cadre
+              </span>
+            </motion.div>
+          </div>
+        </div>
       </div>
       
       {/* Apply object-fit:contain to preserve aspect ratio but add black letterboxing */}
