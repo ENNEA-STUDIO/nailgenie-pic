@@ -1,0 +1,109 @@
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import Layout from '@/components/Layout';
+import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
+import WelcomeStep from '@/components/onboarding/WelcomeStep';
+import ProfileForm from '@/components/onboarding/ProfileForm';
+import PasswordForm from '@/components/onboarding/PasswordForm';
+import PreferencesForm from '@/components/onboarding/PreferencesForm';
+import SuccessStep from '@/components/onboarding/SuccessStep';
+
+const OnboardingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    preferences: [] as string[]
+  });
+  
+  const handleProfileSubmit = (values: { fullName: string; email: string }) => {
+    setUserData(prev => ({ ...prev, ...values }));
+  };
+  
+  const handlePasswordSubmit = (values: { password: string; confirmPassword: string }) => {
+    setUserData(prev => ({ ...prev, password: values.password }));
+  };
+  
+  const handlePreferencesSubmit = (preferences: string[]) => {
+    setUserData(prev => ({ ...prev, preferences }));
+  };
+  
+  const handleComplete = async () => {
+    try {
+      // Créer un compte utilisateur avec Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          data: {
+            full_name: userData.fullName,
+            preferences: userData.preferences
+          }
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Votre compte a été créé avec succès!");
+      
+      // Rediriger vers la page d'accueil
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+      
+    } catch (error: any) {
+      console.error('Erreur lors de la création du compte:', error);
+      toast.error(error.message || "Une erreur s'est produite lors de la création de votre compte");
+    }
+  };
+  
+  const steps = [
+    {
+      id: 'welcome',
+      title: 'Bienvenue',
+      description: 'Découvrez NailGenie',
+      component: <WelcomeStep />
+    },
+    {
+      id: 'profile',
+      title: 'Profil',
+      description: 'Informations de base',
+      component: <ProfileForm onSubmitValues={handleProfileSubmit} />
+    },
+    {
+      id: 'password',
+      title: 'Sécurité',
+      description: 'Créez un mot de passe',
+      component: <PasswordForm onSubmitValues={handlePasswordSubmit} />
+    },
+    {
+      id: 'preferences',
+      title: 'Préférences',
+      description: 'Personnalisez votre expérience',
+      component: <PreferencesForm onSubmitValues={handlePreferencesSubmit} />
+    },
+    {
+      id: 'success',
+      title: 'Terminé',
+      description: 'Votre compte est prêt',
+      component: <SuccessStep />
+    }
+  ];
+  
+  return (
+    <Layout title="Créer un compte" showBackButton>
+      <div className="container max-w-4xl mx-auto pb-12">
+        <OnboardingFlow 
+          steps={steps} 
+          onComplete={handleComplete} 
+        />
+      </div>
+    </Layout>
+  );
+};
+
+export default OnboardingPage;

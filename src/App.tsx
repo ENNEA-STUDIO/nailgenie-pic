@@ -12,6 +12,7 @@ import CameraPage from "./pages/CameraPage";
 import PromptPage from "./pages/PromptPage";
 import PromptInputPage from "./pages/PromptInputPage";
 import ResultPage from "./pages/ResultPage";
+import OnboardingPage from "./pages/OnboardingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/prompt" element={<PromptPage />} />
               <Route path="/prompt-input" element={<PromptInputPage />} />
               <Route path="/result" element={<ResultPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>
