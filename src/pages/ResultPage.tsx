@@ -9,6 +9,13 @@ const ResultPage: React.FC = () => {
   const navigate = useNavigate();
   const { generatedDesign, resetState } = useApp();
   
+  // Log the generated design URL for debugging
+  useEffect(() => {
+    if (generatedDesign) {
+      console.log("Generated design URL:", generatedDesign);
+    }
+  }, [generatedDesign]);
+  
   // Redirect if no design
   useEffect(() => {
     if (!generatedDesign) {
@@ -24,7 +31,7 @@ const ResultPage: React.FC = () => {
   if (!generatedDesign) return null;
 
   return (
-    <Layout showBackButton title="Your Design">
+    <Layout showBackButton title="Votre design">
       <ResultPreview onTryAgain={handleTryAgain} />
     </Layout>
   );
