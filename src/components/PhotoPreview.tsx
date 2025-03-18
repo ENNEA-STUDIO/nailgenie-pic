@@ -47,7 +47,7 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({ photoSrc, onAccept, onRetak
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.4 }}
-        className="px-6 mt-2 pb-3 flex justify-center gap-6"
+        className="px-6 py-0 flex justify-center gap-6"
       >
         <Button 
           onClick={onRetake}
