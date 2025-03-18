@@ -47,26 +47,24 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({ photoSrc, onAccept, onRetak
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.4 }}
-        className="px-4 pb-6 pt-2 flex gap-4"
+        className="px-6 pb-8 pt-2 flex justify-center gap-6"
       >
         <Button 
           onClick={onRetake}
           variant="outline"
-          size="lg"
-          className="flex-1 h-14 rounded-xl"
+          size="icon"
+          className="h-16 w-16 rounded-full"
         >
-          <RefreshCcw className="mr-2 h-4 w-4" />
-          Reprendre
+          <RefreshCcw className="h-8 w-8" />
         </Button>
         
         <Button 
           onClick={onAccept}
           variant="default"
-          size="lg"
-          className="flex-1 h-14 rounded-xl bg-primary hover:bg-primary/90"
+          size="icon"
+          className="h-16 w-16 rounded-full bg-primary hover:bg-primary/90"
         >
-          <Check className="mr-2 h-4 w-4" />
-          Valider
+          <Check className="h-8 w-8" />
         </Button>
       </motion.div>
     </motion.div>
