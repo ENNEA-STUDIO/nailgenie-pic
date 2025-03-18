@@ -124,18 +124,21 @@ const CameraActiveView: React.FC<CameraActiveViewProps> = ({
         </Alert>
       )}
       
-      <motion.button
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        onClick={capturePhoto}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 p-4 bg-white/90 shadow-lg rounded-full z-20"
-        aria-label="Prendre une photo"
-      >
-        <div className="w-16 h-16 rounded-full border-4 border-primary flex items-center justify-center">
-          <div className="w-14 h-14 rounded-full bg-primary hover:bg-primary/90 transition-colors"></div>
-        </div>
-      </motion.button>
+      {/* Fixed positioning of the capture button to ensure it's centered */}
+      <div className="absolute bottom-8 w-full flex justify-center items-center z-20">
+        <motion.button
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          onClick={capturePhoto}
+          className="p-4 bg-white/90 shadow-lg rounded-full"
+          aria-label="Prendre une photo"
+        >
+          <div className="w-16 h-16 rounded-full border-4 border-primary flex items-center justify-center">
+            <div className="w-14 h-14 rounded-full bg-primary hover:bg-primary/90 transition-colors"></div>
+          </div>
+        </motion.button>
+      </div>
       
       <motion.button
         initial={{ opacity: 0, scale: 0.9 }}
