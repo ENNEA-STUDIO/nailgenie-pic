@@ -3,8 +3,14 @@ import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+export interface DeviceInfo {
+  isMobile: boolean;
+  isIOS: boolean;
+  isSafari: boolean;
+}
+
+export function useIsMobile(): DeviceInfo {
+  const [isMobile, setIsMobile] = React.useState<boolean>(false)
   const [isIOS, setIsIOS] = React.useState<boolean>(false)
   const [isSafari, setIsSafari] = React.useState<boolean>(false)
 
@@ -49,7 +55,7 @@ export function useIsMobile() {
 
   // Return object with all detection flags
   return {
-    isMobile: !!isMobile,
+    isMobile,
     isIOS,
     isSafari
   }
