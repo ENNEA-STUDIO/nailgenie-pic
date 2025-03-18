@@ -1,9 +1,14 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Camera } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import LogoutButton from '../auth/LogoutButton';
 
 const SuccessStep: React.FC = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="flex flex-col items-center justify-center text-center h-full py-8 space-y-6">
       <motion.div
@@ -41,6 +46,26 @@ const SuccessStep: React.FC = () => {
             {tag}
           </span>
         ))}
+      </motion.div>
+      
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9, duration: 0.5 }}
+        className="flex flex-col gap-3 w-full max-w-xs mt-4"
+      >
+        <Button 
+          onClick={() => navigate('/camera')}
+          className="w-full"
+          size="lg"
+        >
+          <Camera className="mr-2 h-4 w-4" />
+          Prendre une photo
+        </Button>
+        
+        <div className="flex justify-center mt-2">
+          <LogoutButton variant="ghost" />
+        </div>
       </motion.div>
     </div>
   );

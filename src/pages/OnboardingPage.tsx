@@ -50,9 +50,9 @@ const OnboardingPage: React.FC = () => {
       
       toast.success("Votre compte a été créé avec succès!");
       
-      // Rediriger vers la page d'accueil
+      // Rediriger vers la page de la caméra
       setTimeout(() => {
-        navigate('/');
+        navigate('/camera');
       }, 1500);
       
     } catch (error: any) {
