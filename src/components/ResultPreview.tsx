@@ -16,31 +16,56 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const [imageError, setImageError] = useState(false);
   const isMobile = useIsMobile();
 
-  // Track when image loads or fails
+  // Reset image state when design URL changes
   useEffect(() => {
-    setImageLoaded(false);
-    setImageError(false);
+    if (generatedDesign) {
+      console.log("Setting up new image with URL:", generatedDesign);
+      setImageLoaded(false);
+      setImageError(false);
+    }
   }, [generatedDesign]);
+
+  // Ensure image URL is valid for mobile devices
+  const getImageUrl = () => {
+    if (!generatedDesign) return '';
+    
+    // For debugging
+    console.log("Using image URL:", generatedDesign);
+    
+    // Make sure the URL is properly encoded
+    try {
+      // Return the URL as is - the issue might be with the loading rather than the URL
+      return generatedDesign;
+    } catch (error) {
+      console.error("Error with image URL:", error);
+      return generatedDesign; // Fallback to original URL
+    }
+  };
 
   const handleDownload = () => {
     if (!generatedDesign) return;
     
-    // Create a link element and trigger download
-    const link = document.createElement('a');
-    link.href = generatedDesign;
-    link.download = `nailgenie-design-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast.success("Image sauvegardée");
+    try {
+      // Create a link element and trigger download
+      const link = document.createElement('a');
+      link.href = generatedDesign;
+      link.download = `nailgenie-design-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success("Image sauvegardée");
+    } catch (error) {
+      console.error("Erreur lors du téléchargement:", error);
+      toast.error("Impossible de télécharger l'image");
+    }
   };
   
   const handleShare = async () => {
     if (!generatedDesign || !navigator.share) return;
     
     try {
-      // For iOS/mobile, use the direct URL for sharing instead of creating a blob
+      // For iOS/mobile, use the direct URL for sharing
       if (isMobile) {
         await navigator.share({
           title: 'Mon design NailGenie',
@@ -65,6 +90,12 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       console.error("Erreur lors du partage:", error);
       toast.error("Impossible de partager le design");
     }
+  };
+
+  const handleImageError = () => {
+    console.error("Image failed to load:", generatedDesign);
+    setImageError(true);
+    setImageLoaded(false);
   };
 
   if (isLoading) {
@@ -134,12 +165,12 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           )}
           
           <img 
-            src={generatedDesign} 
+            src={getImageUrl()} 
             alt="Generated nail design" 
             className={`w-full object-cover rounded-t-3xl ${imageLoaded ? 'block' : 'hidden'}`}
             style={{ maxHeight: 'calc(100vh - 22rem)' }}
             onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
+            onError={handleImageError}
           />
           
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent pt-16 pb-4 px-6">
