@@ -96,7 +96,7 @@ const OnboardingPage: React.FC = () => {
   
   return (
     <Layout title="Créer un compte" showBackButton>
-      <div className="container max-w-4xl mx-auto pb-12">
+      <div className="w-full mx-auto pb-10">
         <OnboardingFlow 
           steps={steps} 
           onComplete={handleComplete} 
