@@ -5,6 +5,7 @@ import { LogOut } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 interface LogoutButtonProps {
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
@@ -25,6 +26,9 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
       if (error) throw error;
       
       navigate('/');
+      toast.success("Vous avez été déconnecté avec succès", {
+        icon: "👋"
+      });
     } catch (error: any) {
       console.error('Error logging out:', error);
       toast.error(error.message || "Une erreur s'est produite lors de la déconnexion");
@@ -32,15 +36,20 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
   };
   
   return (
-    <Button 
-      variant={variant} 
-      size={size} 
-      onClick={handleLogout}
-      className={className}
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
     >
-      <LogOut className="mr-2 h-4 w-4" />
-      <span>Déconnexion</span>
-    </Button>
+      <Button 
+        variant={variant} 
+        size={size} 
+        onClick={handleLogout}
+        className={`rounded-xl transition-all duration-300 ${className}`}
+      >
+        <LogOut className="mr-2 h-4 w-4" />
+        <span>Déconnexion</span>
+      </Button>
+    </motion.div>
   );
 };
 

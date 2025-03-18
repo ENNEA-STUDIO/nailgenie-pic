@@ -1,73 +1,140 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import LogoutButton from '../auth/LogoutButton';
+import confetti from 'canvas-confetti';
 
 const SuccessStep: React.FC = () => {
   const navigate = useNavigate();
   
+  useEffect(() => {
+    // Trigger confetti when component mounts
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval: any = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      
+      // since particles fall down, start a bit higher than random
+      confetti(Object.assign({}, defaults, { 
+        particleCount, 
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } 
+      }));
+      confetti(Object.assign({}, defaults, { 
+        particleCount, 
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } 
+      }));
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1
+    }
+  };
+  
   return (
-    <div className="flex flex-col items-center justify-center text-center h-full py-8 space-y-6">
+    <motion.div 
+      className="flex flex-col items-center justify-center text-center h-full py-8 space-y-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", stiffness: 200, damping: 10 }}
-        className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center"
+        variants={itemVariants}
+        className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center"
       >
-        <CheckCircle className="w-10 h-10 text-primary" />
+        <motion.div
+          animate={{ 
+            scale: [1, 1.2, 1],
+            rotate: [0, 10, 0, -10, 0]
+          }}
+          transition={{ 
+            duration: 2,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        >
+          <CheckCircle className="w-14 h-14 text-primary" />
+        </motion.div>
       </motion.div>
       
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
+        variants={itemVariants}
         className="space-y-2"
       >
-        <h2 className="text-2xl font-bold">Compte créé avec succès!</h2>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          Compte créé avec succès!
+        </h2>
         <p className="text-muted-foreground">
           Votre compte a été créé et vous êtes prêt à explorer NailGenie
         </p>
       </motion.div>
       
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
+        variants={itemVariants}
         className="flex flex-wrap gap-2 justify-center"
       >
         {['Designs personnalisés', 'Inspiration', 'Partage', 'Conseils'].map((tag, i) => (
-          <span 
+          <motion.span 
             key={i}
-            className="px-3 py-1 bg-muted rounded-full text-xs font-medium"
+            className="px-3 py-1 bg-gradient-to-r from-background to-secondary rounded-full text-xs font-medium border border-border/50 shadow-sm"
+            whileHover={{ scale: 1.05, y: -2 }}
           >
             {tag}
-          </span>
+          </motion.span>
         ))}
       </motion.div>
       
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, duration: 0.5 }}
+        variants={itemVariants}
         className="flex flex-col gap-3 w-full max-w-xs mt-4"
       >
-        <Button 
-          onClick={() => navigate('/camera')}
-          className="w-full"
-          size="lg"
-        >
-          <Camera className="mr-2 h-4 w-4" />
-          Prendre une photo
-        </Button>
+        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+          <Button 
+            onClick={() => navigate('/camera')}
+            className="w-full h-14 rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 hover:shadow-lg transition-all"
+            size="lg"
+          >
+            <Camera className="mr-2 h-5 w-5" />
+            <span className="font-semibold">Prendre une photo</span>
+          </Button>
+        </motion.div>
         
-        <div className="flex justify-center mt-2">
+        <div className="flex justify-center mt-3">
           <LogoutButton variant="ghost" />
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { motion } from 'framer-motion';
+import { User, Mail } from 'lucide-react';
 
 const profileSchema = z.object({
   fullName: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
@@ -37,49 +39,77 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   }, [isComplete, form, onSubmitValues]);
 
   return (
-    <Form {...form}>
-      <form 
-        onChange={() => isComplete && onSubmitValues(form.getValues())}
-        className="space-y-6"
-      >
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nom complet</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="Votre nom" 
-                  {...field} 
-                  className="h-12"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="votre@email.com" 
-                  type="email" 
-                  {...field} 
-                  className="h-12"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </form>
-    </Form>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Form {...form}>
+        <form 
+          onChange={() => isComplete && onSubmitValues(form.getValues())}
+          className="space-y-6"
+        >
+          <FormField
+            control={form.control}
+            name="fullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2">
+                  <User size={16} className="text-primary" />
+                  <span>Nom complet</span>
+                </FormLabel>
+                <FormControl>
+                  <motion.div
+                    whileTap={{ scale: 0.99 }}
+                    className="relative"
+                  >
+                    <Input 
+                      placeholder="Votre nom" 
+                      {...field} 
+                      className="h-12 pl-10 rounded-xl border-muted bg-background/70 backdrop-blur-sm focus:border-primary"
+                    />
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      <User size={18} />
+                    </div>
+                  </motion.div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2">
+                  <Mail size={16} className="text-primary" />
+                  <span>Email</span>
+                </FormLabel>
+                <FormControl>
+                  <motion.div
+                    whileTap={{ scale: 0.99 }}
+                    className="relative"
+                  >
+                    <Input 
+                      placeholder="votre@email.com" 
+                      type="email" 
+                      {...field} 
+                      className="h-12 pl-10 rounded-xl border-muted bg-background/70 backdrop-blur-sm focus:border-primary"
+                    />
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      <Mail size={18} />
+                    </div>
+                  </motion.div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
+    </motion.div>
   );
 };
 
