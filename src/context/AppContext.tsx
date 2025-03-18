@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
+import { Client } from "@gradio/client";
 
 // Types pour les options d'ongles
 export type NailShape = 'round' | 'square' | 'oval' | 'almond' | 'stiletto' | 'coffin';
@@ -50,7 +51,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsLoading(true);
     
     try {
-      console.log("Preparing to call edge function with params:", { 
+      console.log("Preparing to generate design with params:", { 
         promptLength: prompt.length,
         imageLength: handImage.length,
         nailShape, 
@@ -58,33 +59,70 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         nailColor 
       });
 
-      // Appel à notre edge function Supabase
-      const { data, error } = await supabase.functions.invoke('generate-nail-design', {
-        body: {
-          imageBase64: handImage,
-          prompt,
-          nailShape,
-          nailLength,
-          nailColor
-        }
-      });
+      // Convert base64 to blob
+      const base64Data = handImage.replace(/^data:image\/\w+;base64,/, "");
+      const byteString = atob(base64Data);
+      const buffer = new Uint8Array(byteString.length);
       
-      console.log("Edge function response received:", data ? "yes" : "no");
-      
-      if (error) {
-        console.error("Supabase error:", error);
-        throw new Error(error.message || "Une erreur s'est produite lors de l'appel à la fonction");
+      for (let i = 0; i < byteString.length; i++) {
+        buffer[i] = byteString.charCodeAt(i);
       }
       
-      console.log("Edge function success status:", data?.success);
-      console.log("Edge function data array:", data?.data ? "present" : "missing");
+      const imageBlob = new Blob([buffer], { type: "image/jpeg" });
       
-      if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
-        console.log("Generated design URL type:", typeof data.data[0]);
-        setGeneratedDesign(data.data[0]);
-        toast.success("Design généré avec succès!");
+      // Prepare a full prompt that includes nail details
+      const fullPrompt = `${prompt} avec des ongles ${nailLength === 'short' ? 'courts' : 
+        nailLength === 'medium' ? 'moyens' : 'longs'} de forme ${nailShape} de couleur principale ${nailColor}`;
+      
+      console.log("Full prompt:", fullPrompt);
+      console.log("Connecting to Gemini Image Edit model...");
+      
+      // Connect to the Gemini Image Edit model
+      const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", {
+        hf_token: import.meta.env.VITE_HUGGINGFACE_TOKEN
+      });
+      
+      console.log("Connected to client successfully");
+      console.log("Making prediction with prompt:", fullPrompt);
+      
+      // Make API call to generate the design
+      const result = await client.predict("/process_image_and_prompt", {
+        composite_pil: imageBlob,
+        prompt: fullPrompt,
+        gemini_api_key: import.meta.env.VITE_GEMINI_API_KEY,
+      });
+      
+      console.log("Prediction result received:", result ? "success" : "undefined");
+      console.log("Result data:", result.data ? "exists" : "missing");
+      console.log("Full result object:", JSON.stringify(result, null, 2));
+      
+      if (result && result.data) {
+        try {
+          // Based on the console logs, the image URL is nested in the structure:
+          // result.data[0][0].image.url
+          if (Array.isArray(result.data) && 
+              result.data.length > 0 && 
+              Array.isArray(result.data[0]) && 
+              result.data[0].length > 0 && 
+              result.data[0][0] && 
+              result.data[0][0].image && 
+              result.data[0][0].image.url) {
+            
+            const imageUrl = result.data[0][0].image.url;
+            console.log("Extracted image URL:", imageUrl);
+            
+            setGeneratedDesign(imageUrl);
+            toast.success("Design généré avec succès!");
+          } else {
+            console.error("Could not find image URL in the expected structure");
+            throw new Error("Structure de données inattendue");
+          }
+        } catch (error) {
+          console.error("Error extracting image URL:", error);
+          throw new Error("Erreur lors de l'extraction de l'URL de l'image");
+        }
       } else {
-        console.error("Unexpected data format:", data);
+        console.error("Unexpected data format:", result);
         throw new Error("Aucune donnée d'image reçue de l'API");
       }
     } catch (error) {

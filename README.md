@@ -32,9 +32,25 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Set up environment variables.
+cp .env.example .env
+# Edit the .env file and add your Gemini API key
+
+# Step 5: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
+
+## Environment Variables
+
+This project requires the following environment variables:
+
+- `VITE_GEMINI_API_KEY`: Google Gemini API key for nail design generation
+  - Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+  - Add it to your `.env` file
+
+- `VITE_HUGGINGFACE_TOKEN`: Hugging Face token for accessing the nail design model
+  - Get your token from [Hugging Face Settings](https://huggingface.co/settings/tokens)
+  - Add it to your `.env` file
 
 **Edit a file directly in GitHub**
 
