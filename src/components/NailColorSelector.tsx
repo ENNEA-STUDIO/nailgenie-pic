@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { Check } from 'lucide-react';
-import { ScrollArea } from './ui/scroll-area';
 import { 
   Tooltip,
   TooltipContent,
@@ -84,7 +83,7 @@ const NailColorSelector: React.FC = () => {
   
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-medium mb-3">Couleur</h3>
+      <h3 className="text-lg font-medium mb-3 px-4">Couleur</h3>
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -92,19 +91,19 @@ const NailColorSelector: React.FC = () => {
         className="space-y-4"
       >
         {/* Horizontal scrollable tabs for categories */}
-        <ScrollArea className="w-full">
-          <div className="pb-4">
+        <div className="overflow-x-auto no-scrollbar">
+          <div className="pb-2 px-4">
             <Tabs 
               value={activeCategory} 
               onValueChange={handleCategoryChange}
               className="w-full min-w-max"
             >
-              <TabsList className="inline-flex gap-2 p-1 h-auto bg-transparent">
+              <TabsList className="inline-flex h-auto bg-transparent p-0">
                 {colorCategories.map((category) => (
                   <TabsTrigger
                     key={category.name}
                     value={category.name}
-                    className="px-3 py-1.5 text-sm rounded-full whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    className="px-3 py-1.5 text-sm rounded-full whitespace-nowrap mr-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                   >
                     {category.name}
                   </TabsTrigger>
@@ -112,7 +111,7 @@ const NailColorSelector: React.FC = () => {
               </TabsList>
             </Tabs>
           </div>
-        </ScrollArea>
+        </div>
         
         {/* Display color grid for the active category */}
         <motion.div 
@@ -121,10 +120,10 @@ const NailColorSelector: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -5 }}
           transition={{ duration: 0.25 }}
-          className="border border-muted rounded-xl p-3"
+          className="border border-muted rounded-xl p-3 mx-4"
         >
-          <ScrollArea className="w-full">
-            <div className="flex gap-3 min-w-max pb-4">
+          <div className="overflow-x-auto no-scrollbar">
+            <div className="flex gap-3 min-w-max pb-2">
               {currentCategory.colors.map((color) => {
                 const isSelected = nailColor === color.hex;
                 
@@ -170,7 +169,7 @@ const NailColorSelector: React.FC = () => {
                 );
               })}
             </div>
-          </ScrollArea>
+          </div>
         </motion.div>
       </motion.div>
     </div>

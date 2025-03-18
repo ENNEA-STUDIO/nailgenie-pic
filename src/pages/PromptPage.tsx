@@ -30,7 +30,7 @@ const PromptPage: React.FC = () => {
   return (
     <Layout showBackButton title="Personnalisez vos ongles">
       <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto pb-4">
+        <div className="flex-1 overflow-y-auto pb-4 no-scrollbar">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -44,7 +44,7 @@ const PromptPage: React.FC = () => {
             />
           </motion.div>
           
-          <div className="px-4 space-y-6">
+          <div className="space-y-6">
             <NailShapeSelector />
             <NailLengthSelector />
             <NailColorSelector />
