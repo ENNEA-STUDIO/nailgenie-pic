@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -111,6 +112,22 @@
   .camera-container {
     @apply relative overflow-hidden rounded-3xl;
     height: calc(100vh - 12rem);
+  }
+  
+  /* New camera flash effect */
+  .capture-flash {
+    transition: opacity 0.3s ease-out;
+  }
+  
+  .capture-flash.flashing {
+    opacity: 0.7;
+    animation: flash 0.3s ease-out;
+  }
+  
+  @keyframes flash {
+    0% { opacity: 0; }
+    50% { opacity: 0.7; }
+    100% { opacity: 0; }
   }
   
   .prompt-input {
