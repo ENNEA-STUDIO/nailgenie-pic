@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, RefreshCw, Share } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface ResultActionsProps {
   onTryAgain: () => void;
@@ -19,6 +19,12 @@ const ResultActions: React.FC<ResultActionsProps> = ({
 }) => {
   const { isMobile, isIOS, isSafari } = useIsMobile();
   const canShare = !!navigator.share && !!navigator.canShare;
+  const navigate = useNavigate();
+
+  const handleTryAgain = () => {
+    onTryAgain();
+    navigate('/prompt');
+  };
 
   const handleDownload = () => {
     if (!generatedDesign) return;
@@ -92,7 +98,7 @@ const ResultActions: React.FC<ResultActionsProps> = ({
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        onClick={onTryAgain}
+        onClick={handleTryAgain}
         className={cn(iconButtonClass, "bg-gradient-to-br from-[#9b87f5] to-[#7E69AB] text-white")}
         title="Réessayer"
       >
