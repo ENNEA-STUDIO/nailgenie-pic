@@ -22,7 +22,7 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="relative mt-6 px-1 overflow-y-auto max-h-40"
+      className="relative mt-6 px-1"
     >
       <div className="flex flex-wrap justify-center gap-2.5 py-2 px-1">
         {exampleTags.map((example, index) => (
