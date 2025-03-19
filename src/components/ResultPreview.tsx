@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
-import { Download, Save, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
+import { Download, Save, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
@@ -121,28 +121,30 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         />
       </motion.div>
       
-      <div className="flex flex-wrap justify-center gap-3 w-full">
+      <div className="flex justify-center gap-4 w-full">
         <Button 
           onClick={onTryAgain}
           variant="outline" 
-          className="flex items-center gap-2 flex-1"
+          size="icon"
+          className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative"
+          title={t.common.tryAgain}
         >
-          <ArrowLeft size={18} />
-          {t.common.tryAgain}
+          <RefreshCw size={20} />
         </Button>
         
         <Button 
           onClick={handleDownload}
           variant="outline" 
+          size="icon"
           disabled={downloading}
-          className="flex items-center gap-2 flex-1 relative"
+          className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative"
+          title={t.common.download}
         >
           {downloading ? (
-            <div className="w-4 h-4 rounded-full border-2 border-t-transparent border-current animate-spin mr-2"></div>
+            <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-current animate-spin"></div>
           ) : (
-            <Download size={18} />
+            <Download size={20} />
           )}
-          {t.common.download}
           
           {/* Download success indicator */}
           <AnimatePresence>
@@ -162,21 +164,17 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         <Button
           onClick={handleSaveToGallery}
           disabled={saving}
-          className="w-full mt-2 bg-primary relative"
+          size="icon"
+          className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative"
           style={{
             background: saving ? undefined : "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)",
           }}
+          title={t.result.saveToGallery}
         >
           {saving ? (
-            <>
-              <div className="w-4 h-4 rounded-full border-2 border-t-transparent border-white animate-spin mr-2"></div>
-              {t.result.saving}
-            </>
+            <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin"></div>
           ) : (
-            <>
-              <Save size={18} className="mr-2" />
-              {t.result.saveToGallery}
-            </>
+            <Save size={20} />
           )}
           
           {/* Save success indicator */}
