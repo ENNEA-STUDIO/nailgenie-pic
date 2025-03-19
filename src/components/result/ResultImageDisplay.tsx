@@ -1,8 +1,8 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 interface ResultImageDisplayProps {
   imageUrl: string;
@@ -19,13 +19,41 @@ const ResultImageDisplay: React.FC<ResultImageDisplayProps> = ({
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [localRetries, setLocalRetries] = useState(0);
   const imgRef = useRef<HTMLImageElement>(null);
   const { isIOS, isSafari } = useIsMobile();
+  
+  // Add an effect to handle retries locally as a fallback
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    
+    // If we have an error and URL but less than 3 local retries
+    if (error && imageUrl && localRetries < 3) {
+      timer = setTimeout(() => {
+        console.log(`Local retry attempt ${localRetries + 1}/3 for image:`, imageUrl);
+        
+        // Force a new image instance by updating the ref src with cache buster
+        if (imgRef.current) {
+          const cacheBuster = `&localRetry=${localRetries + 1}&t=${Date.now()}`;
+          imgRef.current.src = imageUrl.includes('?') 
+            ? `${imageUrl}${cacheBuster}` 
+            : `${imageUrl}?${cacheBuster.substring(1)}`;
+        }
+        
+        setLocalRetries(prev => prev + 1);
+      }, 1500 * (localRetries + 1));
+    }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [error, imageUrl, localRetries]);
   
   const handleImageLoad = () => {
     console.log("Image loaded successfully:", imageUrl);
     setImageLoaded(true);
     setError(false);
+    setLocalRetries(0);
     onImageLoad();
   };
   
@@ -33,7 +61,21 @@ const ResultImageDisplay: React.FC<ResultImageDisplayProps> = ({
     console.error("Image failed to load:", imageUrl);
     setError(true);
     setImageLoaded(false);
-    onImageError();
+    
+    // Only call the parent's error handler if we've exhausted local retries
+    if (localRetries >= 3) {
+      onImageError();
+    }
+  };
+  
+  const handleManualRetry = () => {
+    if (imgRef.current) {
+      setError(false);
+      const cacheBuster = `&manualRetry=true&t=${Date.now()}`;
+      imgRef.current.src = imageUrl.includes('?') 
+        ? `${imageUrl}${cacheBuster}` 
+        : `${imageUrl}?${cacheBuster.substring(1)}`;
+    }
   };
 
   return (
@@ -44,6 +86,30 @@ const ResultImageDisplay: React.FC<ResultImageDisplayProps> = ({
           style={{ minHeight: 'calc(100vh - 26rem)' }}
         >
           <div className="w-10 h-10 rounded-full border-4 border-t-transparent border-primary animate-spin mb-4"></div>
+          
+          {error && (
+            <div className="flex flex-col items-center mt-4">
+              <p className="text-sm text-destructive mb-2 flex items-center">
+                <AlertCircle size={16} className="mr-1" />
+                Erreur de chargement d'image
+              </p>
+              {localRetries < 3 && (
+                <p className="text-xs text-muted-foreground mb-3">
+                  Tentative {localRetries + 1}/3...
+                </p>
+              )}
+              {localRetries >= 3 && (
+                <button 
+                  onClick={handleManualRetry}
+                  className="flex items-center px-3 py-1 bg-primary/10 rounded-full text-xs text-primary hover:bg-primary/20 transition-colors"
+                >
+                  <RefreshCw size={12} className="mr-1" />
+                  Réessayer
+                </button>
+              )}
+            </div>
+          )}
+          
           {(isIOS || isSafari) && !error && (
             <p className="text-xs text-amber-600 max-w-[250px] text-center">
               Le chargement peut prendre plus de temps sur Safari

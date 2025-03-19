@@ -14,6 +14,7 @@ const ResultPage: React.FC = () => {
   const { generatedDesign, resetState } = useApp();
   const { isIOS, isSafari } = useIsMobile();
   const { t } = useLanguage();
+  const [manualErrorOverride, setManualErrorOverride] = useState(false);
   
   const { 
     imageLoaded, 
@@ -45,11 +46,16 @@ const ResultPage: React.FC = () => {
     resetState();
     navigate('/');
   };
+  
+  const handleImageError = () => {
+    console.log("Image error bubbled up to ResultPage");
+    setManualErrorOverride(true);
+  };
 
   if (!generatedDesign) return null;
   
-  // Show error state if image failed to load after retries
-  if (imageError && retryCount >= 5) {
+  // Show error state if image failed to load after retries or manual override
+  if ((imageError && retryCount >= 5) || manualErrorOverride) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-background pb-32">
         <ResultError 
@@ -69,6 +75,12 @@ const ResultPage: React.FC = () => {
         <div className="w-16 h-16 rounded-full border-4 border-t-transparent border-primary animate-spin"></div>
         <p className="mt-4 text-sm text-muted-foreground">{t.common.loading}...</p>
         
+        {retryCount > 0 && (
+          <p className="mt-2 text-xs text-primary">
+            Tentative {retryCount}/{5}...
+          </p>
+        )}
+        
         {/* Add additional information for users experiencing issues */}
         {(isIOS && isSafari) && (
           <p className="mt-4 text-xs text-center max-w-xs text-amber-600">
@@ -81,7 +93,10 @@ const ResultPage: React.FC = () => {
 
   return (
     <div className="w-full h-screen flex items-center justify-center bg-background pb-32">
-      <ResultPreview onTryAgain={handleTryAgain} />
+      <ResultPreview 
+        onTryAgain={handleTryAgain} 
+        onImageError={handleImageError}
+      />
       <BottomNav />
     </div>
   );

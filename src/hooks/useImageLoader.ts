@@ -22,9 +22,14 @@ export const useImageLoader = ({
   const [imageError, setImageError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Fonction pour tenter de précharger l'image
+  // Improved image preloading function with better error handling
   const preloadImage = useCallback((url: string) => {
-    console.log("Preloading image:", url);
+    console.log("Attempting to preload image:", url);
+    
+    // Clear previous state when attempting a new load
+    setImageLoaded(false);
+    setImageError(false);
+    
     const img = new Image();
     
     img.onload = () => {
@@ -40,14 +45,17 @@ export const useImageLoader = ({
       setImageLoaded(false);
     };
     
-    // Set crossOrigin for CORS images
-    if (url.startsWith('http')) {
-      img.crossOrigin = "anonymous";
-    }
+    // Always set crossOrigin for CORS images
+    img.crossOrigin = "anonymous";
     
-    // Ajout d'un cachebuster pour éviter les problèmes de cache
+    // Add a cache buster to avoid browser caching issues
     const cacheBuster = `${url.includes('?') ? '&' : '?'}t=${Date.now()}&r=${Math.random()}`;
     img.src = url + cacheBuster;
+    
+    // Return a cleanup function to abort loading if component unmounts
+    return () => {
+      img.src = '';
+    };
   }, []);
 
   // When generatedDesign changes, set up image with appropriate cache-busting
@@ -63,16 +71,19 @@ export const useImageLoader = ({
       const finalUrl = `${generatedDesign}${cacheBuster}`;
       setImageUrl(finalUrl);
       
-      preloadImage(generatedDesign);
+      const cleanup = preloadImage(generatedDesign);
+      return cleanup;
     }
   }, [generatedDesign, preloadImage]);
 
   // Auto-retry logic when image fails to load
   useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    
     if (imageError && generatedDesign && retryCount < maxRetries) {
       console.log(`Attempting to reload image after error (retry ${retryCount + 1}/${maxRetries})`);
       
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         // Create a new cache-busting URL with retry information
         const newUrl = `${generatedDesign}?retry=${retryCount + 1}&t=${Date.now()}&r=${Math.random()}`;
         console.log(`Retry ${retryCount + 1}/${maxRetries} with URL:`, newUrl);
@@ -81,9 +92,11 @@ export const useImageLoader = ({
         setRetryCount(prev => prev + 1);
         preloadImage(generatedDesign);
       }, 1000 * (retryCount + 1)); // Incremental backoff
-      
-      return () => clearTimeout(timer);
     }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [imageError, generatedDesign, retryCount, maxRetries, preloadImage]);
 
   return {
