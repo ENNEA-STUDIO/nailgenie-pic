@@ -22,37 +22,37 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({ onSubmitValues }) => 
       id: 'natural', 
       label: 'Naturel', 
       icon: <span className="text-2xl">💅</span>,
-      color: 'from-amber-100 to-amber-200'
+      color: 'from-amber-50 to-amber-100'
     },
     { 
       id: 'glamour', 
       label: 'Glamour', 
       icon: <span className="text-2xl">✨</span>,
-      color: 'from-purple-100 to-purple-200'
+      color: 'from-purple-50 to-purple-100'
     },
     { 
       id: 'bold', 
       label: 'Audacieux', 
       icon: <span className="text-2xl">🔥</span>,
-      color: 'from-red-100 to-red-200'
+      color: 'from-pink-50 to-pink-100'
     },
     { 
       id: 'minimalist', 
       label: 'Minimaliste', 
       icon: <span className="text-2xl">🤍</span>,
-      color: 'from-slate-100 to-slate-200'
+      color: 'from-slate-50 to-slate-100'
     },
     { 
       id: 'artistic', 
       label: 'Artistique', 
       icon: <span className="text-2xl">🎨</span>,
-      color: 'from-blue-100 to-blue-200'
+      color: 'from-blue-50 to-blue-100'
     },
     { 
       id: 'trendy', 
       label: 'Tendance', 
       icon: <span className="text-2xl">⚡</span>,
-      color: 'from-yellow-100 to-yellow-200'
+      color: 'from-yellow-50 to-yellow-100'
     },
   ];
 
@@ -106,12 +106,17 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({ onSubmitValues }) => 
               className={`
                 relative rounded-xl p-4 cursor-pointer transition-all duration-300
                 flex flex-col items-center justify-center gap-2
-                border-2 h-28
+                border-2 h-28 backdrop-blur-sm
                 bg-gradient-to-br ${preference.color}
                 ${isSelected 
-                  ? 'border-primary shadow-lg shadow-primary/10 ring-2 ring-primary/20' 
-                  : 'border-border/50 hover:border-primary/30'}
+                  ? 'border-pink-300 shadow-lg shadow-pink-200/30 ring-2 ring-pink-200/20' 
+                  : 'border-white/50 hover:border-pink-200/50'}
               `}
+              style={{
+                boxShadow: isSelected 
+                  ? '0 10px 15px -3px rgba(219, 39, 119, 0.1), 0 4px 6px -2px rgba(219, 39, 119, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.5)'
+                  : 'inset 0 1px 1px rgba(255, 255, 255, 0.5)'
+              }}
             >
               <motion.div 
                 className="text-3xl"
@@ -129,7 +134,10 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({ onSubmitValues }) => 
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center"
+                  className="absolute top-2 right-2 w-5 h-5 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center"
+                  style={{
+                    boxShadow: '0 2px 4px rgba(219, 39, 119, 0.2)'
+                  }}
                 >
                   <motion.div 
                     initial={{ scale: 0 }}
@@ -147,7 +155,12 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({ onSubmitValues }) => 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="text-sm text-center mt-6 bg-secondary/50 p-3 rounded-lg border border-border/50"
+        className="text-sm text-center mt-6 p-3 rounded-lg border backdrop-blur-sm"
+        style={{
+          background: 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(249,240,255,0.7) 100%)',
+          borderColor: 'rgba(219, 39, 119, 0.1)',
+          boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.5)'
+        }}
       >
         Sélectionnez les styles qui vous intéressent pour personnaliser votre expérience
       </motion.p>

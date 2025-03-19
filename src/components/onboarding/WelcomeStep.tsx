@@ -46,7 +46,10 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
       animate="visible"
     >
       <motion.div
-        className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center transform-gpu shadow-xl"
+        className="w-28 h-28 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center transform-gpu shadow-xl"
+        style={{
+          boxShadow: '0 10px 25px -5px rgba(219, 39, 119, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.5)'
+        }}
         animate={{ 
           scale: [1, 1.05, 1],
           rotate: [0, 5, 0, -5, 0]
@@ -61,7 +64,7 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
       </motion.div>
       
       <motion.div variants={itemVariants} className="space-y-2">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
           NailGenie
         </h2>
         <p className="text-base text-muted-foreground max-w-xs mx-auto">
@@ -75,9 +78,12 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
             key={i}
             variants={itemVariants}
             whileHover={{ scale: 1.03, x: 5 }}
-            className="flex items-center gap-3 text-left p-3 rounded-xl bg-gradient-to-r from-background to-secondary/20 border border-primary/10 shadow-sm"
+            className="flex items-center gap-3 text-left p-3 rounded-xl bg-gradient-to-r from-background to-secondary/20 border border-pink-200/40 shadow-sm backdrop-blur-sm"
+            style={{
+              boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.3)'
+            }}
           >
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center shrink-0 shadow-sm">
               <span className="text-xl">{feature.icon}</span>
             </div>
             <span className="font-medium text-sm">{feature.text}</span>
@@ -97,10 +103,10 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
           className="w-full"
         >
           <button 
-            className="w-full py-4 rounded-xl font-medium text-white flex items-center justify-center gap-2 bg-gradient-to-r from-primary via-accent to-primary bg-size-200 bg-pos-0 hover:bg-pos-100 transition-all duration-500 shadow-lg"
+            className="w-full py-4 px-6 rounded-full font-medium text-white flex items-center justify-center gap-2 shadow-lg"
             style={{ 
-              backgroundSize: '200% 100%',
-              boxShadow: '0 10px 15px -3px rgba(147, 51, 234, 0.1), 0 4px 6px -2px rgba(167, 139, 250, 0.05)'
+              background: 'linear-gradient(90deg, #D946EF 0%, #9b87f5 100%)',
+              boxShadow: '0 10px 15px -3px rgba(214, 31, 255, 0.2), 0 4px 6px -2px rgba(215, 115, 247, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.3)'
             }}
             onClick={onNext}
           >

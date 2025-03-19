@@ -68,19 +68,24 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
         >
           <div className="mb-6">
             <motion.div 
-              className="p-4 rounded-xl bg-secondary/50 border border-border mb-5"
+              className="p-4 rounded-xl border mb-5 backdrop-blur-sm"
+              style={{
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(249,240,255,0.8) 100%)',
+                borderColor: 'rgba(219, 39, 119, 0.1)',
+                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.5)'
+              }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck size={18} className="text-primary" />
+                <ShieldCheck size={18} className="text-pink-500" />
                 <span className="text-sm font-medium">Critères de sécurité</span>
               </div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   {hasMinLength ? 
-                    <Check size={16} className="text-green-500" /> : 
+                    <Check size={16} className="text-pink-500" /> : 
                     <X size={16} className="text-muted-foreground" />
                   }
                   <span className={hasMinLength ? "text-foreground" : "text-muted-foreground"}>
@@ -89,7 +94,7 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
                 </li>
                 <li className="flex items-center gap-2">
                   {hasUppercase ? 
-                    <Check size={16} className="text-green-500" /> : 
+                    <Check size={16} className="text-pink-500" /> : 
                     <X size={16} className="text-muted-foreground" />
                   }
                   <span className={hasUppercase ? "text-foreground" : "text-muted-foreground"}>
@@ -98,7 +103,7 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
                 </li>
                 <li className="flex items-center gap-2">
                   {hasNumber ? 
-                    <Check size={16} className="text-green-500" /> : 
+                    <Check size={16} className="text-pink-500" /> : 
                     <X size={16} className="text-muted-foreground" />
                   }
                   <span className={hasNumber ? "text-foreground" : "text-muted-foreground"}>
@@ -114,8 +119,8 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Lock size={16} className="text-primary" />
+                <FormLabel className="flex items-center gap-2 text-gray-700">
+                  <Lock size={16} className="text-pink-500" />
                   <span>Mot de passe</span>
                 </FormLabel>
                 <FormControl>
@@ -127,21 +132,24 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
                       placeholder="••••••••" 
                       type={showPassword ? "text" : "password"}
                       {...field} 
-                      className="h-12 pl-10 pr-10 rounded-xl border-muted bg-background/70 backdrop-blur-sm focus:border-primary"
+                      className="h-12 pl-10 pr-10 rounded-xl border-pink-100 bg-white/90 backdrop-blur-sm focus:border-pink-300 focus:ring-pink-200"
+                      style={{
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                      }}
                     />
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400">
                       <Lock size={18} />
                     </div>
                     <button 
                       type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-pink-500 transition-colors"
                       onClick={toggleShowPassword}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </motion.div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-pink-500" />
               </FormItem>
             )}
           />
@@ -151,8 +159,8 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Lock size={16} className="text-primary" />
+                <FormLabel className="flex items-center gap-2 text-gray-700">
+                  <Lock size={16} className="text-pink-500" />
                   <span>Confirmer le mot de passe</span>
                 </FormLabel>
                 <FormControl>
@@ -164,21 +172,24 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
                       placeholder="••••••••" 
                       type={showConfirmPassword ? "text" : "password"}
                       {...field} 
-                      className="h-12 pl-10 pr-10 rounded-xl border-muted bg-background/70 backdrop-blur-sm focus:border-primary"
+                      className="h-12 pl-10 pr-10 rounded-xl border-pink-100 bg-white/90 backdrop-blur-sm focus:border-pink-300 focus:ring-pink-200"
+                      style={{
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                      }}
                     />
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400">
                       <Lock size={18} />
                     </div>
                     <button 
                       type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-pink-500 transition-colors"
                       onClick={toggleShowConfirmPassword}
                     >
                       {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </motion.div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-pink-500" />
               </FormItem>
             )}
           />
