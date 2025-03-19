@@ -52,12 +52,12 @@ export const useGallery = () => {
     try {
       setActionInProgress('share-external');
       await shareImageExternally(imageUrl, prompt);
-      showFeedback('success', 'Image partagée avec succès');
+      showFeedback('success', t.result.externalShareSuccess || 'Image partagée avec succès');
     } catch (error) {
       console.error('Error sharing image externally:', error);
       const message = (error as Error).message.includes('not supported') 
-        ? 'Le partage n\'est pas supporté sur ce navigateur'
-        : 'Impossible de partager l\'image';
+        ? (t.result.shareNotSupported || 'Le partage n\'est pas supporté sur ce navigateur')
+        : (t.result.externalShareError || 'Impossible de partager l\'image');
       showFeedback('error', message);
     } finally {
       setActionInProgress(null);

@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, Trash2, Rss, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { SavedDesign } from '@/types/gallery';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface SelectedDesignDetailProps {
   design: SavedDesign;
@@ -27,6 +27,8 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
   designIndex,
   actionInProgress
 }) => {
+  const { language } = useLanguage();
+  
   // Display nail details as badges
   const renderDetailBadges = () => {
     return (
@@ -48,6 +50,13 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
         )}
       </div>
     );
+  };
+
+  // More descriptive share tooltip based on language
+  const getShareTooltip = () => {
+    return language === 'fr' 
+      ? "Partager via WhatsApp, Instagram, etc." 
+      : "Share via WhatsApp, Instagram, etc.";
   };
 
   return (
@@ -105,7 +114,7 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
                   </motion.button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Partager (WhatsApp, etc.)</p>
+                  <p>{getShareTooltip()}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
