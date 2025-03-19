@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -42,7 +43,9 @@ const FeedPage: React.FC = () => {
   const downloadDesign = async (imageUrl: string, index: number) => {
     try {
       setActionInProgress('download');
+      console.log("FeedPage - Starting download for:", imageUrl);
       await downloadDesignImage(imageUrl, index);
+      console.log("FeedPage - Download completed successfully");
     } catch (error) {
       console.error('Error downloading image:', error);
     } finally {

@@ -19,6 +19,18 @@ const SelectedFeedDesign: React.FC<SelectedFeedDesignProps> = ({
   designIndex,
   actionInProgress
 }) => {
+  // Handle download click with better error handling
+  const handleDownloadClick = () => {
+    if (!design.image_url) {
+      console.error("Missing image URL for download");
+      return;
+    }
+    
+    // Log the URL being downloaded
+    console.log("SelectedFeedDesign - Starting download for:", design.image_url);
+    onDownload(design.image_url, designIndex);
+  };
+
   // Display nail details as badges
   const renderDetailBadges = () => {
     return (
@@ -58,7 +70,7 @@ const SelectedFeedDesign: React.FC<SelectedFeedDesignProps> = ({
           <motion.button 
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => onDownload(design.image_url, designIndex)}
+            onClick={handleDownloadClick}
             className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
             disabled={actionInProgress === 'download'}
           >

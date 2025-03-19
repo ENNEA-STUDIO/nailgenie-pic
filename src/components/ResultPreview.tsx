@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
@@ -6,6 +5,7 @@ import { Download, Save, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
+import { downloadDesignImage } from '@/hooks/gallery/utils';
 
 interface ResultPreviewProps {
   onTryAgain: () => void;
@@ -38,27 +38,8 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     try {
       setDownloading(true);
       
-      // Fetch the image
-      const response = await fetch(generatedDesign);
-      
-      // Convert to blob
-      const blob = await response.blob();
-      
-      // Create object URL from blob
-      const url = URL.createObjectURL(blob);
-      
-      // Create an anchor element
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "nail-design.png";
-      
-      // Append to document, click, and remove
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Clean up the blob URL to avoid memory leaks
-      URL.revokeObjectURL(url);
+      // Use our improved download function
+      await downloadDesignImage(generatedDesign, 0);
       
       showFeedback('success', t.result.downloadSuccess);
     } catch (error) {
