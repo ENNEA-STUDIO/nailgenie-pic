@@ -6,6 +6,14 @@ import BottomNav from '@/components/navigation/BottomNav';
 import { Download, Image } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
+import { 
+  RoundNailIcon, 
+  SquareNailIcon, 
+  OvalNailIcon, 
+  AlmondNailIcon, 
+  StilettoNailIcon, 
+  CoffinNailIcon 
+} from '@/components/NailShapeIcons';
 
 interface SharedDesign {
   id: string;
@@ -24,6 +32,23 @@ const FeedPage: React.FC = () => {
   const [selectedDesign, setSelectedDesign] = useState<SharedDesign | null>(null);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const { t } = useLanguage();
+
+  // Map shapes to their respective icon components
+  const shapeIconMap: Record<string, React.FC<{ className?: string }>> = {
+    round: RoundNailIcon,
+    square: SquareNailIcon,
+    oval: OvalNailIcon,
+    almond: AlmondNailIcon,
+    stiletto: StilettoNailIcon,
+    coffin: CoffinNailIcon,
+  };
+
+  // Length indicators
+  const lengthSizeMap: Record<string, string> = {
+    short: 'w-3',
+    medium: 'w-5',
+    long: 'w-7',
+  };
 
   // Fetch shared designs on component mount
   useEffect(() => {
@@ -181,34 +206,64 @@ const FeedPage: React.FC = () => {
             "grid gap-3 auto-rows-max", 
             selectedDesign ? "grid-cols-3" : "grid-cols-2"
           )}>
-            {designs.map((design, index) => (
-              <motion.div
-                key={design.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                className={cn(
-                  "glass-card rounded-xl overflow-hidden relative group cursor-pointer",
-                  selectedDesign?.id === design.id && "ring-2 ring-primary"
-                )}
-                onClick={() => setSelectedDesign(design)}
-              >
-                <img 
-                  src={design.image_url} 
-                  alt={`Design ${index + 1}`}
-                  className="w-full aspect-square object-cover"
-                />
-                
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                
-                {/* Nail shape/length indicator */}
-                {(design.nail_shape || design.nail_length) && (
-                  <div className="absolute bottom-2 right-2 bg-black/50 rounded-full px-2 py-1 text-white text-xs">
-                    {design.nail_shape || ""} {design.nail_length || ""}
+            {designs.map((design, index) => {
+              // Get the icon component based on nail shape
+              const ShapeIcon = design.nail_shape ? shapeIconMap[design.nail_shape] : null;
+              // Get length class
+              const lengthClass = design.nail_length ? lengthSizeMap[design.nail_length] : '';
+              
+              return (
+                <motion.div
+                  key={design.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className={cn(
+                    "glass-card rounded-xl overflow-hidden relative group cursor-pointer",
+                    selectedDesign?.id === design.id && "ring-2 ring-primary"
+                  )}
+                  onClick={() => setSelectedDesign(design)}
+                >
+                  <img 
+                    src={design.image_url} 
+                    alt={`Design ${index + 1}`}
+                    className="w-full aspect-square object-cover"
+                  />
+                  
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  
+                  {/* Nail properties indicators */}
+                  <div className="absolute bottom-2 right-2 flex items-center gap-1.5">
+                    {/* Color indicator */}
+                    {design.nail_color && (
+                      <div 
+                        className="h-4 w-4 rounded-full shadow-md border border-gray-200/30" 
+                        style={{ 
+                          backgroundColor: design.nail_color,
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1)'
+                        }}
+                      />
+                    )}
+                    
+                    {/* Shape indicator */}
+                    {ShapeIcon && (
+                      <div className="h-5 w-5 flex items-center justify-center filter drop-shadow-md">
+                        <ShapeIcon className="h-full w-full text-white" />
+                      </div>
+                    )}
+                    
+                    {/* Length indicator */}
+                    {design.nail_length && (
+                      <div className="flex items-center filter drop-shadow">
+                        <div className={cn("h-1 rounded-full bg-white/90 shadow-sm", lengthClass)} style={{
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                        }} />
+                      </div>
+                    )}
                   </div>
-                )}
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -219,3 +274,4 @@ const FeedPage: React.FC = () => {
 };
 
 export default FeedPage;
+
