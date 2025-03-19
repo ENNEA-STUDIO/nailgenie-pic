@@ -13,6 +13,7 @@ import PromptPage from "./pages/PromptPage";
 import PromptInputPage from "./pages/PromptInputPage";
 import ResultPage from "./pages/ResultPage";
 import GalleryPage from "./pages/GalleryPage";
+import FeedPage from "./pages/FeedPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import NotFound from "./pages/NotFound";
 
@@ -156,6 +157,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <GalleryPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/feed" 
+                    element={
+                      <ProtectedRoute>
+                        <FeedPage />
                       </ProtectedRoute>
                     } 
                   />

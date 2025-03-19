@@ -10,6 +10,7 @@ export interface CommonTranslations {
   save: string;
   create: string;
   gallery: string;
+  feed: string;
   logout: string;
   logoutSuccess: string;
   errorMessage: string;
@@ -26,6 +27,7 @@ export const commonTranslations: Record<Language, CommonTranslations> = {
     save: 'Sauvegarder',
     create: 'Créer',
     gallery: 'Gallerie',
+    feed: 'Feed',
     logout: 'Déconnexion',
     logoutSuccess: 'Vous avez été déconnecté avec succès',
     errorMessage: "Une erreur s'est produite",
@@ -40,6 +42,7 @@ export const commonTranslations: Record<Language, CommonTranslations> = {
     save: 'Save',
     create: 'Create',
     gallery: 'Gallery',
+    feed: 'Feed',
     logout: 'Logout',
     logoutSuccess: 'You have been successfully logged out',
     errorMessage: 'An error occurred',

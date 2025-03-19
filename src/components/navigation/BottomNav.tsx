@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Camera, Grid } from 'lucide-react';
+import { Camera, Grid, Rss } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 const BottomNav: React.FC = () => {
@@ -13,6 +13,7 @@ const BottomNav: React.FC = () => {
   // Determine which page is active
   const isCamera = ['/camera', '/prompt', '/prompt-input', '/result'].includes(location.pathname);
   const isGallery = location.pathname === '/gallery';
+  const isFeed = location.pathname === '/feed';
   
   return (
     <motion.div 
@@ -25,7 +26,7 @@ const BottomNav: React.FC = () => {
         <div className="flex items-center justify-around">
           <motion.button
             onClick={() => navigate('/camera')}
-            className={`flex flex-col items-center px-7 py-3 rounded-full transition-all duration-300 ${isCamera ? 'bg-primary text-white shadow-md' : 'text-foreground/80 hover:bg-white/20'}`}
+            className={`flex flex-col items-center px-5 py-3 rounded-full transition-all duration-300 ${isCamera ? 'bg-primary text-white shadow-md' : 'text-foreground/80 hover:bg-white/20'}`}
             whileTap={{ scale: 0.95 }}
             whileHover={{ y: -2 }}
           >
@@ -35,12 +36,22 @@ const BottomNav: React.FC = () => {
           
           <motion.button
             onClick={() => navigate('/gallery')}
-            className={`flex flex-col items-center px-7 py-3 rounded-full transition-all duration-300 ${isGallery ? 'bg-primary text-white shadow-md' : 'text-foreground/80 hover:bg-white/20'}`}
+            className={`flex flex-col items-center px-5 py-3 rounded-full transition-all duration-300 ${isGallery ? 'bg-primary text-white shadow-md' : 'text-foreground/80 hover:bg-white/20'}`}
             whileTap={{ scale: 0.95 }}
             whileHover={{ y: -2 }}
           >
             <Grid className={`w-5 h-5 ${isGallery ? 'text-white' : 'text-foreground/80'}`} />
             <span className="text-xs mt-1 font-medium">{t.common.gallery}</span>
+          </motion.button>
+          
+          <motion.button
+            onClick={() => navigate('/feed')}
+            className={`flex flex-col items-center px-5 py-3 rounded-full transition-all duration-300 ${isFeed ? 'bg-primary text-white shadow-md' : 'text-foreground/80 hover:bg-white/20'}`}
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ y: -2 }}
+          >
+            <Rss className={`w-5 h-5 ${isFeed ? 'text-white' : 'text-foreground/80'}`} />
+            <span className="text-xs mt-1 font-medium">Feed</span>
           </motion.button>
         </div>
       </div>
