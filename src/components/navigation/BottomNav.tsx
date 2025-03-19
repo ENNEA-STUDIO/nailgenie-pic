@@ -17,24 +17,30 @@ const BottomNav: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed bottom-0 left-0 right-0 z-50 py-2 px-4 bg-white/80 backdrop-blur-lg border-t border-border"
+      className="fixed bottom-6 left-0 right-0 z-50 px-4"
     >
-      <div className="max-w-md mx-auto flex items-center justify-around">
-        <button
-          onClick={() => navigate('/camera')}
-          className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isCamera ? 'text-primary' : 'text-muted-foreground'}`}
-        >
-          <Camera className={`w-6 h-6 ${isCamera ? 'text-primary' : 'text-muted-foreground'}`} />
-          <span className="text-xs mt-1">Créer</span>
-        </button>
-        
-        <button
-          onClick={() => navigate('/gallery')}
-          className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isGallery ? 'text-primary' : 'text-muted-foreground'}`}
-        >
-          <Grid className={`w-6 h-6 ${isGallery ? 'text-primary' : 'text-muted-foreground'}`} />
-          <span className="text-xs mt-1">Gallerie</span>
-        </button>
+      <div className="max-w-md mx-auto p-2 rounded-full backdrop-blur-xl bg-white/20 border border-white/30 shadow-lg">
+        <div className="flex items-center justify-around">
+          <motion.button
+            onClick={() => navigate('/camera')}
+            className={`flex flex-col items-center px-7 py-3 rounded-full transition-all duration-300 ${isCamera ? 'bg-primary text-white shadow-md' : 'text-foreground/80 hover:bg-white/20'}`}
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ y: -2 }}
+          >
+            <Camera className={`w-5 h-5 ${isCamera ? 'text-white' : 'text-foreground/80'}`} />
+            <span className="text-xs mt-1 font-medium">{isCamera ? 'Créer' : 'Créer'}</span>
+          </motion.button>
+          
+          <motion.button
+            onClick={() => navigate('/gallery')}
+            className={`flex flex-col items-center px-7 py-3 rounded-full transition-all duration-300 ${isGallery ? 'bg-primary text-white shadow-md' : 'text-foreground/80 hover:bg-white/20'}`}
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ y: -2 }}
+          >
+            <Grid className={`w-5 h-5 ${isGallery ? 'text-white' : 'text-foreground/80'}`} />
+            <span className="text-xs mt-1 font-medium">{isGallery ? 'Gallerie' : 'Gallerie'}</span>
+          </motion.button>
+        </div>
       </div>
     </motion.div>
   );

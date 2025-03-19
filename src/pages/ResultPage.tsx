@@ -54,7 +54,7 @@ const ResultPage: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-screen flex items-center justify-center bg-background pb-24">
+    <div className="w-full h-screen flex items-center justify-center bg-background pb-32">
       <ResultPreview onTryAgain={handleTryAgain} />
       <BottomNav />
     </div>

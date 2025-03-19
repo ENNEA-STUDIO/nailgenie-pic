@@ -37,7 +37,7 @@ const CameraPage: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4 pb-24"
+      className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4 pb-32"
     >
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
