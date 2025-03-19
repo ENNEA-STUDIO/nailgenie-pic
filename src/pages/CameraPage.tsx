@@ -2,7 +2,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
 import CameraComponent from '../components/camera/CameraComponent';
 import { useApp } from '../context/AppContext';
 import { toast } from 'sonner';
@@ -32,19 +31,17 @@ const CameraPage: React.FC = () => {
   }, [handImage, navigate]);
 
   return (
-    <Layout showBackButton title="Prendre une photo">
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.4 }}
-        className="px-4 py-6 h-full flex flex-col"
-      >
-        <div className="flex-1 flex items-center justify-center">
-          <CameraComponent />
-        </div>
-      </motion.div>
-    </Layout>
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.4 }}
+      className="px-4 py-6 h-screen flex items-center justify-center"
+    >
+      <div className="w-full max-w-md">
+        <CameraComponent />
+      </div>
+    </motion.div>
   );
 };
 

@@ -29,14 +29,6 @@ const CameraActivationView: React.FC<CameraActivationViewProps> = ({
     >
       {isCameraAvailable ? (
         <>
-          <motion.div 
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, type: "spring" }}
-            className="p-6 mb-6 rounded-full bg-primary/10 shadow-inner"
-          >
-            <Camera size={48} className="text-primary" />
-          </motion.div>
           <h2 className="text-xl font-medium mb-2">Prenez une photo de votre main</h2>
           <p className="text-sm text-muted-foreground mb-8 max-w-xs">
             Positionnez clairement votre main dans le cadre pour obtenir les meilleurs résultats
@@ -48,25 +40,31 @@ const CameraActivationView: React.FC<CameraActivationViewProps> = ({
               </AlertDescription>
             </Alert>
           )}
-          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            className="relative"
+          >
             <Button
-              size="lg"
+              size="icon"
               onClick={startCamera}
-              className="px-6 py-6 rounded-xl bg-primary text-white font-medium shadow-lg flex items-center gap-2"
+              className="h-20 w-20 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg"
               disabled={isLoading}
             >
               {isLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Activation...</span>
-                </>
+                <Loader2 className="h-10 w-10 animate-spin" />
               ) : (
-                <>
-                  <Camera className="h-5 w-5" />
-                  <span>Ouvrir la caméra</span>
-                </>
+                <Camera className="h-10 w-10" />
               )}
             </Button>
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground shadow-md"
+            >
+              <span className="text-xl font-bold">+</span>
+            </motion.div>
           </motion.div>
         </>
       ) : (
@@ -85,21 +83,19 @@ const CameraActivationView: React.FC<CameraActivationViewProps> = ({
               </AlertDescription>
             </Alert>
           )}
-          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               onClick={() => {
                 startCamera();
               }}
-              className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium shadow-sm"
+              size="icon"
+              className="h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-md"
               disabled={isLoading}
             >
               {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  <span>Réessayer...</span>
-                </>
+                <Loader2 className="h-8 w-8 animate-spin" />
               ) : (
-                <span>Réessayer</span>
+                <Camera className="h-8 w-8" />
               )}
             </Button>
           </motion.div>
