@@ -2,33 +2,47 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Upload a base64 image to Supabase storage
- * @param base64Image Base64 encoded image string
+ * Upload an image to Supabase storage from either a URL or base64 string
+ * @param imageSource URL or base64 encoded image string
  * @param userId User ID to use in the path
  * @returns Public URL of the uploaded image
  */
-export const uploadImageToStorage = async (base64Image: string, userId: string): Promise<string> => {
+export const uploadImageToStorage = async (imageSource: string, userId: string): Promise<string> => {
   try {
-    // Extract the base64 data (remove the data:image/jpeg;base64, prefix)
-    const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
+    // Determine if the source is a URL or base64 data
+    const isUrl = imageSource.startsWith('http');
+    let blob: Blob;
     
-    // Convert base64 to Blob
-    const byteCharacters = atob(base64Data);
-    const byteArrays = [];
-    
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512);
+    if (isUrl) {
+      // If it's a URL, fetch the image data
+      console.log("Fetching image from URL:", imageSource);
+      const response = await fetch(imageSource);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+      }
+      blob = await response.blob();
+    } else {
+      // Extract the base64 data (remove the data:image/jpeg;base64, prefix)
+      const base64Data = imageSource.replace(/^data:image\/\w+;base64,/, '');
       
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
+      // Convert base64 to Blob
+      const byteCharacters = atob(base64Data);
+      const byteArrays = [];
+      
+      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+        
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+        
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
       }
       
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
+      blob = new Blob(byteArrays, { type: 'image/jpeg' });
     }
-    
-    const blob = new Blob(byteArrays, { type: 'image/jpeg' });
     
     // Create a unique filename with timestamp
     const filename = `${userId}_${Date.now()}.jpg`;
