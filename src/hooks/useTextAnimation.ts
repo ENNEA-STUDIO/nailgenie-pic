@@ -57,10 +57,8 @@ const useTextAnimation = (
         } else {
           setIsDeleting(false);
           setIsTyping(true);
-          let nextIndex;
-          do {
-            nextIndex = Math.floor(Math.random() * examplePrompts.length);
-          } while (nextIndex === currentExampleIndex);
+          // Proceed to the next example in a sequential manner
+          const nextIndex = (currentExampleIndex + 1) % examplePrompts.length;
           setCurrentExampleIndex(nextIndex);
         }
       }
