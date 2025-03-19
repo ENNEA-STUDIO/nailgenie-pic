@@ -7,6 +7,7 @@ export interface CameraTranslations {
   unavailable: string;
   unavailableDescription: string;
   unavailablePermission: string;
+  permissionPrompt: string;
 }
 
 export const cameraTranslations: Record<Language, CameraTranslations> = {
@@ -16,6 +17,7 @@ export const cameraTranslations: Record<Language, CameraTranslations> = {
     unavailable: 'Caméra non disponible',
     unavailableDescription: "Veuillez vous assurer que votre appareil dispose d'une caméra et que vous avez autorisé son utilisation.",
     unavailablePermission: 'Détails:',
+    permissionPrompt: 'Veuillez autoriser l\'accès à la caméra lorsque demandé',
   },
   en: {
     takePhoto: 'Take a photo of your hand',
@@ -23,5 +25,6 @@ export const cameraTranslations: Record<Language, CameraTranslations> = {
     unavailable: 'Camera not available',
     unavailableDescription: 'Please make sure your device has a camera and you have granted permission to use it.',
     unavailablePermission: 'Details:',
+    permissionPrompt: 'Please allow camera access when prompted',
   }
 };
