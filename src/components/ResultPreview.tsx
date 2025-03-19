@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
@@ -6,6 +7,7 @@ import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { downloadDesignImage } from '@/hooks/gallery/utils';
+import { uploadImageToStorage } from '@/utils/storageUtils';
 
 interface ResultPreviewProps {
   onTryAgain: () => void;
@@ -64,13 +66,18 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       
       const userId = sessionData.session.user.id;
       
-      // Insert into saved_designs table
+      // Upload the image to Supabase Storage first
+      console.log("Uploading image to Supabase Storage...");
+      const publicUrl = await uploadImageToStorage(generatedDesign, userId);
+      console.log("Image uploaded successfully, public URL:", publicUrl);
+      
+      // Insert into saved_designs table with the Storage URL
       const { data, error } = await supabase
         .from('saved_designs')
         .insert([
           {
             user_id: userId,
-            image_url: generatedDesign,
+            image_url: publicUrl, // Use the Storage URL instead of the base64 or temporary URL
             prompt: prompt || 'Design personnalisé',
             nail_shape: nailShape,
             nail_color: nailColor,

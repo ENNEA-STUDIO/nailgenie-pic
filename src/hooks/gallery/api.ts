@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { SavedDesign } from '@/types/gallery';
+import { deleteImageFromStorage } from '@/utils/storageUtils';
 
 // Fetch saved designs and mark shared ones
 export const fetchSavedDesigns = async () => {
@@ -40,14 +41,42 @@ export const fetchSavedDesigns = async () => {
   return designsWithSharedStatus;
 };
 
-// Delete a design by ID
+// Delete a design by ID and remove its image from storage
 export const deleteDesignById = async (id: string) => {
+  // First get the design to get its image URL
+  const { data: design, error: fetchError } = await supabase
+    .from('saved_designs')
+    .select('*')
+    .eq('id', id)
+    .single();
+    
+  if (fetchError) throw fetchError;
+  
+  // Get current user
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    throw new Error('User not authenticated');
+  }
+  
+  const userId = sessionData.session.user.id;
+  
+  // Delete from database
   const { error } = await supabase
     .from('saved_designs')
     .delete()
     .eq('id', id);
     
   if (error) throw error;
+  
+  // If the image URL is from Supabase storage, delete it
+  if (design && design.image_url && design.image_url.includes('nail_designs')) {
+    try {
+      await deleteImageFromStorage(design.image_url, userId);
+    } catch (storageError) {
+      console.error('Error deleting image from storage:', storageError);
+      // We still consider the delete successful even if storage deletion fails
+    }
+  }
 };
 
 // Share a design to the feed
