@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ResultPreview from '../components/ResultPreview';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import BottomNav from '@/components/navigation/BottomNav';
 
 const ResultPage: React.FC = () => {
   const navigate = useNavigate();
@@ -53,8 +54,9 @@ const ResultPage: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-screen flex items-center justify-center bg-background">
+    <div className="w-full h-screen flex items-center justify-center bg-background pb-24">
       <ResultPreview onTryAgain={handleTryAgain} />
+      <BottomNav />
     </div>
   );
 };

@@ -15,6 +15,7 @@ import CameraPage from "./pages/CameraPage";
 import PromptPage from "./pages/PromptPage";
 import PromptInputPage from "./pages/PromptInputPage";
 import ResultPage from "./pages/ResultPage";
+import GalleryPage from "./pages/GalleryPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import NotFound from "./pages/NotFound";
 
@@ -140,6 +141,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <ResultPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/gallery" 
+                  element={
+                    <ProtectedRoute>
+                      <GalleryPage />
                     </ProtectedRoute>
                   } 
                 />

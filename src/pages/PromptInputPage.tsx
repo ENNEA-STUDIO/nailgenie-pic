@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import PromptInput from '../components/prompt/PromptInput';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '../hooks/use-mobile';
+import BottomNav from '@/components/navigation/BottomNav';
 import {
   RoundNailIcon,
   SquareNailIcon,
@@ -75,7 +76,7 @@ const PromptInputPage: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4"
+      className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-24"
     >
       <div className="flex flex-col h-full max-h-screen overflow-hidden">
         <div className="flex-1">
@@ -135,6 +136,8 @@ const PromptInputPage: React.FC = () => {
           <PromptInput />
         </div>
       </div>
+      
+      <BottomNav />
     </motion.div>
   );
 };

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import CameraComponent from '../components/camera/CameraComponent';
 import { useApp } from '../context/AppContext';
 import { toast } from 'sonner';
+import BottomNav from '@/components/navigation/BottomNav';
 
 const CameraPage: React.FC = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ const CameraPage: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4"
+      className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4 pb-24"
     >
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
@@ -46,6 +47,8 @@ const CameraPage: React.FC = () => {
       >
         <CameraComponent />
       </motion.div>
+      
+      <BottomNav />
     </motion.div>
   );
 };
