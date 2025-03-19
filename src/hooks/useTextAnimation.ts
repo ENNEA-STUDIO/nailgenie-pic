@@ -5,7 +5,6 @@ import { examplePrompts } from '../utils/promptUtils';
 interface TextAnimationOptions {
   typingSpeed?: number;
   deleteSpeed?: number;
-  pauseDuration?: number;
 }
 
 /**
@@ -19,36 +18,30 @@ const useTextAnimation = (
   const {
     typingSpeed = 120,
     deleteSpeed = 30,
-    pauseDuration = 1000
   } = options;
 
   const [displayText, setDisplayText] = useState("");
   const [currentExampleIndex, setCurrentExampleIndex] = useState(Math.floor(Math.random() * examplePrompts.length));
   const [isTyping, setIsTyping] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
 
   // Text animation effect
   useEffect(() => {
     if (!prompt && !isFocused) {
       const currentExample = examplePrompts[currentExampleIndex];
       
-      if (isTyping && !isPaused) {
+      if (isTyping) {
         if (displayText.length < currentExample.length) {
           const timer = setTimeout(() => {
             setDisplayText(currentExample.substring(0, displayText.length + 1));
           }, typingSpeed);
           return () => clearTimeout(timer);
         } else {
-          setIsPaused(true);
-          const timer = setTimeout(() => {
-            setIsPaused(false);
-            setIsTyping(false);
-            setIsDeleting(true);
-          }, pauseDuration);
-          return () => clearTimeout(timer);
+          // Immediately start deleting when typing is complete
+          setIsTyping(false);
+          setIsDeleting(true);
         }
-      } else if (isDeleting && !isPaused) {
+      } else if (isDeleting) {
         if (displayText.length > 0) {
           const timer = setTimeout(() => {
             setDisplayText(displayText.substring(0, displayText.length - 1));
@@ -71,13 +64,11 @@ const useTextAnimation = (
     displayText, 
     isTyping, 
     isDeleting, 
-    isPaused, 
     currentExampleIndex, 
     isFocused, 
     prompt, 
     typingSpeed, 
-    deleteSpeed, 
-    pauseDuration
+    deleteSpeed
   ]);
 
   return { displayText, currentExampleIndex };
