@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -8,10 +9,14 @@ import ProfileForm from '@/components/onboarding/ProfileForm';
 import PasswordForm from '@/components/onboarding/PasswordForm';
 import PreferencesForm from '@/components/onboarding/PreferencesForm';
 import SuccessStep from '@/components/onboarding/SuccessStep';
+import { useLanguage } from '@/context/LanguageContext';
+import LoginStep from '@/components/onboarding/LoginStep';
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const { t, language } = useLanguage();
+  const [isLogin, setIsLogin] = useState(false);
   const [userData, setUserData] = useState({
     fullName: '',
     email: '',
@@ -34,11 +39,36 @@ const OnboardingPage: React.FC = () => {
     handleNext();
   };
   
+  const toggleLoginMode = () => {
+    setIsLogin(!isLogin);
+    // Reset to first form step when switching modes
+    setCurrentStepIndex(1);
+  };
+
+  const handleLogin = async (values: { email: string; password: string }) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password
+      });
+      
+      if (error) throw error;
+      
+      toast.success(language === 'fr' ? "Connexion réussie !" : "Successfully logged in!");
+      
+      // Redirect to camera page and prevent going back to onboarding
+      navigate('/camera', { replace: true });
+    } catch (error: any) {
+      console.error('Erreur de connexion:', error);
+      toast.error(error.message || (language === 'fr' ? "Échec de la connexion" : "Login failed"));
+    }
+  };
+  
   const handleComplete = async () => {
     try {
       console.log("Creating account with data:", { email: userData.email, fullName: userData.fullName });
       
-      // Créer un compte utilisateur avec Supabase
+      // Create a user account with Supabase
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -52,7 +82,7 @@ const OnboardingPage: React.FC = () => {
       
       if (error) throw error;
       
-      toast.success("Votre compte a été créé avec succès!");
+      toast.success(language === 'fr' ? "Votre compte a été créé avec succès!" : "Your account was created successfully!");
       
       // Force navigation to camera page immediately and prevent going back to onboarding
       console.log("Account created successfully, redirecting to camera page");
@@ -60,46 +90,68 @@ const OnboardingPage: React.FC = () => {
       
     } catch (error: any) {
       console.error('Erreur lors de la création du compte:', error);
-      toast.error(error.message || "Une erreur s'est produite lors de la création de votre compte");
+      toast.error(error.message || (language === 'fr' ? "Une erreur s'est produite lors de la création de votre compte" : "An error occurred while creating your account"));
     }
   };
 
   const handleNext = () => {
     setCurrentStepIndex(prev => prev + 1);
   };
-  
-  const steps = [
-    {
-      id: 'welcome',
-      title: 'Bienvenue',
-      description: 'Découvrez NailGenie',
-      component: <WelcomeStep onNext={handleNext} />
-    },
-    {
-      id: 'profile',
-      title: 'Profil',
-      description: 'Informations de base',
-      component: <ProfileForm onSubmitValues={handleProfileSubmit} />
-    },
-    {
-      id: 'password',
-      title: 'Sécurité',
-      description: 'Créez un mot de passe',
-      component: <PasswordForm onSubmitValues={handlePasswordSubmit} />
-    },
-    {
-      id: 'preferences',
-      title: 'Préférences',
-      description: 'Personnalisez votre expérience',
-      component: <PreferencesForm onSubmitValues={handlePreferencesSubmit} />
-    },
-    {
-      id: 'success',
-      title: 'Terminé',
-      description: 'Votre compte est prêt',
-      component: <SuccessStep />
+
+  // Generate steps based on login mode
+  const getSteps = () => {
+    if (isLogin) {
+      // Login flow
+      return [
+        {
+          id: 'welcome',
+          title: language === 'fr' ? 'Bienvenue' : 'Welcome',
+          description: language === 'fr' ? 'Découvrez NailGenie' : 'Discover NailGenie',
+          component: <WelcomeStep onNext={handleNext} showLoginOption toggleLoginMode={toggleLoginMode} isLogin={isLogin} />
+        },
+        {
+          id: 'login',
+          title: language === 'fr' ? 'Connexion' : 'Login',
+          description: language === 'fr' ? 'Connectez-vous à votre compte' : 'Sign in to your account',
+          component: <LoginStep onSubmitValues={handleLogin} toggleLoginMode={toggleLoginMode} />
+        }
+      ];
+    } else {
+      // Signup flow
+      return [
+        {
+          id: 'welcome',
+          title: language === 'fr' ? 'Bienvenue' : 'Welcome',
+          description: language === 'fr' ? 'Découvrez NailGenie' : 'Discover NailGenie',
+          component: <WelcomeStep onNext={handleNext} showLoginOption toggleLoginMode={toggleLoginMode} isLogin={isLogin} />
+        },
+        {
+          id: 'profile',
+          title: language === 'fr' ? 'Profil' : 'Profile',
+          description: language === 'fr' ? 'Informations de base' : 'Basic information',
+          component: <ProfileForm onSubmitValues={handleProfileSubmit} />
+        },
+        {
+          id: 'password',
+          title: language === 'fr' ? 'Sécurité' : 'Security',
+          description: language === 'fr' ? 'Créez un mot de passe' : 'Create a password',
+          component: <PasswordForm onSubmitValues={handlePasswordSubmit} />
+        },
+        {
+          id: 'preferences',
+          title: language === 'fr' ? 'Préférences' : 'Preferences',
+          description: language === 'fr' ? 'Personnalisez votre expérience' : 'Customize your experience',
+          component: <PreferencesForm onSubmitValues={handlePreferencesSubmit} />
+        },
+        {
+          id: 'success',
+          title: language === 'fr' ? 'Terminé' : 'Done',
+          description: language === 'fr' ? 'Votre compte est prêt' : 'Your account is ready',
+          component: <SuccessStep />
+        }
+      ];
     }
-  ];
+  };
   
   return (
     <div 
@@ -112,8 +164,8 @@ const OnboardingPage: React.FC = () => {
     >
       <div className="w-full py-6">
         <OnboardingFlow 
-          steps={steps} 
-          onComplete={handleComplete}
+          steps={getSteps()} 
+          onComplete={isLogin ? () => {} : handleComplete}
           initialStep={currentStepIndex}
           onStepChange={setCurrentStepIndex}
         />

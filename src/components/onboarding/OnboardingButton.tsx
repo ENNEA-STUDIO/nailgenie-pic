@@ -12,7 +12,7 @@ const OnboardingButton: React.FC = () => {
   const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   
   useEffect(() => {
     const checkAuthStatus = async () => {

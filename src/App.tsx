@@ -64,6 +64,7 @@ const App = () => {
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Auth state change:", event, session?.user?.id);
         if (event === "SIGNED_IN" && session) {
           setAuthState({
             user: {
