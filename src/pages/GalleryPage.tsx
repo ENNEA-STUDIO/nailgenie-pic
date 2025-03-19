@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import BottomNav from '@/components/navigation/BottomNav';
 import { useLanguage } from '@/context/LanguageContext';
-import { useGallery } from '@/hooks/useGallery';
+import { useGallery } from '@/hooks/gallery'; // Updated import path
 import FeedbackMessage from '@/components/gallery/FeedbackMessage';
 import DesignGrid from '@/components/gallery/DesignGrid';
 import SelectedDesignDetail from '@/components/gallery/SelectedDesignDetail';
