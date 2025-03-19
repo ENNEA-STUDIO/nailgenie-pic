@@ -86,9 +86,7 @@ const FeedDesignGrid: React.FC<FeedDesignGridProps> = ({
               {/* Shape indicator */}
               {ShapeIcon && (
                 <div className="h-5 w-5 flex items-center justify-center filter drop-shadow-md">
-                  <ShapeIcon className="h-full w-full text-white" style={{
-                    filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.3))'
-                  }} />
+                  <ShapeIcon className="h-full w-full text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)]" />
                 </div>
               )}
               
