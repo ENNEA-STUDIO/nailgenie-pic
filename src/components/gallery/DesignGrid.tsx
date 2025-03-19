@@ -30,26 +30,6 @@ const shapeIconMap: Record<string, React.FC<{ className?: string }>> = {
   coffin: CoffinNailIcon,
 };
 
-// Color mapping for different nail colors
-const colorMap: Record<string, string> = {
-  red: 'bg-red-500',
-  pink: 'bg-pink-500',
-  purple: 'bg-purple-500',
-  blue: 'bg-blue-500',
-  green: 'bg-green-500',
-  yellow: 'bg-yellow-500',
-  orange: 'bg-orange-500',
-  brown: 'bg-amber-800',
-  black: 'bg-black',
-  white: 'bg-white border border-gray-300',
-  gray: 'bg-gray-500',
-  silver: 'bg-gray-300',
-  gold: 'bg-amber-400',
-  transparent: 'bg-transparent border border-gray-300',
-  nude: 'bg-amber-200',
-  beige: 'bg-amber-100',
-};
-
 // Length indicators
 const lengthSizeMap: Record<string, string> = {
   short: 'w-3',
@@ -68,8 +48,6 @@ const DesignGrid: React.FC<DesignGridProps> = ({
       {designs.map((design, index) => {
         // Get the icon component based on nail shape
         const ShapeIcon = design.nail_shape ? shapeIconMap[design.nail_shape] : null;
-        // Get color class based on nail color
-        const colorClass = design.nail_color ? colorMap[design.nail_color] || 'bg-gray-300' : '';
         // Get length class
         const lengthClass = design.nail_length ? lengthSizeMap[design.nail_length] : '';
         
@@ -104,13 +82,16 @@ const DesignGrid: React.FC<DesignGridProps> = ({
             <div className="absolute bottom-2 right-2 flex items-center gap-1.5">
               {/* Color indicator */}
               {design.nail_color && (
-                <div className={cn("h-4 w-4 rounded-full shadow-sm", colorClass)} />
+                <div 
+                  className="h-4 w-4 rounded-full shadow-sm border border-gray-200/30" 
+                  style={{ backgroundColor: design.nail_color }}
+                />
               )}
               
               {/* Shape indicator */}
               {ShapeIcon && (
                 <div className="h-5 w-5 flex items-center justify-center">
-                  <ShapeIcon className="h-full w-full" />
+                  <ShapeIcon className="h-full w-full text-white" />
                 </div>
               )}
               
