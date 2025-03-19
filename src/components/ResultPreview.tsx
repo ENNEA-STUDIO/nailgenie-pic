@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { downloadDesignImage } from '@/hooks/gallery/utils';
 import { uploadImageToStorage } from '@/utils/storageUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface ResultPreviewProps {
   onTryAgain: () => void;
@@ -26,22 +27,31 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
   const { t } = useLanguage();
   const [imageAsBase64, setImageAsBase64] = useState<string | null>(null);
+  const { toast } = useToast();
   
   useEffect(() => {
     // Convert the generated design URL to base64 when it changes
-    if (generatedDesign && generatedDesign.startsWith('http')) {
-      convertImageUrlToBase64(generatedDesign);
+    if (generatedDesign) {
+      convertImageToBase64(generatedDesign);
     }
   }, [generatedDesign]);
   
-  const convertImageUrlToBase64 = async (url: string) => {
+  const convertImageToBase64 = async (url: string) => {
     try {
+      if (url.startsWith('data:')) {
+        // It's already a base64 string
+        setImageAsBase64(url);
+        return;
+      }
+      
+      console.log("Converting image to base64:", url);
+      
       // Create a canvas element to draw the image
       const img = new Image();
       img.crossOrigin = 'anonymous'; // Enable CORS
       
       // Set up a promise that resolves when the image loads
-      const imageLoadPromise = new Promise<string>((resolve, reject) => {
+      const imageLoadPromise = new Promise<void>((resolve, reject) => {
         img.onload = () => {
           try {
             const canvas = document.createElement('canvas');
@@ -58,16 +68,18 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
             ctx.drawImage(img, 0, 0);
             
             // Convert the canvas to a base64 data URL
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-            resolve(dataUrl);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+            setImageAsBase64(dataUrl);
+            console.log('Successfully converted image to base64');
+            resolve();
           } catch (error) {
             console.error('Error converting image to base64:', error);
             reject(error);
           }
         };
         
-        img.onerror = () => {
-          console.error('Error loading image from URL:', url);
+        img.onerror = (e) => {
+          console.error('Error loading image from URL:', url, e);
           reject(new Error('Failed to load image'));
         };
       });
@@ -76,12 +88,14 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       img.src = url;
       
       // Wait for the image to load and convert
-      const base64Data = await imageLoadPromise;
-      setImageAsBase64(base64Data);
-      console.log('Successfully converted image to base64');
-      
+      await imageLoadPromise;
     } catch (error) {
-      console.error('Error in convertImageUrlToBase64:', error);
+      console.error('Error in convertImageToBase64:', error);
+      toast({
+        title: t.result.savedError || "Error",
+        description: "Could not process the image",
+        variant: "destructive"
+      });
     }
   };
   
@@ -99,8 +113,11 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     try {
       setDownloading(true);
       
+      // Use the base64 version of the image if available
+      const imageToDownload = imageAsBase64 || generatedDesign;
+      
       // Use our improved download function
-      await downloadDesignImage(generatedDesign, 0);
+      await downloadDesignImage(imageToDownload, 0);
       
       showFeedback('success', t.result.downloadSuccess);
     } catch (error) {
@@ -132,6 +149,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         throw new Error('No image available to save');
       }
       
+      console.log("Using image for upload:", imageToUpload.substring(0, 100) + "...");
       console.log("Uploading image to Supabase Storage...");
       const publicUrl = await uploadImageToStorage(imageToUpload, userId);
       console.log("Image uploaded successfully, public URL:", publicUrl);
@@ -153,9 +171,23 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       if (error) throw error;
       
       showFeedback('success', t.result.savedSuccess);
+      
+      // Provide additional feedback with toast
+      toast({
+        title: t.result.savedSuccess || "Succès",
+        description: "Le design a été sauvegardé dans votre galerie",
+        variant: "default"
+      });
     } catch (error) {
       console.error("Error saving design:", error);
       showFeedback('error', t.result.savedError);
+      
+      // More detailed error with toast
+      toast({
+        title: t.result.savedError || "Erreur",
+        description: "Impossible d'enregistrer le design",
+        variant: "destructive"
+      });
     } finally {
       setSaving(false);
     }

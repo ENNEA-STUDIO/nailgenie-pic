@@ -9,32 +9,67 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const uploadImageToStorage = async (imageSource: string, userId: string): Promise<string> => {
   try {
+    console.log("Starting image upload to Supabase Storage...");
+    
     // Determine if the source is a URL or base64 data
     const isUrl = imageSource.startsWith('http');
     let blob: Blob;
     
     if (isUrl) {
       try {
-        // If it's a URL, fetch the image data
-        console.log("Fetching image from URL:", imageSource);
-        const response = await fetch(imageSource, {
-          mode: 'cors',
-          credentials: 'omit',
-          cache: 'no-cache',
-          headers: {
-            'Accept': 'image/webp,image/jpeg,image/png,*/*'
-          }
+        // For Hugging Face temporary URLs, we'll use a direct canvas approach
+        // since CORS issues and temporary URLs can cause problems
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        console.log("Fetching image from URL using canvas approach:", imageSource);
+        
+        // Create a promise that resolves when the image is loaded or fails
+        const imageLoaded = new Promise<Blob>((resolve, reject) => {
+          img.onload = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              
+              const ctx = canvas.getContext('2d');
+              if (!ctx) {
+                reject(new Error("Could not get canvas context"));
+                return;
+              }
+              
+              // Draw the image on the canvas
+              ctx.drawImage(img, 0, 0);
+              
+              // Convert the canvas to a blob
+              canvas.toBlob((canvasBlob) => {
+                if (!canvasBlob) {
+                  reject(new Error("Could not convert canvas to blob"));
+                  return;
+                }
+                resolve(canvasBlob);
+              }, 'image/jpeg', 0.95);
+            } catch (err) {
+              console.error("Canvas processing error:", err);
+              reject(err);
+            }
+          };
+          
+          img.onerror = (e) => {
+            console.error("Image load error:", e);
+            reject(new Error("Failed to load image from URL"));
+          };
         });
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
-        }
+        // Set the image source to trigger loading
+        img.src = imageSource;
         
-        blob = await response.blob();
-        console.log("Successfully fetched image blob:", blob.size, "bytes");
+        // Wait for the image to load and be processed
+        blob = await imageLoaded;
+        console.log("Successfully created blob from image:", blob.size, "bytes");
       } catch (fetchError) {
-        console.error("Error fetching image from URL:", fetchError);
-        throw new Error("Could not fetch image. Creating from base64 instead");
+        console.error("Error processing image from URL:", fetchError);
+        throw new Error("Could not process image from URL");
       }
     } else {
       console.log("Processing base64 image data");
@@ -66,7 +101,7 @@ export const uploadImageToStorage = async (imageSource: string, userId: string):
     const filePath = `${userId}/${filename}`;
     
     // Upload file to Supabase Storage
-    console.log("Uploading blob to Supabase Storage:", filePath);
+    console.log("Uploading blob to Supabase Storage:", filePath, "Size:", blob.size, "bytes");
     const { data, error } = await supabase.storage
       .from('nail_designs')
       .upload(filePath, blob, {
