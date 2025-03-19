@@ -45,5 +45,5 @@ export const translations: Record<Language, TranslationKeys> = {
   },
 };
 
-// Re-export the Language type
-export { Language };
+// Re-export the Language type with proper syntax for isolatedModules
+export type { Language };

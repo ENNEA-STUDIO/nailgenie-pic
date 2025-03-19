@@ -2,7 +2,7 @@
 /**
  * Utility functions for handling prompt examples and text transformations
  */
-import { Language } from '../locales/translations';
+import { Language } from '../locales/types';
 
 // Complete list of example prompts
 export const examplePromptsBase = {
