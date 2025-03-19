@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
 import ResultPreview from '../components/ResultPreview';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -46,19 +45,17 @@ const ResultPage: React.FC = () => {
   // Show loading state briefly before rendering the preview
   if (!imagePreloaded) {
     return (
-      <Layout showBackButton title="Votre design">
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full border-4 border-t-transparent border-primary animate-spin"></div>
-          <p className="ml-4 text-sm text-muted-foreground">Chargement de votre design...</p>
-        </div>
-      </Layout>
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full border-4 border-t-transparent border-primary animate-spin"></div>
+        <p className="ml-4 text-sm text-muted-foreground">Chargement de votre design...</p>
+      </div>
     );
   }
 
   return (
-    <Layout showBackButton title="Votre design">
+    <div className="w-full h-screen flex items-center justify-center bg-background">
       <ResultPreview onTryAgain={handleTryAgain} />
-    </Layout>
+    </div>
   );
 };
 

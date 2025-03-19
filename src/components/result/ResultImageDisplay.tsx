@@ -26,11 +26,11 @@ const ResultImageDisplay: React.FC<ResultImageDisplayProps> = ({
   };
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center justify-center">
       {!imageLoaded && (
         <div 
           className="w-full flex items-center justify-center bg-muted"
-          style={{ minHeight: 'calc(100vh - 22rem)' }}
+          style={{ minHeight: 'calc(100vh - 26rem)' }}
         >
           <div className="w-10 h-10 rounded-full border-4 border-t-transparent border-primary animate-spin"></div>
         </div>
@@ -40,8 +40,8 @@ const ResultImageDisplay: React.FC<ResultImageDisplayProps> = ({
         ref={imgRef}
         src={imageUrl} 
         alt="Generated nail design" 
-        className={`w-full object-cover rounded-t-3xl ${imageLoaded ? 'block' : 'hidden'}`}
-        style={{ maxHeight: 'calc(100vh - 22rem)' }}
+        className={`w-full object-contain rounded-t-3xl ${imageLoaded ? 'block' : 'hidden'}`}
+        style={{ maxHeight: 'calc(100vh - 26rem)' }}
         onLoad={handleImageLoad}
         onError={onImageError}
       />

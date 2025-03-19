@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Download, Redo, Share2 } from 'lucide-react';
+import { Download, RefreshCw, Share } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface ResultActionsProps {
   onTryAgain: () => void;
@@ -84,41 +85,41 @@ const ResultActions: React.FC<ResultActionsProps> = ({
     }
   };
 
+  const iconButtonClass = "flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 active:scale-95";
+
   return (
-    <div className="p-5 flex justify-between items-center">
+    <div className="p-6 flex justify-around items-center">
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         onClick={onTryAgain}
-        className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-xl pressed-effect"
+        className={cn(iconButtonClass, "bg-gradient-to-br from-[#9b87f5] to-[#7E69AB] text-white")}
+        title="Réessayer"
       >
-        <Redo size={16} />
-        <span className="text-sm font-medium">Réessayer</span>
+        <RefreshCw size={28} />
       </motion.button>
       
-      <div className="flex gap-2">
-        {canShare && (
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-xl pressed-effect"
-          >
-            <Share2 size={16} />
-            <span className="text-sm font-medium">Partager</span>
-          </motion.button>
-        )}
-        
+      {canShare && (
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleDownload}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl pressed-effect"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={handleShare}
+          className={cn(iconButtonClass, "bg-gradient-to-br from-[#0EA5E9] to-[#3B82F6] text-white")}
+          title="Partager"
         >
-          <Download size={16} />
-          <span className="text-sm font-medium">Enregistrer</span>
+          <Share size={28} />
         </motion.button>
-      </div>
+      )}
+      
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={handleDownload}
+        className={cn(iconButtonClass, "bg-gradient-to-br from-[#D946EF] to-[#8B5CF6] text-white")}
+        title="Télécharger"
+      >
+        <Download size={28} />
+      </motion.button>
     </div>
   );
 };

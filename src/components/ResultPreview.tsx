@@ -33,7 +33,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
 
   if (isLoading) {
     return (
-      <div className="w-full p-4">
+      <div className="w-full h-full flex items-center justify-center">
         <ResultLoading prompt={prompt} />
       </div>
     );
@@ -41,7 +41,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
 
   if (imageError && retryCount >= 5) {
     return (
-      <div className="w-full p-4">
+      <div className="w-full h-full flex items-center justify-center">
         <ResultError 
           onTryAgain={onTryAgain || (() => {})} 
           isSafari={isSafari} 
@@ -58,9 +58,9 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full p-4"
+      className="w-full h-full flex items-center justify-center px-4"
     >
-      <div className="glass-card rounded-3xl overflow-hidden">
+      <div className="glass-card rounded-3xl overflow-hidden max-w-md w-full">
         <ResultImageDisplay 
           imageUrl={imageUrl} 
           prompt={prompt} 
