@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
@@ -12,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface ResultPreviewProps {
   onTryAgain: () => void;
+  onImageError?: () => void;
 }
 
 interface ActionFeedback {
@@ -20,7 +20,7 @@ interface ActionFeedback {
   visible: boolean;
 }
 
-const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
+const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain, onImageError }) => {
   const { generatedDesign, prompt, nailShape, nailColor, nailLength } = useApp();
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -29,7 +29,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const [imageAsBase64, setImageAsBase64] = useState<string | null>(null);
   const { toast } = useToast();
   
-  // Show feedback and automatically hide it after a delay
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message, visible: true });
     setTimeout(() => {
@@ -38,7 +37,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   };
   
   useEffect(() => {
-    // When the component mounts or when generatedDesign changes
     if (generatedDesign) {
       console.log("Generated design available, proceeding with rendering");
     }
@@ -60,7 +58,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   
   const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
     try {
-      // Once the image loads in the DOM, convert it to base64 via canvas
       const img = event.currentTarget;
       const base64Data = convertImageToCanvas(img);
       console.log("Image converted to base64 successfully");
@@ -70,14 +67,18 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     }
   };
   
+  const handleImageError = () => {
+    if (onImageError) {
+      onImageError();
+    }
+  };
+  
   const handleDownload = async () => {
     try {
       setDownloading(true);
       
-      // Use the base64 version of the image if available
       const imageToDownload = imageAsBase64 || generatedDesign;
       
-      // Use our improved download function
       await downloadDesignImage(imageToDownload, 0);
       
       showFeedback('success', t.result.downloadSuccess);
@@ -93,7 +94,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     try {
       setSaving(true);
       
-      // Get current user
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         showFeedback('error', t.common.connectionRequired);
@@ -108,12 +108,10 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       
       const userId = sessionData.session.user.id;
       
-      // Prioritize using the base64 image data if available
       if (!imageAsBase64 && !generatedDesign) {
         throw new Error('No image available to save');
       }
       
-      // Use the base64 version first if available, fall back to the URL
       const imageToUpload = imageAsBase64 || generatedDesign;
       
       console.log("Using image for upload:", imageToUpload?.substring(0, 50) + "...");
@@ -122,7 +120,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       const publicUrl = await uploadImageToStorage(imageToUpload!, userId);
       console.log("Image uploaded successfully, public URL:", publicUrl);
       
-      // Insert into saved_designs table with the Storage URL
       const { data, error } = await supabase
         .from('saved_designs')
         .insert([
@@ -140,7 +137,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       
       showFeedback('success', t.result.savedSuccess);
       
-      // Provide additional feedback with toast
       toast({
         title: t.result.savedSuccess || "Succès",
         description: "Le design a été sauvegardé dans votre galerie",
@@ -150,7 +146,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       console.error("Error saving design:", error);
       showFeedback('error', t.result.savedError);
       
-      // More detailed error with toast
       toast({
         title: t.result.savedError || "Erreur",
         description: "Impossible d'enregistrer le design",
@@ -186,6 +181,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           alt="Generated nail design" 
           className="w-full object-cover"
           onLoad={handleImageLoad}
+          onError={handleImageError}
           crossOrigin="anonymous"
         />
       </motion.div>
@@ -260,7 +256,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         </Button>
       </div>
       
-      {/* Visual feedback instead of toast */}
       <AnimatePresence>
         {feedback && feedback.visible && (
           <motion.div
