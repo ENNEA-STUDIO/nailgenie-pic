@@ -3,7 +3,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 
-const WelcomeStep: React.FC = () => {
+interface WelcomeStepProps {
+  onNext: () => void;
+}
+
+const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -98,6 +102,7 @@ const WelcomeStep: React.FC = () => {
               backgroundSize: '200% 100%',
               boxShadow: '0 10px 15px -3px rgba(147, 51, 234, 0.1), 0 4px 6px -2px rgba(167, 139, 250, 0.05)'
             }}
+            onClick={onNext}
           >
             <span>Créer mon design</span>
             <ChevronRight className="h-5 w-5" />

@@ -12,6 +12,7 @@ import SuccessStep from '@/components/onboarding/SuccessStep';
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [userData, setUserData] = useState({
     fullName: '',
     email: '',
@@ -59,13 +60,17 @@ const OnboardingPage: React.FC = () => {
       toast.error(error.message || "Une erreur s'est produite lors de la création de votre compte");
     }
   };
+
+  const handleNext = () => {
+    setCurrentStepIndex(prev => prev + 1);
+  };
   
   const steps = [
     {
       id: 'welcome',
       title: 'Bienvenue',
       description: 'Découvrez NailGenie',
-      component: <WelcomeStep />
+      component: <WelcomeStep onNext={handleNext} />
     },
     {
       id: 'profile',
@@ -98,7 +103,9 @@ const OnboardingPage: React.FC = () => {
       <div className="w-full pb-10">
         <OnboardingFlow 
           steps={steps} 
-          onComplete={handleComplete} 
+          onComplete={handleComplete}
+          initialStep={currentStepIndex}
+          onStepChange={setCurrentStepIndex}
         />
       </div>
     </div>

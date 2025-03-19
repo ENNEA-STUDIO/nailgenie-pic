@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,15 +17,22 @@ interface OnboardingFlowProps {
   steps: Step[];
   onComplete: () => void;
   initialStep?: number;
+  onStepChange?: (step: number) => void;
 }
 
 const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   steps,
   onComplete,
   initialStep = 0,
+  onStepChange,
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(initialStep);
   const { isMobile } = useIsMobile();
+
+  // Update the current step if initialStep changes (controlled from parent)
+  useEffect(() => {
+    setCurrentStepIndex(initialStep);
+  }, [initialStep]);
 
   const currentStep = steps[currentStepIndex];
   const isLastStep = currentStepIndex === steps.length - 1;
@@ -35,13 +42,21 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     if (isLastStep) {
       onComplete();
     } else {
-      setCurrentStepIndex((prev) => prev + 1);
+      const nextStep = currentStepIndex + 1;
+      setCurrentStepIndex(nextStep);
+      if (onStepChange) {
+        onStepChange(nextStep);
+      }
     }
   };
 
   const handleBack = () => {
     if (currentStepIndex > 0) {
-      setCurrentStepIndex((prev) => prev - 1);
+      const prevStep = currentStepIndex - 1;
+      setCurrentStepIndex(prevStep);
+      if (onStepChange) {
+        onStepChange(prevStep);
+      }
     }
   };
 
