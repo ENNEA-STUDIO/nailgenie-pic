@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -43,7 +42,10 @@ const LoginStep: React.FC<LoginStepProps> = ({ onSubmitValues, toggleLoginMode }
   });
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    onSubmitValues(values);
+    onSubmitValues({
+      email: values.email,
+      password: values.password
+    });
   };
 
   const containerVariants = {
