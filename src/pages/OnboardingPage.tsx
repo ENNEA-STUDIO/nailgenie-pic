@@ -22,17 +22,17 @@ const OnboardingPage: React.FC = () => {
   
   const handleProfileSubmit = (values: { fullName: string; email: string }) => {
     setUserData(prev => ({ ...prev, ...values }));
-    // Ne pas appeler handleNext() ici car le composant ProfileForm le fait déjà
+    handleNext();
   };
   
   const handlePasswordSubmit = (values: { password: string; confirmPassword: string }) => {
     setUserData(prev => ({ ...prev, password: values.password }));
-    // Ne pas appeler handleNext() ici car le composant PasswordForm le fait déjà
+    handleNext();
   };
   
   const handlePreferencesSubmit = (preferences: string[]) => {
     setUserData(prev => ({ ...prev, preferences }));
-    // Ne pas appeler handleNext() ici car le composant PreferencesForm le fait déjà
+    handleNext();
   };
   
   const handleComplete = async () => {

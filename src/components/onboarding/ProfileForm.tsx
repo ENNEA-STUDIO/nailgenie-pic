@@ -32,9 +32,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
   const isComplete = form.formState.isValid;
 
-  // Nous avons supprimé l'effet qui déclenche automatiquement onSubmitValues
-  // pour éviter les sauts d'étapes
-
   return (
     <motion.div
       initial={{ opacity: 0 }}

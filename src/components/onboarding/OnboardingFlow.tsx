@@ -103,47 +103,45 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
         <div className="absolute -z-10 w-40 h-40 rounded-full bg-pink-200/20 blur-xl bottom-10 left-20 opacity-50 mix-blend-multiply"></div>
       </motion.div>
 
-      {/* Navigation buttons - Only visible for first and last steps */}
-      {(isFirstStep || isLastStep) && (
-        <div className="flex justify-between mt-6 px-4">
-          {!isFirstStep && (
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                variant="outline"
-                onClick={handleBack}
-                className="rounded-full px-6 gap-2 h-12 border-pink-100 bg-white/80 backdrop-blur-sm text-gray-600"
-                style={{
-                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03), inset 0 1px 1px rgba(255,255,255,0.7)'
-                }}
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="font-medium">Retour</span>
-              </Button>
-            </motion.div>
-          )}
-          
+      {/* Navigation buttons */}
+      <div className="flex justify-between mt-6 px-4">
+        {!isFirstStep && (
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              className="rounded-full px-6 gap-2 h-12 border-pink-100 bg-white/80 backdrop-blur-sm text-gray-600"
+              style={{
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03), inset 0 1px 1px rgba(255,255,255,0.7)'
+              }}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="font-medium">Retour</span>
+            </Button>
+          </motion.div>
+        )}
+        
+        {isFirstStep || isLastStep ? (
           <motion.div 
             whileHover={{ scale: 1.03 }} 
             whileTap={{ scale: 0.97 }}
             className={`${!isFirstStep ? 'ml-auto' : 'mx-auto'}`}
           >
-            {(isFirstStep || isLastStep) && (
-              <Button 
-                onClick={handleNext}
-                className="rounded-full px-8 gap-2 h-12 text-white"
-                style={{
-                  background: 'linear-gradient(90deg, #D946EF 0%, #9b87f5 100%)',
-                  boxShadow: '0 10px 15px -3px rgba(214, 31, 255, 0.2), 0 4px 6px -2px rgba(215, 115, 247, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.3)'
-                }}
-                size="lg"
-              >
-                <span className="font-medium">{isLastStep ? 'Terminer' : 'Suivant'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            )}
+            <Button 
+              onClick={handleNext}
+              className="rounded-full px-8 gap-2 h-12 text-white"
+              style={{
+                background: 'linear-gradient(90deg, #D946EF 0%, #9b87f5 100%)',
+                boxShadow: '0 10px 15px -3px rgba(214, 31, 255, 0.2), 0 4px 6px -2px rgba(215, 115, 247, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.3)'
+              }}
+              size="lg"
+            >
+              <span className="font-medium">{isLastStep ? 'Terminer' : 'Suivant'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
           </motion.div>
-        </div>
-      )}
+        ) : null}
+      </div>
     </div>
   );
 };
