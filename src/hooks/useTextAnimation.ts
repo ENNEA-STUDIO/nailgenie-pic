@@ -19,7 +19,7 @@ const useTextAnimation = (
   const {
     typingSpeed = 120,
     deleteSpeed = 30,
-    maxLength = 40 // Maximum length for example text to prevent overflow
+    maxLength = 28 // Reduced maximum length to ensure it fits better
   } = options;
 
   const [displayText, setDisplayText] = useState("");
