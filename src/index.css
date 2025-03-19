@@ -186,4 +186,18 @@
   svg {
     vector-effect: non-scaling-stroke;
   }
+  
+  /* Background position utility classes for gradient buttons */
+  .bg-pos-0 {
+    background-position: 0% 0%;
+  }
+  
+  .bg-pos-100 {
+    background-position: 100% 0%;
+  }
+  
+  .bg-size-200 {
+    background-size: 200% 100%;
+  }
 }
+

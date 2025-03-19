@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import Layout from '@/components/Layout';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 import WelcomeStep from '@/components/onboarding/WelcomeStep';
 import ProfileForm from '@/components/onboarding/ProfileForm';
@@ -95,14 +94,14 @@ const OnboardingPage: React.FC = () => {
   ];
   
   return (
-    <Layout title="Créer un compte" showBackButton>
-      <div className="w-full mx-auto pb-10">
+    <div className="min-h-screen w-full flex items-center justify-center bg-background">
+      <div className="w-full pb-10">
         <OnboardingFlow 
           steps={steps} 
           onComplete={handleComplete} 
         />
       </div>
-    </Layout>
+    </div>
   );
 };
 

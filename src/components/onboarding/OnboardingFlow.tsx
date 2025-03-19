@@ -29,6 +29,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
 
   const currentStep = steps[currentStepIndex];
   const isLastStep = currentStepIndex === steps.length - 1;
+  const isFirstStep = currentStepIndex === 0;
 
   const handleNext = () => {
     if (isLastStep) {
@@ -52,28 +53,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   };
 
   return (
-    <div className="w-full py-4 px-0 md:px-4">
-      {/* Step indicator */}
-      <div className="flex justify-between items-center mb-6 px-6">
-        <motion.h2 
-          key={`title-${currentStep.id}`}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 10 }}
-          className="text-2xl font-bold text-foreground"
-        >
-          {currentStep.title}
-        </motion.h2>
-        
-        <motion.div 
-          className="text-sm font-medium text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          {currentStepIndex + 1} / {steps.length}
-        </motion.div>
-      </div>
-
+    <div className="w-full max-w-md mx-auto py-4 px-4">
       {/* Step content with animations */}
       <motion.div 
         className="relative"
@@ -90,53 +70,44 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="p-6 lg:p-8 min-h-[400px]"
+              className="p-6"
             >
-              {!isMobile && (
-                <motion.p 
-                  className="text-muted-foreground mb-6"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
-                  {currentStep.description}
-                </motion.p>
-              )}
               {currentStep.component}
             </motion.div>
           </AnimatePresence>
         </Card>
 
         {/* Decorative elements */}
-        <div className="absolute -z-10 w-60 h-60 rounded-full bg-primary/5 blur-3xl -top-20 -left-20"></div>
-        <div className="absolute -z-10 w-60 h-60 rounded-full bg-accent/5 blur-3xl -bottom-20 -right-20"></div>
+        <div className="absolute -z-10 w-60 h-60 rounded-full bg-primary/5 blur-3xl -top-20 -left-20 opacity-70"></div>
+        <div className="absolute -z-10 w-60 h-60 rounded-full bg-accent/5 blur-3xl -bottom-20 -right-20 opacity-70"></div>
       </motion.div>
 
-      {/* Navigation buttons */}
-      <div className="flex justify-between mt-8 px-4">
-        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentStepIndex === 0}
-            className="rounded-xl px-6 gap-2 h-14 border-border/50 shadow-sm disabled:opacity-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Retour</span>
-          </Button>
-        </motion.div>
-        
-        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-          <Button 
-            onClick={handleNext}
-            className="rounded-xl px-6 gap-2 h-14 bg-gradient-to-r from-primary to-accent hover:opacity-90 hover:shadow-md transition-all shadow-sm"
-            size="lg"
-          >
-            <span className="font-medium">{isLastStep ? 'Terminer' : 'Suivant'}</span>
-            <ArrowRight className="w-5 h-5" />
-          </Button>
-        </motion.div>
-      </div>
+      {/* Navigation buttons - Only show if not on the first screen */}
+      {!isFirstStep && (
+        <div className="flex justify-between mt-6 px-4">
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              className="rounded-xl px-6 gap-2 h-14 border-border/50 shadow-sm"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Retour</span>
+            </Button>
+          </motion.div>
+          
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <Button 
+              onClick={handleNext}
+              className="rounded-xl px-6 gap-2 h-14 bg-gradient-to-r from-primary to-accent hover:opacity-90 hover:shadow-md transition-all shadow-sm"
+              size="lg"
+            >
+              <span className="font-medium">{isLastStep ? 'Terminer' : 'Suivant'}</span>
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
