@@ -31,7 +31,7 @@ const CameraActiveView: React.FC<CameraActiveViewProps> = ({
       
       {/* Hand positioning guide overlay */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-        <div className="w-[85%] h-[85%] border-2 border-white/30 rounded-3xl flex items-center justify-center">
+        <div className="w-[85%] h-[85%] border-2 border-white/40 rounded-3xl flex items-center justify-center">
           {/* Improved hand outline SVG */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -129,13 +129,19 @@ const CameraActiveView: React.FC<CameraActiveViewProps> = ({
         <motion.button
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           transition={{ delay: 0.3 }}
           onClick={capturePhoto}
-          className="p-4 bg-white/90 shadow-lg rounded-full"
+          className="w-24 h-24 rounded-full flex items-center justify-center shadow-lg"
+          style={{
+            background: "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)",
+            boxShadow: "0 10px 25px -5px rgba(155, 135, 245, 0.5), 0 0 0 5px rgba(255,255,255,0.7)"
+          }}
           aria-label="Prendre une photo"
         >
-          <div className="w-16 h-16 rounded-full border-4 border-primary flex items-center justify-center">
-            <div className="w-14 h-14 rounded-full bg-primary hover:bg-primary/90 transition-colors"></div>
+          <div className="w-20 h-20 rounded-full bg-white/90 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full" style={{ background: "linear-gradient(135deg, #D946EF 0%, #9b87f5 100%)" }}></div>
           </div>
         </motion.button>
       </div>
@@ -146,8 +152,11 @@ const CameraActiveView: React.FC<CameraActiveViewProps> = ({
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={stopCamera}
-        className="absolute top-8 right-8 p-3 bg-black/50 backdrop-blur-md rounded-full text-white z-20"
+        className="absolute top-8 right-8 p-3 bg-black/50 backdrop-blur-md rounded-full text-white z-20 shadow-lg"
         aria-label="Fermer la caméra"
+        style={{
+          boxShadow: "0 5px 15px -3px rgba(0, 0, 0, 0.3)"
+        }}
       >
         <X size={22} />
       </motion.button>
