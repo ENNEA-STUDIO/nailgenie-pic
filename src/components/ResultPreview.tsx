@@ -1,9 +1,8 @@
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
-import { Download, Save, ArrowLeft, Share } from 'lucide-react';
-import { toast } from 'sonner';
+import { Download, Save, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
@@ -12,29 +11,53 @@ interface ResultPreviewProps {
   onTryAgain: () => void;
 }
 
+interface ActionFeedback {
+  type: 'success' | 'error';
+  message: string;
+  visible: boolean;
+}
+
 const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const { generatedDesign, prompt } = useApp();
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
   const { t } = useLanguage();
   
   if (!generatedDesign) return null;
   
+  // Show feedback and automatically hide it after a delay
+  const showFeedback = (type: 'success' | 'error', message: string) => {
+    setFeedback({ type, message, visible: true });
+    setTimeout(() => {
+      setFeedback(prev => prev ? { ...prev, visible: false } : null);
+    }, 2000);
+  };
+  
   const handleDownload = () => {
-    // Create an anchor element and set properties
-    const link = document.createElement("a");
-    link.href = generatedDesign;
-    link.download = "nail-design.png";
-    
-    // Append to the document body
-    document.body.appendChild(link);
-    
-    // Trigger download
-    link.click();
-    
-    // Remove from the document
-    document.body.removeChild(link);
-    
-    toast.success(t.result.downloadSuccess);
+    try {
+      setDownloading(true);
+      // Create an anchor element and set properties
+      const link = document.createElement("a");
+      link.href = generatedDesign;
+      link.download = "nail-design.png";
+      
+      // Append to the document body
+      document.body.appendChild(link);
+      
+      // Trigger download
+      link.click();
+      
+      // Remove from the document
+      document.body.removeChild(link);
+      
+      showFeedback('success', t.result.downloadSuccess);
+    } catch (error) {
+      console.error("Error during download:", error);
+      showFeedback('error', t.result.downloadError || "Erreur lors du téléchargement");
+    } finally {
+      setDownloading(false);
+    }
   };
   
   const handleSaveToGallery = async () => {
@@ -44,7 +67,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       // Get current user
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
-        toast.error(t.common.connectionRequired);
+        showFeedback('error', t.common.connectionRequired);
         setSaving(false);
         return;
       }
@@ -64,10 +87,10 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         
       if (error) throw error;
       
-      toast.success(t.result.savedSuccess);
+      showFeedback('success', t.result.savedSuccess);
     } catch (error) {
       console.error("Error saving design:", error);
-      toast.error(t.result.savedError);
+      showFeedback('error', t.result.savedError);
     } finally {
       setSaving(false);
     }
@@ -78,7 +101,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="w-full max-w-md flex flex-col items-center p-4"
+      className="w-full max-w-md flex flex-col items-center p-4 relative"
     >
       <h2 className="text-xl font-medium mb-6 text-center">{t.result.yourDesign}</h2>
       
@@ -111,16 +134,35 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         <Button 
           onClick={handleDownload}
           variant="outline" 
-          className="flex items-center gap-2 flex-1"
+          disabled={downloading}
+          className="flex items-center gap-2 flex-1 relative"
         >
-          <Download size={18} />
+          {downloading ? (
+            <div className="w-4 h-4 rounded-full border-2 border-t-transparent border-current animate-spin mr-2"></div>
+          ) : (
+            <Download size={18} />
+          )}
           {t.common.download}
+          
+          {/* Download success indicator */}
+          <AnimatePresence>
+            {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.downloadSuccess && (
+              <motion.div 
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="absolute -top-1 -right-1 bg-green-500 text-white rounded-full p-1"
+              >
+                <CheckCircle className="w-3 h-3" />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Button>
         
         <Button
           onClick={handleSaveToGallery}
           disabled={saving}
-          className="w-full mt-2 bg-primary"
+          className="w-full mt-2 bg-primary relative"
           style={{
             background: saving ? undefined : "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)",
           }}
@@ -136,8 +178,43 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
               {t.result.saveToGallery}
             </>
           )}
+          
+          {/* Save success indicator */}
+          <AnimatePresence>
+            {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.savedSuccess && (
+              <motion.div 
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="absolute -top-1 -right-1 bg-green-500 text-white rounded-full p-1"
+              >
+                <CheckCircle className="w-3 h-3" />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Button>
       </div>
+      
+      {/* Visual feedback instead of toast */}
+      <AnimatePresence>
+        {feedback && feedback.visible && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className={`absolute bottom-[-40px] left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full shadow-lg flex items-center space-x-2 ${
+              feedback.type === 'success' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            }`}
+          >
+            {feedback.type === 'success' ? (
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            ) : (
+              <XCircle className="w-5 h-5 text-red-600" />
+            )}
+            <span className="text-sm font-medium">{feedback.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

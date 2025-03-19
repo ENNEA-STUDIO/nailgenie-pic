@@ -1,10 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import BottomNav from '@/components/navigation/BottomNav';
-import { Download, Trash2, Image } from 'lucide-react';
-import { toast } from 'sonner';
+import { Download, Trash2, Image, CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SavedDesign {
@@ -15,10 +14,26 @@ interface SavedDesign {
   user_id: string;
 }
 
+interface ActionFeedback {
+  type: 'success' | 'error';
+  message: string;
+  visible: boolean;
+}
+
 const GalleryPage: React.FC = () => {
   const [designs, setDesigns] = useState<SavedDesign[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDesign, setSelectedDesign] = useState<SavedDesign | null>(null);
+  const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
+  const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+
+  // Show feedback and automatically hide it after a delay
+  const showFeedback = (type: 'success' | 'error', message: string) => {
+    setFeedback({ type, message, visible: true });
+    setTimeout(() => {
+      setFeedback(prev => prev ? { ...prev, visible: false } : null);
+    }, 2000);
+  };
 
   // Fetch saved designs on component mount
   useEffect(() => {
@@ -44,7 +59,7 @@ const GalleryPage: React.FC = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching designs:', error);
-        toast.error('Impossible de charger vos designs');
+        showFeedback('error', 'Impossible de charger vos designs');
         setLoading(false);
       }
     };
@@ -55,6 +70,7 @@ const GalleryPage: React.FC = () => {
   // Download design image
   const downloadDesign = async (imageUrl: string, index: number) => {
     try {
+      setActionInProgress('download');
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -66,16 +82,19 @@ const GalleryPage: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       
-      toast.success('Image téléchargée');
+      showFeedback('success', 'Image téléchargée');
     } catch (error) {
       console.error('Error downloading image:', error);
-      toast.error('Impossible de télécharger l\'image');
+      showFeedback('error', 'Impossible de télécharger l\'image');
+    } finally {
+      setActionInProgress(null);
     }
   };
   
   // Delete design
   const deleteDesign = async (id: string) => {
     try {
+      setActionInProgress('delete-' + id);
       const { error } = await supabase
         .from('saved_designs')
         .delete()
@@ -87,10 +106,12 @@ const GalleryPage: React.FC = () => {
       if (selectedDesign?.id === id) {
         setSelectedDesign(null);
       }
-      toast.success('Design supprimé');
+      showFeedback('success', 'Design supprimé');
     } catch (error) {
       console.error('Error deleting design:', error);
-      toast.error('Impossible de supprimer le design');
+      showFeedback('error', 'Impossible de supprimer le design');
+    } finally {
+      setActionInProgress(null);
     }
   };
 
@@ -100,7 +121,7 @@ const GalleryPage: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-24"
+      className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-24 relative"
     >
       <div className="flex-none text-2xl font-semibold text-center py-4">
         Mes designs
@@ -136,19 +157,33 @@ const GalleryPage: React.FC = () => {
                   className="w-full aspect-square object-cover"
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md flex justify-between">
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => downloadDesign(selectedDesign.image_url, designs.indexOf(selectedDesign))}
                     className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                    disabled={actionInProgress === 'download'}
                   >
-                    <Download size={20} />
-                  </button>
+                    {actionInProgress === 'download' ? (
+                      <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin" />
+                    ) : (
+                      <Download size={20} />
+                    )}
+                  </motion.button>
                   
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => deleteDesign(selectedDesign.id)}
                     className="p-3 bg-white/10 hover:bg-destructive/80 text-white rounded-full transition-colors"
+                    disabled={actionInProgress === `delete-${selectedDesign.id}`}
                   >
-                    <Trash2 size={20} />
-                  </button>
+                    {actionInProgress === `delete-${selectedDesign.id}` ? (
+                      <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin" />
+                    ) : (
+                      <Trash2 size={20} />
+                    )}
+                  </motion.button>
                 </div>
                 <button 
                   onClick={() => setSelectedDesign(null)}
@@ -192,6 +227,28 @@ const GalleryPage: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {/* Visual feedback instead of toast */}
+      <AnimatePresence>
+        {feedback && feedback.visible && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className={cn(
+              "fixed bottom-24 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full shadow-lg flex items-center space-x-2",
+              feedback.type === 'success' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            )}
+          >
+            {feedback.type === 'success' ? (
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            ) : (
+              <XCircle className="w-5 h-5 text-red-600" />
+            )}
+            <span className="text-sm font-medium">{feedback.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <BottomNav />
     </motion.div>

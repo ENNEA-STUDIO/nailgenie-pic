@@ -1,6 +1,4 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -9,7 +7,6 @@ import { AppProvider } from "./context/AppContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
-import { toast } from "sonner";
 
 import CameraPage from "./pages/CameraPage";
 import PromptPage from "./pages/PromptPage";
@@ -74,10 +71,8 @@ const App = () => {
             },
             isLoading: false,
           });
-          toast.success("Connexion réussie");
         } else if (event === "SIGNED_OUT") {
           setAuthState({ user: null, isLoading: false });
-          toast.info("Vous êtes déconnecté");
         }
       }
     );
@@ -94,7 +89,6 @@ const App = () => {
     }
     
     if (!authState.user) {
-      toast.error("Veuillez vous connecter pour accéder à cette page");
       return <Navigate to="/onboarding" replace />;
     }
     
@@ -106,8 +100,6 @@ const App = () => {
       <TooltipProvider>
         <LanguageProvider>
           <AppProvider>
-            <Toaster />
-            <Sonner position="top-center" />
             <BrowserRouter>
               <AnimatePresence mode="wait">
                 <Routes>
