@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { Download, Save, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
@@ -25,6 +25,65 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const [downloading, setDownloading] = useState(false);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
   const { t } = useLanguage();
+  const [imageAsBase64, setImageAsBase64] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Convert the generated design URL to base64 when it changes
+    if (generatedDesign && generatedDesign.startsWith('http')) {
+      convertImageUrlToBase64(generatedDesign);
+    }
+  }, [generatedDesign]);
+  
+  const convertImageUrlToBase64 = async (url: string) => {
+    try {
+      // Create a canvas element to draw the image
+      const img = new Image();
+      img.crossOrigin = 'anonymous'; // Enable CORS
+      
+      // Set up a promise that resolves when the image loads
+      const imageLoadPromise = new Promise<string>((resolve, reject) => {
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              reject(new Error('Failed to get canvas context'));
+              return;
+            }
+            
+            // Draw the image on the canvas
+            ctx.drawImage(img, 0, 0);
+            
+            // Convert the canvas to a base64 data URL
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            resolve(dataUrl);
+          } catch (error) {
+            console.error('Error converting image to base64:', error);
+            reject(error);
+          }
+        };
+        
+        img.onerror = () => {
+          console.error('Error loading image from URL:', url);
+          reject(new Error('Failed to load image'));
+        };
+      });
+      
+      // Set the src to start loading the image
+      img.src = url;
+      
+      // Wait for the image to load and convert
+      const base64Data = await imageLoadPromise;
+      setImageAsBase64(base64Data);
+      console.log('Successfully converted image to base64');
+      
+    } catch (error) {
+      console.error('Error in convertImageUrlToBase64:', error);
+    }
+  };
   
   if (!generatedDesign) return null;
   
@@ -66,9 +125,15 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       
       const userId = sessionData.session.user.id;
       
-      // Upload the image to Supabase Storage first
+      // Use the base64 image data if available, otherwise use the original URL
+      const imageToUpload = imageAsBase64 || generatedDesign;
+      
+      if (!imageToUpload) {
+        throw new Error('No image available to save');
+      }
+      
       console.log("Uploading image to Supabase Storage...");
-      const publicUrl = await uploadImageToStorage(generatedDesign, userId);
+      const publicUrl = await uploadImageToStorage(imageToUpload, userId);
       console.log("Image uploaded successfully, public URL:", publicUrl);
       
       // Insert into saved_designs table with the Storage URL
@@ -77,7 +142,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         .insert([
           {
             user_id: userId,
-            image_url: publicUrl, // Use the Storage URL instead of the base64 or temporary URL
+            image_url: publicUrl,
             prompt: prompt || 'Design personnalisé',
             nail_shape: nailShape,
             nail_color: nailColor,

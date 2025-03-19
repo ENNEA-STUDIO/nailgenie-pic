@@ -14,14 +14,30 @@ export const uploadImageToStorage = async (imageSource: string, userId: string):
     let blob: Blob;
     
     if (isUrl) {
-      // If it's a URL, fetch the image data
-      console.log("Fetching image from URL:", imageSource);
-      const response = await fetch(imageSource);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+      try {
+        // If it's a URL, fetch the image data
+        console.log("Fetching image from URL:", imageSource);
+        const response = await fetch(imageSource, {
+          mode: 'cors',
+          credentials: 'omit',
+          cache: 'no-cache',
+          headers: {
+            'Accept': 'image/webp,image/jpeg,image/png,*/*'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+        }
+        
+        blob = await response.blob();
+        console.log("Successfully fetched image blob:", blob.size, "bytes");
+      } catch (fetchError) {
+        console.error("Error fetching image from URL:", fetchError);
+        throw new Error("Could not fetch image. Creating from base64 instead");
       }
-      blob = await response.blob();
     } else {
+      console.log("Processing base64 image data");
       // Extract the base64 data (remove the data:image/jpeg;base64, prefix)
       const base64Data = imageSource.replace(/^data:image\/\w+;base64,/, '');
       
@@ -42,6 +58,7 @@ export const uploadImageToStorage = async (imageSource: string, userId: string):
       }
       
       blob = new Blob(byteArrays, { type: 'image/jpeg' });
+      console.log("Successfully created blob from base64:", blob.size, "bytes");
     }
     
     // Create a unique filename with timestamp
@@ -49,6 +66,7 @@ export const uploadImageToStorage = async (imageSource: string, userId: string):
     const filePath = `${userId}/${filename}`;
     
     // Upload file to Supabase Storage
+    console.log("Uploading blob to Supabase Storage:", filePath);
     const { data, error } = await supabase.storage
       .from('nail_designs')
       .upload(filePath, blob, {
@@ -57,13 +75,17 @@ export const uploadImageToStorage = async (imageSource: string, userId: string):
         upsert: false
       });
     
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase upload error:", error);
+      throw error;
+    }
     
     // Get public URL for the uploaded file
     const { data: { publicUrl } } = supabase.storage
       .from('nail_designs')
       .getPublicUrl(data.path);
     
+    console.log("Upload successful, public URL:", publicUrl);
     return publicUrl;
   } catch (error) {
     console.error('Error uploading image to Supabase Storage:', error);
