@@ -39,12 +39,12 @@ const OnboardingButton: React.FC = () => {
     if (isAuthenticated) {
       navigate('/camera');
     } else {
-      navigate('/onboarding');
+      navigate('/');
     }
   };
   
-  // Don't render the button on the index page
-  if (window.location.pathname === '/') {
+  // Don't render the button on the index page or onboarding page
+  if (window.location.pathname === '/' || window.location.pathname === '/onboarding') {
     return null;
   }
   
@@ -64,7 +64,7 @@ const OnboardingButton: React.FC = () => {
         className="shadow-lg px-6 py-6 h-auto rounded-full group"
         size="lg"
       >
-        <span>{isAuthenticated ? "Prendre une photo" : "Créer un compte"}</span>
+        <span>{isAuthenticated ? "Prendre une photo" : "Se connecter"}</span>
         <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
       </Button>
     </motion.div>
