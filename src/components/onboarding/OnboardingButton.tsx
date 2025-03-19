@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +9,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const OnboardingButton: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { t, language } = useLanguage();
@@ -45,8 +46,8 @@ const OnboardingButton: React.FC = () => {
     }
   };
   
-  // Don't render the button on the onboarding page
-  if (window.location.pathname === '/onboarding') {
+  // Don't render the button on the onboarding page or if already on the camera page
+  if (location.pathname === '/onboarding' || (isAuthenticated && location.pathname === '/camera')) {
     return null;
   }
   

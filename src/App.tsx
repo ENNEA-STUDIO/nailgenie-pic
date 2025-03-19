@@ -95,6 +95,15 @@ const App = () => {
     return <>{children}</>;
   };
 
+  // Redirect based on auth state
+  const HomeRedirect = () => {
+    if (authState.isLoading) {
+      return <div className="flex items-center justify-center h-screen">Chargement...</div>;
+    }
+    
+    return authState.user ? <Navigate to="/camera" replace /> : <Navigate to="/onboarding" replace />;
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -103,8 +112,13 @@ const App = () => {
             <BrowserRouter>
               <AnimatePresence mode="wait">
                 <Routes>
-                  <Route path="/" element={<Navigate to="/onboarding" replace />} />
-                  <Route path="/onboarding" element={<OnboardingPage />} />
+                  <Route path="/" element={<HomeRedirect />} />
+                  <Route 
+                    path="/onboarding" 
+                    element={
+                      authState.user ? <Navigate to="/camera" replace /> : <OnboardingPage />
+                    } 
+                  />
                   <Route 
                     path="/camera" 
                     element={
