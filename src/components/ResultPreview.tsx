@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Redo, Share2 } from 'lucide-react';
@@ -18,6 +19,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const { isMobile, isIOS, isSafari } = useIsMobile();
   const imgRef = useRef<HTMLImageElement>(null);
   
+  // When generatedDesign changes, set up image with appropriate cache-busting
   useEffect(() => {
     if (generatedDesign) {
       console.log("Setting up new image with URL:", generatedDesign);
@@ -25,101 +27,42 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       setImageError(false);
       setRetryCount(0);
       
-      if (isSafari || isIOS) {
-        const cacheBuster = `?origin=direct&t=${Date.now()}`;
-        console.log("Safari/iOS detected, using cache-busted URL");
-        setImageUrl(`${generatedDesign}${cacheBuster}`);
-        
-        fetch(generatedDesign, { 
-          mode: 'no-cors',
-          cache: 'reload',
-          headers: {
-            'Pragma': 'no-cache',
-            'Cache-Control': 'no-cache, no-store, must-revalidate'
-          }
-        }).then(() => {
-          console.log("Safari pre-fetch successful");
-        }).catch(error => {
-          console.log("Safari pre-fetch failed, but continuing", error);
-        });
-      } else {
-        setImageUrl(generatedDesign);
-      }
+      // Always add a cache buster to prevent caching issues across all browsers
+      const cacheBuster = `?t=${Date.now()}&r=${Math.random()}`;
+      setImageUrl(`${generatedDesign}${cacheBuster}`);
+      
+      // Pre-fetch for all browsers to ensure content is loaded
+      fetch(generatedDesign, { 
+        mode: 'no-cors',
+        cache: 'reload',
+        headers: {
+          'Pragma': 'no-cache',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      }).catch(error => {
+        console.log("Pre-fetch operation completed or failed:", error);
+      });
     }
-  }, [generatedDesign, isSafari, isIOS]);
+  }, [generatedDesign]);
 
+  // Auto-retry logic when image fails to load
   useEffect(() => {
-    if (imageError && imgRef.current && generatedDesign && retryCount < 5) {
+    if (imageError && generatedDesign && retryCount < 5) {
       console.log(`Attempting to reload image after error (retry ${retryCount + 1}/5)`);
       
-      if (isSafari || isIOS) {
-        const timer = setTimeout(() => {
-          if (retryCount === 0) {
-            const newUrl = `${generatedDesign}?safari-retry=basic&t=${Date.now()}`;
-            console.log("Safari first retry with new URL:", newUrl);
-            setImageUrl(newUrl);
-            setImageError(false);
-            setRetryCount(prev => prev + 1);
-          } else if (retryCount === 1) {
-            fetch(generatedDesign, { 
-              mode: 'no-cors',
-              cache: 'reload'
-            })
-            .then(() => {
-              const newUrl = `${generatedDesign}?safari-retry=prefetch&t=${Date.now()}`;
-              console.log("Safari second retry after pre-fetch:", newUrl);
-              setImageUrl(newUrl);
-              setImageError(false);
-              setRetryCount(prev => prev + 1);
-            })
-            .catch(() => {
-              const newUrl = `${generatedDesign}?safari-retry=prefetch-failed&t=${Date.now()}`;
-              console.log("Safari pre-fetch failed, trying anyway:", newUrl);
-              setImageUrl(newUrl);
-              setImageError(false);
-              setRetryCount(prev => prev + 1);
-            });
-          } else if (retryCount === 2) {
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.onload = () => {
-              const newUrl = `${generatedDesign}?safari-retry=new-image&t=${Date.now()}`;
-              console.log("Safari third retry with Image preload success:", newUrl);
-              setImageUrl(newUrl);
-              setImageError(false);
-              setRetryCount(prev => prev + 1);
-            };
-            img.onerror = () => {
-              const newUrl = `${generatedDesign}?safari-retry=new-image-failed&t=${Date.now()}`;
-              console.log("Safari Image preload failed, trying anyway:", newUrl);
-              setImageUrl(newUrl);
-              setImageError(false);
-              setRetryCount(prev => prev + 1);
-            };
-            img.src = generatedDesign;
-          } else {
-            const newUrl = `${generatedDesign}?safari-final-retry=${retryCount}&nocache=${Date.now()}&rand=${Math.random()}`;
-            console.log("Safari final retry attempt:", newUrl);
-            setImageUrl(newUrl);
-            setImageError(false);
-            setRetryCount(prev => prev + 1);
-          }
-        }, 1000 + (retryCount * 500));
+      const timer = setTimeout(() => {
+        // Create a new cache-busting URL with retry information
+        const newUrl = `${generatedDesign}?retry=${retryCount + 1}&t=${Date.now()}&r=${Math.random()}`;
+        console.log(`Retry ${retryCount + 1}/5 with URL:`, newUrl);
         
-        return () => clearTimeout(timer);
-      } else {
-        const timer = setTimeout(() => {
-          const newUrl = `${generatedDesign}?reload=${Date.now()}`;
-          console.log("Standard retry with new URL:", newUrl);
-          setImageUrl(newUrl);
-          setImageError(false);
-          setRetryCount(prev => prev + 1);
-        }, 1000);
-        
-        return () => clearTimeout(timer);
-      }
+        setImageUrl(newUrl);
+        setImageError(false);
+        setRetryCount(prev => prev + 1);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
     }
-  }, [imageError, generatedDesign, retryCount, isSafari, isIOS]);
+  }, [imageError, generatedDesign, retryCount]);
 
   const handleDownload = () => {
     if (!generatedDesign) return;
@@ -276,7 +219,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
             style={{ maxHeight: 'calc(100vh - 22rem)' }}
             onLoad={handleImageLoad}
             onError={handleImageError}
-            crossOrigin="anonymous"
           />
           
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent pt-16 pb-4 px-6">
