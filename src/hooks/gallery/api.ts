@@ -81,7 +81,10 @@ export const shareDesignToFeed = async (design: SavedDesign) => {
       {
         user_id: userId,
         image_url: design.image_url,
-        prompt: design.prompt
+        prompt: design.prompt,
+        nail_shape: design.nail_shape,
+        nail_color: design.nail_color,
+        nail_length: design.nail_length
       }
     ]);
     

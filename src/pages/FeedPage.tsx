@@ -13,6 +13,9 @@ interface SharedDesign {
   image_url: string;
   prompt: string | null;
   user_id: string;
+  nail_shape?: string;
+  nail_color?: string;
+  nail_length?: string;
 }
 
 const FeedPage: React.FC = () => {
@@ -63,6 +66,25 @@ const FeedPage: React.FC = () => {
     } finally {
       setActionInProgress(null);
     }
+  };
+
+  // Get formatted design details
+  const getDesignDetails = (design: SharedDesign) => {
+    let details = design.prompt || "Sans description";
+    
+    // Add nail details if available
+    if (design.nail_shape || design.nail_color || design.nail_length) {
+      details += " • ";
+      
+      const detailParts = [];
+      if (design.nail_shape) detailParts.push(`Forme: ${design.nail_shape}`);
+      if (design.nail_length) detailParts.push(`Longueur: ${design.nail_length}`);
+      if (design.nail_color) detailParts.push(`Couleur: ${design.nail_color}`);
+      
+      details += detailParts.join(' • ');
+    }
+    
+    return details;
   };
 
   return (
@@ -125,7 +147,7 @@ const FeedPage: React.FC = () => {
                 </button>
               </div>
               <p className="text-sm text-muted-foreground mt-2 text-center">
-                {selectedDesign.prompt || "Sans description"}
+                {getDesignDetails(selectedDesign)}
               </p>
             </motion.div>
           )}

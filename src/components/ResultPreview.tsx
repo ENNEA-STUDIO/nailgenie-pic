@@ -18,7 +18,7 @@ interface ActionFeedback {
 }
 
 const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
-  const { generatedDesign, prompt } = useApp();
+  const { generatedDesign, prompt, nailShape, nailColor, nailLength } = useApp();
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
@@ -81,7 +81,10 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           {
             user_id: userId,
             image_url: generatedDesign,
-            prompt: prompt || 'Design personnalisé'
+            prompt: prompt || 'Design personnalisé',
+            nail_shape: nailShape,
+            nail_color: nailColor,
+            nail_length: nailLength
           }
         ]);
         

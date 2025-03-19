@@ -6,6 +6,9 @@ export interface SavedDesign {
   prompt: string | null;
   user_id: string;
   is_shared?: boolean;
+  nail_shape?: string;
+  nail_color?: string;
+  nail_length?: string;
 }
 
 export interface ActionFeedback {
