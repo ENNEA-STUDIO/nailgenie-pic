@@ -4,23 +4,31 @@ import { ActionFeedback } from '@/types/gallery';
 // Download a design image
 export const downloadDesignImage = async (imageUrl: string, index: number) => {
   try {
+    // Fetch the image
+    const response = await fetch(imageUrl);
+    
+    // Convert to blob
+    const blob = await response.blob();
+    
+    // Create object URL from blob
+    const url = URL.createObjectURL(blob);
+    
     // Create a new anchor element
     const link = document.createElement('a');
     
-    // Set the href to the image URL directly (no need to fetch and create blob)
-    link.href = imageUrl;
+    // Set the href to the blob URL
+    link.href = url;
     
-    // Add download attribute with filename
+    // Set download attribute with filename
     link.download = `design-${index + 1}.jpg`;
-    
-    // Required for Firefox
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
     
     // Append to document, click, and remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    // Clean up the blob URL to avoid memory leaks
+    URL.revokeObjectURL(url);
   } catch (error) {
     console.error("Error downloading image:", error);
     throw error;

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
@@ -33,21 +34,31 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     }, 2000);
   };
   
-  const handleDownload = () => {
+  const handleDownload = async () => {
     try {
       setDownloading(true);
       
+      // Fetch the image
+      const response = await fetch(generatedDesign);
+      
+      // Convert to blob
+      const blob = await response.blob();
+      
+      // Create object URL from blob
+      const url = URL.createObjectURL(blob);
+      
       // Create an anchor element
       const link = document.createElement("a");
-      link.href = generatedDesign;
+      link.href = url;
       link.download = "nail-design.png";
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
       
       // Append to document, click, and remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // Clean up the blob URL to avoid memory leaks
+      URL.revokeObjectURL(url);
       
       showFeedback('success', t.result.downloadSuccess);
     } catch (error) {
