@@ -43,6 +43,11 @@ const OnboardingButton: React.FC = () => {
     }
   };
   
+  // Don't render the button on the index page
+  if (window.location.pathname === '/') {
+    return null;
+  }
+  
   if (isLoading) {
     return null; // Don't show button while checking auth status
   }
