@@ -25,6 +25,29 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
   designIndex,
   actionInProgress
 }) => {
+  // Display nail details as badges
+  const renderDetailBadges = () => {
+    return (
+      <div className="flex flex-wrap gap-2 justify-center mt-2">
+        {design.nail_shape && (
+          <span className="px-2 py-1 text-xs bg-primary/10 rounded-full text-primary">
+            {design.nail_shape}
+          </span>
+        )}
+        {design.nail_length && (
+          <span className="px-2 py-1 text-xs bg-secondary/20 rounded-full text-secondary-foreground">
+            {design.nail_length}
+          </span>
+        )}
+        {design.nail_color && (
+          <span className="px-2 py-1 text-xs bg-muted rounded-full text-muted-foreground">
+            {design.nail_color}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.9 }} 
@@ -124,6 +147,7 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
       <p className="text-sm text-muted-foreground mt-2 text-center">
         {design.prompt || "Sans description"}
       </p>
+      {renderDetailBadges()}
     </motion.div>
   );
 };

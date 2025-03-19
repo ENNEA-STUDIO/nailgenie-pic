@@ -46,6 +46,13 @@ const DesignGrid: React.FC<DesignGridProps> = ({
               <Rss size={14} className="text-white" />
             </div>
           )}
+          
+          {/* Nail properties indicator */}
+          {(design.nail_shape || design.nail_length) && (
+            <div className="absolute bottom-2 right-2 bg-black/50 rounded-full px-2 py-1 text-white text-xs">
+              {design.nail_shape || ""} {design.nail_length || ""}
+            </div>
+          )}
         </motion.div>
       ))}
     </div>

@@ -17,6 +17,9 @@ export type CustomDatabase = Database & {
           created_at: string;
           image_url: string;
           prompt: string | null;
+          nail_shape: string | null;
+          nail_color: string | null;
+          nail_length: string | null;
         };
         Insert: {
           id?: string;
@@ -24,6 +27,9 @@ export type CustomDatabase = Database & {
           created_at?: string;
           image_url: string;
           prompt?: string | null;
+          nail_shape?: string | null;
+          nail_color?: string | null;
+          nail_length?: string | null;
         };
         Update: {
           id?: string;
@@ -31,6 +37,42 @@ export type CustomDatabase = Database & {
           created_at?: string;
           image_url?: string;
           prompt?: string | null;
+          nail_shape?: string | null;
+          nail_color?: string | null;
+          nail_length?: string | null;
+        };
+        Relationships: [];
+      };
+      saved_designs: {
+        Row: {
+          id: string;
+          user_id: string;
+          created_at: string;
+          image_url: string;
+          prompt: string | null;
+          nail_shape: string | null;
+          nail_color: string | null;
+          nail_length: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          created_at?: string;
+          image_url: string;
+          prompt?: string | null;
+          nail_shape?: string | null;
+          nail_color?: string | null;
+          nail_length?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          created_at?: string;
+          image_url?: string;
+          prompt?: string | null;
+          nail_shape?: string | null;
+          nail_color?: string | null;
+          nail_length?: string | null;
         };
         Relationships: [];
       };

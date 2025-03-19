@@ -14,6 +14,9 @@ export type Database = {
           created_at: string
           id: string
           image_url: string
+          nail_color: string | null
+          nail_length: string | null
+          nail_shape: string | null
           prompt: string | null
           user_id: string
         }
@@ -21,6 +24,9 @@ export type Database = {
           created_at?: string
           id?: string
           image_url: string
+          nail_color?: string | null
+          nail_length?: string | null
+          nail_shape?: string | null
           prompt?: string | null
           user_id: string
         }
@@ -28,6 +34,9 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
+          nail_color?: string | null
+          nail_length?: string | null
+          nail_shape?: string | null
           prompt?: string | null
           user_id?: string
         }
@@ -38,6 +47,9 @@ export type Database = {
           created_at: string
           id: string
           image_url: string
+          nail_color: string | null
+          nail_length: string | null
+          nail_shape: string | null
           prompt: string | null
           user_id: string
         }
@@ -45,6 +57,9 @@ export type Database = {
           created_at?: string
           id?: string
           image_url: string
+          nail_color?: string | null
+          nail_length?: string | null
+          nail_shape?: string | null
           prompt?: string | null
           user_id: string
         }
@@ -52,6 +67,9 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
+          nail_color?: string | null
+          nail_length?: string | null
+          nail_shape?: string | null
           prompt?: string | null
           user_id?: string
         }

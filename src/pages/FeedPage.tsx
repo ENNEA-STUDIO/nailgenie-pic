@@ -87,6 +87,29 @@ const FeedPage: React.FC = () => {
     return details;
   };
 
+  // Display nail details more prominently
+  const renderDetailBadges = (design: SharedDesign) => {
+    return (
+      <div className="flex flex-wrap gap-2 justify-center mt-3">
+        {design.nail_shape && (
+          <span className="px-2 py-1 text-xs bg-primary/10 rounded-full text-primary">
+            {design.nail_shape}
+          </span>
+        )}
+        {design.nail_length && (
+          <span className="px-2 py-1 text-xs bg-secondary/20 rounded-full text-secondary-foreground">
+            {design.nail_length}
+          </span>
+        )}
+        {design.nail_color && (
+          <span className="px-2 py-1 text-xs bg-muted rounded-full text-muted-foreground">
+            {design.nail_color}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -147,8 +170,9 @@ const FeedPage: React.FC = () => {
                 </button>
               </div>
               <p className="text-sm text-muted-foreground mt-2 text-center">
-                {getDesignDetails(selectedDesign)}
+                {selectedDesign.prompt || "Sans description"}
               </p>
+              {renderDetailBadges(selectedDesign)}
             </motion.div>
           )}
           
@@ -176,6 +200,13 @@ const FeedPage: React.FC = () => {
                 />
                 
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                
+                {/* Nail shape/length indicator */}
+                {(design.nail_shape || design.nail_length) && (
+                  <div className="absolute bottom-2 right-2 bg-black/50 rounded-full px-2 py-1 text-white text-xs">
+                    {design.nail_shape || ""} {design.nail_length || ""}
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
