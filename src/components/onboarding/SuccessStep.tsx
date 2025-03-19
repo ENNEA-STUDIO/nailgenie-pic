@@ -1,14 +1,10 @@
 
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Sparkles, CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { Sparkles, CheckCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const SuccessStep: React.FC = () => {
-  const navigate = useNavigate();
-  
   useEffect(() => {
     // Trigger confetti when component mounts
     const duration = 3 * 1000;

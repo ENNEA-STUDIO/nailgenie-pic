@@ -40,6 +40,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
 
   const handleNext = () => {
     if (isLastStep) {
+      // Call onComplete only once and prevent further navigation
       onComplete();
     } else {
       const nextStep = currentStepIndex + 1;

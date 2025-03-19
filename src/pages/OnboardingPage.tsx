@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -55,10 +54,9 @@ const OnboardingPage: React.FC = () => {
       
       toast.success("Votre compte a été créé avec succès!");
       
-      // Rediriger vers la page de la caméra
-      setTimeout(() => {
-        navigate('/camera');
-      }, 1500);
+      // Force navigation to camera page immediately and prevent going back to onboarding
+      console.log("Account created successfully, redirecting to camera page");
+      navigate('/camera', { replace: true });
       
     } catch (error: any) {
       console.error('Erreur lors de la création du compte:', error);
