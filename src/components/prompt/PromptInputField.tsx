@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Wand2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface PromptInputFieldProps {
   prompt: string;
@@ -44,22 +45,22 @@ const PromptInputField: React.FC<PromptInputFieldProps> = ({
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder={displayText || localPlaceholder}
-        className="prompt-input shadow-md hover:shadow-lg focus:shadow-lg transition-all duration-300 text-base"
+        className="prompt-input shadow-md hover:shadow-lg focus:shadow-lg transition-all duration-300 text-base pr-14"
         disabled={isLoading}
       />
       
-      <motion.button
-        whileTap={{ scale: 0.9 }}
-        type="submit"
-        disabled={isLoading || !prompt.trim()}
-        className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2.5 rounded-lg 
-          ${prompt.trim() ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}
-          ${isLoading ? 'opacity-70' : 'opacity-100'} transition-colors duration-200`}
-        style={{ transform: 'translateY(-50%)' }}
-        aria-label="Generate design"
-      >
-        <Wand2 size={20} className={isLoading ? 'animate-pulse-subtle' : ''} />
-      </motion.button>
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center">
+        <Button
+          type="submit"
+          disabled={isLoading || !prompt.trim()}
+          size="icon"
+          variant={prompt.trim() ? "default" : "ghost"}
+          className={`h-10 w-10 rounded-lg ${isLoading ? 'opacity-70' : 'opacity-100'}`}
+          aria-label="Generate design"
+        >
+          <Wand2 size={20} className={isLoading ? 'animate-pulse-subtle' : ''} />
+        </Button>
+      </div>
     </form>
   );
 };
