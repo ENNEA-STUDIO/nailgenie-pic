@@ -54,7 +54,8 @@ const PromptInputField: React.FC<PromptInputFieldProps> = ({
         disabled={isLoading || !prompt.trim()}
         className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2.5 rounded-lg 
           ${prompt.trim() ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}
-          ${isLoading ? 'opacity-70' : 'opacity-100'} transition-all duration-200`}
+          ${isLoading ? 'opacity-70' : 'opacity-100'} transition-colors duration-200`}
+        style={{ transform: 'translateY(-50%)' }}
         aria-label="Generate design"
       >
         <Wand2 size={20} className={isLoading ? 'animate-pulse-subtle' : ''} />
