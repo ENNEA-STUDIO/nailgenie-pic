@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
@@ -37,18 +36,17 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const handleDownload = () => {
     try {
       setDownloading(true);
-      // Create an anchor element and set properties
+      
+      // Create an anchor element
       const link = document.createElement("a");
       link.href = generatedDesign;
       link.download = "nail-design.png";
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
       
-      // Append to the document body
+      // Append to document, click, and remove
       document.body.appendChild(link);
-      
-      // Trigger download
       link.click();
-      
-      // Remove from the document
       document.body.removeChild(link);
       
       showFeedback('success', t.result.downloadSuccess);

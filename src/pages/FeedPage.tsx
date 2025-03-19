@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +7,7 @@ import FeedEmptyState from '@/components/feed/FeedEmptyState';
 import FeedDesignGrid from '@/components/feed/FeedDesignGrid';
 import SelectedFeedDesign from '@/components/feed/SelectedFeedDesign';
 import { SharedDesign } from '@/types/feed';
+import { downloadDesignImage } from '@/hooks/gallery/utils';
 
 const FeedPage: React.FC = () => {
   const [designs, setDesigns] = useState<SharedDesign[]>([]);
@@ -42,16 +42,7 @@ const FeedPage: React.FC = () => {
   const downloadDesign = async (imageUrl: string, index: number) => {
     try {
       setActionInProgress('download');
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `design-${index + 1}.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      await downloadDesignImage(imageUrl, index);
     } catch (error) {
       console.error('Error downloading image:', error);
     } finally {
