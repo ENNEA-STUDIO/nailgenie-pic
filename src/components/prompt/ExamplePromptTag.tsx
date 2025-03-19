@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { extractMainConcept } from '../../utils/promptUtils';
 
 interface ExamplePromptTagProps {
   example: string;
@@ -18,7 +19,9 @@ const ExamplePromptTag: React.FC<ExamplePromptTagProps> = ({
   style, 
   onClick 
 }) => {
-  const displayName = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
+  // Extract the main concept and truncate if needed
+  const displayName = extractMainConcept(example);
+  const truncatedName = displayName.length > 15 ? `${displayName.substring(0, 15)}...` : displayName;
   
   return (
     <motion.button
@@ -35,7 +38,7 @@ const ExamplePromptTag: React.FC<ExamplePromptTagProps> = ({
       onClick={() => onClick(example)}
       className={`${style.color} ${style.size} px-3.5 py-2.5 rounded-full hover:shadow-md transition-all duration-200 cursor-pointer border whitespace-nowrap font-medium`}
     >
-      {displayName}
+      {truncatedName}
     </motion.button>
   );
 };

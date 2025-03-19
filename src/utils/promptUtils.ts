@@ -140,7 +140,10 @@ export const getRandomExamples = (count = 8) => {
 
 /**
  * Extracts the main concept from a full example prompt
+ * and ensures it's not too long for display
  */
 export const extractMainConcept = (example: string): string => {
-  return example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
+  // Extract the main concept before any descriptors
+  const mainConcept = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
+  return mainConcept;
 };
