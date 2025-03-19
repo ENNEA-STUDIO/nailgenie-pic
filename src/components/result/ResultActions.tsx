@@ -5,6 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
+import { downloadDesignImage, shareImageExternally } from '@/hooks/gallery/utils';
 
 interface ResultActionsProps {
   onTryAgain: () => void;
@@ -65,31 +66,7 @@ const ResultActions: React.FC<ResultActionsProps> = ({
     try {
       setActionInProgress('share');
       
-      if (isMobile) {
-        const shareText = language === 'fr' 
-          ? `Découvrez mon design d'ongles "${prompt}" créé avec NailGenie!`
-          : `Check out my nail design "${prompt}" created with NailGenie!`;
-          
-        await navigator.share({
-          title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
-          text: shareText,
-          url: generatedDesign
-        });
-      } else {
-        const response = await fetch(generatedDesign);
-        const blob = await response.blob();
-        const file = new File([blob], 'nailgenie-design.jpg', { type: 'image/jpeg' });
-        
-        const shareText = language === 'fr' 
-          ? `Découvrez mon design d'ongles "${prompt}" créé avec NailGenie!`
-          : `Check out my nail design "${prompt}" created with NailGenie!`;
-        
-        await navigator.share({
-          title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
-          text: shareText,
-          files: [file]
-        });
-      }
+      await shareImageExternally(generatedDesign, prompt);
       
       showFeedback('success', t.result.shareSuccess);
     } catch (error) {
