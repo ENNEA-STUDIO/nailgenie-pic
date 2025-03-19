@@ -5,6 +5,7 @@ import { examplePrompts } from '../utils/promptUtils';
 interface TextAnimationOptions {
   typingSpeed?: number;
   deleteSpeed?: number;
+  maxLength?: number;
 }
 
 /**
@@ -18,6 +19,7 @@ const useTextAnimation = (
   const {
     typingSpeed = 120,
     deleteSpeed = 30,
+    maxLength = 40 // Maximum length for example text to prevent overflow
   } = options;
 
   const [displayText, setDisplayText] = useState("");
@@ -28,7 +30,11 @@ const useTextAnimation = (
   // Text animation effect
   useEffect(() => {
     if (!prompt && !isFocused) {
-      const currentExample = examplePrompts[currentExampleIndex];
+      // Get the current example and trim it if needed
+      let currentExample = examplePrompts[currentExampleIndex];
+      if (currentExample.length > maxLength) {
+        currentExample = currentExample.substring(0, maxLength - 3) + '...';
+      }
       
       if (isTyping) {
         if (displayText.length < currentExample.length) {
@@ -68,7 +74,8 @@ const useTextAnimation = (
     isFocused, 
     prompt, 
     typingSpeed, 
-    deleteSpeed
+    deleteSpeed,
+    maxLength
   ]);
 
   return { displayText, currentExampleIndex };
