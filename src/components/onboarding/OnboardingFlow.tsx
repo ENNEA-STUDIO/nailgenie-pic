@@ -103,8 +103,8 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
         <div className="absolute -z-10 w-40 h-40 rounded-full bg-pink-200/20 blur-xl bottom-10 left-20 opacity-50 mix-blend-multiply"></div>
       </motion.div>
 
-      {/* Navigation buttons - Only show if not on the first screen */}
-      {!isFirstStep && (
+      {/* Navigation buttons - Only show if not on the first screen and not on the last screen */}
+      {!isFirstStep && !isLastStep && (
         <div className="flex justify-between mt-6 px-4">
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
             <Button

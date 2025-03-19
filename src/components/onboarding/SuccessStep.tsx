@@ -1,10 +1,9 @@
 
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Camera } from 'lucide-react';
+import { Camera, Sparkles, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import LogoutButton from '../auth/LogoutButton';
 import confetti from 'canvas-confetti';
 
 const SuccessStep: React.FC = () => {
@@ -117,22 +116,33 @@ const SuccessStep: React.FC = () => {
       
       <motion.div
         variants={itemVariants}
-        className="flex flex-col gap-3 w-full max-w-xs mt-4"
+        className="flex flex-col gap-3 w-full max-w-xs mt-6"
       >
-        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+        <motion.div 
+          whileHover={{ 
+            scale: 1.05,
+            boxShadow: "0px 0px 30px rgba(214, 31, 255, 0.4)"
+          }}
+          whileTap={{ scale: 0.97 }}
+          className="relative overflow-hidden group"
+        >
           <Button 
             onClick={() => navigate('/camera')}
-            className="w-full h-14 rounded-xl bg-gradient-to-r from-primary to-accent hover:opacity-90 hover:shadow-lg transition-all"
-            size="lg"
+            className="w-full h-16 rounded-xl font-bold text-lg text-white"
+            style={{
+              background: "linear-gradient(45deg, #FF719A 0%, #FF9674 50%, #FFD29F 100%)",
+              boxShadow: "0px 10px 20px rgba(219, 39, 119, 0.3), inset 0px 1px 3px rgba(255, 255, 255, 0.5)",
+              transition: "all 0.5s ease"
+            }}
           >
-            <Camera className="mr-2 h-5 w-5" />
-            <span className="font-semibold">Prendre une photo</span>
+            <span className="absolute inset-0 overflow-hidden rounded-xl">
+              <span className="absolute inset-0 z-10 opacity-0 group-hover:opacity-80 transition-opacity duration-700 bg-[radial-gradient(circle_at_50%_50%,_rgba(255,255,255,0.8),_transparent_60%)] blur-xl"></span>
+            </span>
+            <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
+            <span>Prendre une photo</span>
+            <Camera className="ml-2 h-5 w-5" />
           </Button>
         </motion.div>
-        
-        <div className="flex justify-center mt-3">
-          <LogoutButton variant="ghost" />
-        </div>
       </motion.div>
     </motion.div>
   );
