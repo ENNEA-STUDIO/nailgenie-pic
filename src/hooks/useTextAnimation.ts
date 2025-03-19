@@ -23,7 +23,7 @@ const useTextAnimation = (
   } = options;
 
   const [displayText, setDisplayText] = useState("");
-  const [currentExampleIndex, setCurrentExampleIndex] = useState(0);
+  const [currentExampleIndex, setCurrentExampleIndex] = useState(Math.floor(Math.random() * examplePrompts.length));
   const [isTyping, setIsTyping] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -57,8 +57,12 @@ const useTextAnimation = (
         } else {
           setIsDeleting(false);
           setIsTyping(true);
-          // Proceed to the next example in a sequential manner
-          const nextIndex = (currentExampleIndex + 1) % examplePrompts.length;
+          // Select a random example that's different from the current one
+          let nextIndex;
+          do {
+            nextIndex = Math.floor(Math.random() * examplePrompts.length);
+          } while (nextIndex === currentExampleIndex);
+          
           setCurrentExampleIndex(nextIndex);
         }
       }
