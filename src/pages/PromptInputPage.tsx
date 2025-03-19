@@ -76,9 +76,9 @@ const PromptInputPage: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-40"
+      className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-28"
     >
-      <div className="flex flex-col h-full max-h-screen overflow-hidden">
+      <div className="flex flex-col flex-1 pb-16">
         <div className="flex-1">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}

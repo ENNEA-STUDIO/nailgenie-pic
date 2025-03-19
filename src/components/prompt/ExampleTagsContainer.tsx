@@ -1,8 +1,7 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import ExamplePromptTag from './ExamplePromptTag';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ExampleTagsContainerProps {
   exampleTags: string[];
@@ -23,21 +22,19 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="relative mt-6 px-1"
+      className="relative mt-6 px-1 overflow-y-auto max-h-40"
     >
-      <ScrollArea className="h-32 w-full rounded-md">
-        <div className="flex flex-wrap justify-center gap-2.5 py-2 px-1">
-          {exampleTags.map((example, index) => (
-            <ExamplePromptTag
-              key={index}
-              example={example}
-              index={index}
-              style={tagStyles[index] || { color: getRandomColor(), size: getRandomSize() }}
-              onClick={handleExampleClick}
-            />
-          ))}
-        </div>
-      </ScrollArea>
+      <div className="flex flex-wrap justify-center gap-2.5 py-2 px-1">
+        {exampleTags.map((example, index) => (
+          <ExamplePromptTag
+            key={index}
+            example={example}
+            index={index}
+            style={tagStyles[index] || { color: getRandomColor(), size: getRandomSize() }}
+            onClick={handleExampleClick}
+          />
+        ))}
+      </div>
     </motion.div>
   );
 };
