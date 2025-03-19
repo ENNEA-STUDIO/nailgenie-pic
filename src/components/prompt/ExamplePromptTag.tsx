@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { extractMainConcept } from '../../utils/promptUtils';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ExamplePromptTagProps {
   example: string;
@@ -19,6 +20,8 @@ const ExamplePromptTag: React.FC<ExamplePromptTagProps> = ({
   style, 
   onClick 
 }) => {
+  const { language } = useLanguage();
+  
   // Extract the main concept and truncate if needed
   const displayName = extractMainConcept(example);
   const truncatedName = displayName.length > 15 ? `${displayName.substring(0, 15)}...` : displayName;

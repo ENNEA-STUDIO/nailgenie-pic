@@ -1,17 +1,7 @@
 
 import { useState, useEffect } from 'react';
-
-// Base example prompts
-const examplePrompts = [
-  "Geometric Lines avec un dégradé de bleu",
-  "French Manicure avec des accents dorés",
-  "Effet Watercolor inspiré par un coucher de soleil",
-  "Dégradé pastel avec des motifs fleuris",
-  "Marble Effect avec des détails argentés",
-  "Negative Space avec des motifs minimalistes",
-  "Metallic Drips en rose gold",
-  "Jelly Nails avec des paillettes holographiques",
-];
+import { getRandomExamples } from '../../utils/promptUtils';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface TextAnimationState {
   displayText: string;
@@ -22,7 +12,8 @@ interface TextAnimationState {
 }
 
 export const useExamplePrompts = (isFocused: boolean, prompt: string) => {
-  const [exampleTags, setExampleTags] = useState(() => getRandomExamples());
+  const { language } = useLanguage();
+  const [exampleTags, setExampleTags] = useState(() => getRandomExamples(8, language));
   const [animationState, setAnimationState] = useState<TextAnimationState>({
     displayText: "",
     isTyping: true,
@@ -31,28 +22,27 @@ export const useExamplePrompts = (isFocused: boolean, prompt: string) => {
     currentExampleIndex: 0
   });
 
-  // Get random examples
-  const getRandomExamples = (count = 8) => {
-    const shuffled = [...examplePrompts].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-  };
-
   // Refresh examples periodically
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isFocused && !prompt) {
-        setExampleTags(getRandomExamples());
+        setExampleTags(getRandomExamples(8, language));
       }
     }, 20000);
 
     return () => clearInterval(interval);
-  }, [isFocused, prompt]);
+  }, [isFocused, prompt, language]);
+
+  // Update examples when language changes
+  useEffect(() => {
+    setExampleTags(getRandomExamples(8, language));
+  }, [language]);
 
   // Handle text animation
   useEffect(() => {
     if (!prompt && !isFocused) {
       const { displayText, isTyping, isDeleting, isPaused, currentExampleIndex } = animationState;
-      const currentExample = examplePrompts[currentExampleIndex];
+      const currentExample = exampleTags[currentExampleIndex] || "";
       const typingSpeed = 120;
       const deleteSpeed = 30;
       const pauseDuration = 1000;
@@ -90,8 +80,8 @@ export const useExamplePrompts = (isFocused: boolean, prompt: string) => {
         } else {
           let nextIndex;
           do {
-            nextIndex = Math.floor(Math.random() * examplePrompts.length);
-          } while (nextIndex === currentExampleIndex);
+            nextIndex = Math.floor(Math.random() * exampleTags.length);
+          } while (nextIndex === currentExampleIndex && exampleTags.length > 1);
           
           setAnimationState(prev => ({
             ...prev,
@@ -102,7 +92,7 @@ export const useExamplePrompts = (isFocused: boolean, prompt: string) => {
         }
       }
     }
-  }, [animationState, isFocused, prompt]);
+  }, [animationState, isFocused, prompt, exampleTags]);
 
   return {
     exampleTags,

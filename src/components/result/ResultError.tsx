@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ResultErrorProps {
   onTryAgain: () => void;
@@ -10,6 +11,8 @@ interface ResultErrorProps {
 }
 
 const ResultError: React.FC<ResultErrorProps> = ({ onTryAgain, isSafari, isIOS }) => {
+  const { t } = useLanguage();
+  
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -17,12 +20,12 @@ const ResultError: React.FC<ResultErrorProps> = ({ onTryAgain, isSafari, isIOS }
       className="glass-card rounded-3xl overflow-hidden p-8 flex flex-col items-center justify-center max-w-md w-full"
       style={{ height: 'auto', minHeight: '320px' }}
     >
-      <h3 className="text-lg font-medium mb-2 text-destructive">Erreur de chargement</h3>
+      <h3 className="text-lg font-medium mb-2 text-destructive">{t.common.error}</h3>
       <p className="text-sm text-muted-foreground text-center max-w-xs mb-6">
-        Impossible de charger l'image générée. Veuillez réessayer.
+        {t.result.loadingError}
         {(isSafari || isIOS) && (
           <span className="block mt-2 text-xs">
-            Si vous utilisez Safari, essayez d'ouvrir cette application dans Chrome pour de meilleurs résultats.
+            {t.result.safariError}
           </span>
         )}
       </p>

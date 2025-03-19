@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface LogoutButtonProps {
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
@@ -19,6 +20,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
   className = ''
 }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   const handleLogout = async () => {
     try {
@@ -26,12 +28,12 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
       if (error) throw error;
       
       navigate('/');
-      toast.success("Vous avez été déconnecté avec succès", {
+      toast.success(t.common.logoutSuccess, {
         icon: "👋"
       });
     } catch (error: any) {
       console.error('Error logging out:', error);
-      toast.error(error.message || "Une erreur s'est produite lors de la déconnexion");
+      toast.error(error.message || t.common.errorMessage);
     }
   };
   
@@ -47,7 +49,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
         className={`rounded-xl transition-all duration-300 ${className}`}
       >
         <LogOut className="mr-2 h-4 w-4" />
-        <span>Déconnexion</span>
+        <span>{t.common.logout}</span>
       </Button>
     </motion.div>
   );

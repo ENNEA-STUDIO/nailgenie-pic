@@ -3,10 +3,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Camera, Grid } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const BottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   
   // Determine which page is active
   const isCamera = ['/camera', '/prompt', '/prompt-input', '/result'].includes(location.pathname);
@@ -28,7 +30,7 @@ const BottomNav: React.FC = () => {
             whileHover={{ y: -2 }}
           >
             <Camera className={`w-5 h-5 ${isCamera ? 'text-white' : 'text-foreground/80'}`} />
-            <span className="text-xs mt-1 font-medium">{isCamera ? 'Créer' : 'Créer'}</span>
+            <span className="text-xs mt-1 font-medium">{t.common.create}</span>
           </motion.button>
           
           <motion.button
@@ -38,7 +40,7 @@ const BottomNav: React.FC = () => {
             whileHover={{ y: -2 }}
           >
             <Grid className={`w-5 h-5 ${isGallery ? 'text-white' : 'text-foreground/80'}`} />
-            <span className="text-xs mt-1 font-medium">{isGallery ? 'Gallerie' : 'Gallerie'}</span>
+            <span className="text-xs mt-1 font-medium">{t.common.gallery}</span>
           </motion.button>
         </div>
       </div>

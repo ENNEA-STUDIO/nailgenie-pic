@@ -9,10 +9,12 @@ import { useApp } from '../context/AppContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import BottomNav from '@/components/navigation/BottomNav';
+import { useLanguage } from '@/context/LanguageContext';
 
 const PromptPage: React.FC = () => {
   const navigate = useNavigate();
   const { handImage } = useApp();
+  const { t } = useLanguage();
   
   // Redirect if no hand image
   useEffect(() => {
@@ -65,7 +67,7 @@ const PromptPage: React.FC = () => {
               transition={{ delay: 0.1, duration: 0.3 }}
               className="text-xl font-medium text-center mb-6"
             >
-              Personnalisez vos ongles
+              {t.prompt.customizeNails}
             </motion.h2>
             
             <div className="p-4 rounded-2xl backdrop-blur-sm bg-white/80">
@@ -86,7 +88,7 @@ const PromptPage: React.FC = () => {
               boxShadow: "0 10px 25px -5px rgba(155, 135, 245, 0.3)"
             }}
           >
-            Continuer <ArrowRight className="ml-2 h-5 w-5" />
+            {t.prompt.continue} <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
       </div>

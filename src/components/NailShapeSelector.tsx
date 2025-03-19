@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { useLanguage } from '@/context/LanguageContext';
 
 // Map des icônes pour chaque forme d'ongle
 const shapeIcons = {
@@ -27,19 +28,10 @@ const shapeIcons = {
   coffin: CoffinNailIcon,
 };
 
-// Description pour chaque forme
-const shapeDescriptions = {
-  round: 'Forme classique et naturelle',
-  square: 'Bout droit avec coins arrondis',
-  oval: 'Forme allongée et élégante',
-  almond: 'En pointe arrondie comme une amande',
-  stiletto: 'Très pointu et dramatique',
-  coffin: 'Rectangulaire avec bout plat',
-};
-
 // Composant qui affiche les options de formes d'ongles
 const NailShapeSelector: React.FC = () => {
   const { nailShape, setNailShape } = useApp();
+  const { t } = useLanguage();
   
   const handleShapeChange = (value: string) => {
     setNailShape(value as NailShape);
@@ -47,7 +39,7 @@ const NailShapeSelector: React.FC = () => {
   
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-medium mb-3 px-4">Forme d'ongles</h3>
+      <h3 className="text-lg font-medium mb-3 px-4">{t.prompt.nailShape}</h3>
       <div className="overflow-x-auto no-scrollbar pb-2">
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
@@ -79,7 +71,7 @@ const NailShapeSelector: React.FC = () => {
                           }`}
                         />
                       </div>
-                      <span className="mt-1 text-xs font-medium capitalize">{shape}</span>
+                      <span className="mt-1 text-xs font-medium capitalize">{t.shapes[shape]}</span>
                     </motion.div>
                   </TooltipTrigger>
                   <TooltipContent 
@@ -87,7 +79,7 @@ const NailShapeSelector: React.FC = () => {
                     sideOffset={4}
                     className="bg-background/90 backdrop-blur-sm border border-border/40 shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
                   >
-                    <span className="text-xs">{shapeDescriptions[shape]}</span>
+                    <span className="text-xs">{t.shapeDescriptions[shape]}</span>
                   </TooltipContent>
                 </Tooltip>
               );

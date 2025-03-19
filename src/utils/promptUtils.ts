@@ -2,8 +2,57 @@
 /**
  * Utility functions for handling prompt examples and text transformations
  */
+import { Language } from '../locales/translations';
 
 // Complete list of example prompts
+export const examplePromptsBase = {
+  fr: [
+    "French Tips avec un dégradé de bleu",
+    "Ombre Fade avec des accents dorés",
+    "Effet Marble inspiré par un coucher de soleil",
+    "Détails Glitter avec des motifs fleuris",
+    "Finition Chrome avec des détails argentés",
+    "Combo Mat et Brillant avec des motifs minimalistes",
+    "Lignes Minimalistes en rose gold",
+    "Art Negative Space avec des paillettes holographiques",
+    "Motifs Floraux avec une touche métallique",
+    "Animal Print avec des détails argentés",
+    "Étoiles et Lune avec un effet galaxie",
+    "Effet Tie-Dye avec des tons pastel",
+    "Accents Gold Foil sur fond noir mat",
+    "French Tips Marbrés avec une touche d'or",
+    "Ongles Holographiques avec des reflets multicolores",
+    "Art Abstrait inspiré par Kandinsky",
+    "Effet Gouttes avec des couleurs contrastées",
+    "Motif Damier en noir et blanc",
+    "Glow Néon avec des effets phosphorescents",
+    "Design Galaxie avec des paillettes étoilées"
+  ],
+  en: [
+    "French Tips with blue gradient",
+    "Ombre Fade with gold accents",
+    "Marble Effect inspired by sunset",
+    "Glitter Details with floral patterns",
+    "Chrome Finish with silver details",
+    "Matte and Glossy Combo with minimalist patterns",
+    "Minimalist Lines in rose gold",
+    "Negative Space Art with holographic glitter",
+    "Floral Patterns with metallic touch",
+    "Animal Print with silver details",
+    "Stars and Moon with galaxy effect",
+    "Tie-Dye Effect with pastel tones",
+    "Gold Foil Accents on matte black",
+    "Marble French Tips with gold touch",
+    "Holographic Nails with multicolor reflections",
+    "Abstract Art inspired by Kandinsky",
+    "Dripping Effect with contrasting colors",
+    "Checkerboard Pattern in black and white",
+    "Neon Glow with phosphorescent effects",
+    "Galaxy Design with star glitter"
+  ]
+};
+
+// Original examples for backwards compatibility
 export const examplePrompts = [
   "French Tips avec un dégradé de bleu",
   "Ombre Fade avec des accents dorés",
@@ -133,8 +182,9 @@ export const examplePrompts = [
 /**
  * Gets a random selection of example prompts
  */
-export const getRandomExamples = (count = 8) => {
-  const shuffled = [...examplePrompts].sort(() => 0.5 - Math.random());
+export const getRandomExamples = (count = 8, language: Language = 'fr') => {
+  const promptsToUse = examplePromptsBase[language] || examplePromptsBase.en;
+  const shuffled = [...promptsToUse].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 };
 
@@ -144,6 +194,6 @@ export const getRandomExamples = (count = 8) => {
  */
 export const extractMainConcept = (example: string): string => {
   // Extract the main concept before any descriptors
-  const mainConcept = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0];
+  const mainConcept = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0].split(" with ")[0].split(" inspired")[0];
   return mainConcept;
 };

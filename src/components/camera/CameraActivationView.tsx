@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Camera, Loader2, CameraOff } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useLanguage } from '@/context/LanguageContext';
 
 interface CameraActivationViewProps {
   isCameraAvailable: boolean;
@@ -18,6 +19,8 @@ const CameraActivationView: React.FC<CameraActivationViewProps> = ({
   videoError,
   startCamera
 }) => {
+  const { t } = useLanguage();
+  
   return (
     <motion.div 
       key="camera-prompt"
@@ -29,14 +32,14 @@ const CameraActivationView: React.FC<CameraActivationViewProps> = ({
     >
       {isCameraAvailable ? (
         <>
-          <h2 className="text-xl font-medium mb-2 text-foreground">Prenez une photo de votre main</h2>
+          <h2 className="text-xl font-medium mb-2 text-foreground">{t.camera.takePhoto}</h2>
           <p className="text-sm text-muted-foreground mb-8 max-w-xs">
-            Positionnez clairement votre main dans le cadre pour obtenir les meilleurs résultats
+            {t.camera.positionHand}
           </p>
           {videoError && (
             <Alert variant="destructive" className="mb-4">
               <AlertDescription>
-                Erreur: {videoError}
+                {t.common.error}: {videoError}
               </AlertDescription>
             </Alert>
           )}
@@ -75,14 +78,14 @@ const CameraActivationView: React.FC<CameraActivationViewProps> = ({
           <div className="p-6 mb-6 rounded-full bg-destructive/10">
             <CameraOff size={48} className="text-destructive" />
           </div>
-          <h2 className="text-xl font-medium mb-2 text-foreground">Caméra non disponible</h2>
+          <h2 className="text-xl font-medium mb-2 text-foreground">{t.camera.unavailable}</h2>
           <p className="text-sm text-muted-foreground mb-8 max-w-xs">
-            Veuillez vous assurer que votre appareil dispose d'une caméra et que vous avez autorisé son utilisation.
+            {t.camera.unavailableDescription}
           </p>
           {videoError && (
             <Alert variant="destructive" className="mb-4">
               <AlertDescription>
-                Détails: {videoError}
+                {t.camera.unavailablePermission} {videoError}
               </AlertDescription>
             </Alert>
           )}

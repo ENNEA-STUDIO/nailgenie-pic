@@ -6,6 +6,7 @@ import PromptInput from '../components/prompt/PromptInput';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '../hooks/use-mobile';
 import BottomNav from '@/components/navigation/BottomNav';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   RoundNailIcon,
   SquareNailIcon,
@@ -18,7 +19,7 @@ import {
 const PromptInputPage: React.FC = () => {
   const navigate = useNavigate();
   const { handImage, generatedDesign, nailShape, nailLength, nailColor } = useApp();
-  const isMobile = useIsMobile();
+  const { t } = useLanguage();
   
   // Redirects
   useEffect(() => {
@@ -58,13 +59,13 @@ const PromptInputPage: React.FC = () => {
   const getNailLengthText = () => {
     switch (nailLength) {
       case 'short':
-        return 'Courts';
+        return t.prompt.short;
       case 'medium':
-        return 'Moyens';
+        return t.prompt.medium;
       case 'long':
-        return 'Longs';
+        return t.prompt.long;
       default:
-        return 'Moyens';
+        return t.prompt.medium;
     }
   };
 
@@ -103,7 +104,7 @@ const PromptInputPage: React.FC = () => {
               transition={{ delay: 0.1, duration: 0.3 }}
               className="text-xl font-medium text-center mb-6"
             >
-              Décrivez votre design
+              {t.prompt.describeDesign}
             </motion.div>
             
             <div className="mb-6">

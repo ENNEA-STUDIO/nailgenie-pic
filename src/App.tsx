@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AppProvider } from "./context/AppContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { toast } from "sonner";
@@ -104,59 +105,61 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AppProvider>
-          <Toaster />
-          <Sonner position="top-center" />
-          <BrowserRouter>
-            <AnimatePresence mode="wait">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/onboarding" element={<OnboardingPage />} />
-                <Route 
-                  path="/camera" 
-                  element={
-                    <ProtectedRoute>
-                      <CameraPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/prompt" 
-                  element={
-                    <ProtectedRoute>
-                      <PromptPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/prompt-input" 
-                  element={
-                    <ProtectedRoute>
-                      <PromptInputPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/result" 
-                  element={
-                    <ProtectedRoute>
-                      <ResultPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/gallery" 
-                  element={
-                    <ProtectedRoute>
-                      <GalleryPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AnimatePresence>
-          </BrowserRouter>
-        </AppProvider>
+        <LanguageProvider>
+          <AppProvider>
+            <Toaster />
+            <Sonner position="top-center" />
+            <BrowserRouter>
+              <AnimatePresence mode="wait">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/onboarding" element={<OnboardingPage />} />
+                  <Route 
+                    path="/camera" 
+                    element={
+                      <ProtectedRoute>
+                        <CameraPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/prompt" 
+                    element={
+                      <ProtectedRoute>
+                        <PromptPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/prompt-input" 
+                    element={
+                      <ProtectedRoute>
+                        <PromptInputPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/result" 
+                    element={
+                      <ProtectedRoute>
+                        <ResultPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/gallery" 
+                    element={
+                      <ProtectedRoute>
+                        <GalleryPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AnimatePresence>
+            </BrowserRouter>
+          </AppProvider>
+        </LanguageProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
