@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
@@ -28,89 +29,45 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const [imageAsBase64, setImageAsBase64] = useState<string | null>(null);
   const { toast } = useToast();
   
-  useEffect(() => {
-    // Convert the generated design URL to base64 when it changes
-    if (generatedDesign) {
-      convertImageToBase64(generatedDesign);
-    }
-  }, [generatedDesign]);
-  
-  const convertImageToBase64 = async (url: string) => {
-    try {
-      if (url.startsWith('data:')) {
-        // It's already a base64 string
-        setImageAsBase64(url);
-        return;
-      }
-      
-      console.log("Converting image to base64:", url);
-      
-      // Create a canvas element to draw the image
-      const img = new Image();
-      img.crossOrigin = 'anonymous'; // Enable CORS
-      
-      // Set up a promise that resolves when the image loads
-      const imageLoadPromise = new Promise<void>((resolve, reject) => {
-        img.onload = () => {
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-              reject(new Error('Failed to get canvas context'));
-              return;
-            }
-            
-            // Draw the image on the canvas
-            ctx.drawImage(img, 0, 0);
-            
-            // Convert the canvas to a base64 data URL
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-            setImageAsBase64(dataUrl);
-            console.log('Successfully converted image to base64');
-            resolve();
-          } catch (error) {
-            console.error('Error converting image to base64:', error);
-            reject(error);
-          }
-        };
-        
-        img.onerror = (e) => {
-          console.error('Error loading image from URL:', url, e);
-          toast({
-            title: t.result.savedError || "Error",
-            description: "Could not load the image",
-            variant: "destructive"
-          });
-          reject(new Error('Failed to load image'));
-        };
-      });
-      
-      // Set the src to start loading the image
-      img.src = url;
-      
-      // Wait for the image to load and convert
-      await imageLoadPromise;
-    } catch (error) {
-      console.error('Error in convertImageToBase64:', error);
-      toast({
-        title: t.result.savedError || "Error",
-        description: "Could not process the image",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  if (!generatedDesign) return null;
-  
   // Show feedback and automatically hide it after a delay
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message, visible: true });
     setTimeout(() => {
       setFeedback(prev => prev ? { ...prev, visible: false } : null);
     }, 2000);
+  };
+  
+  useEffect(() => {
+    // When the component mounts or when generatedDesign changes
+    if (generatedDesign) {
+      console.log("Generated design available, proceeding with rendering");
+    }
+  }, [generatedDesign]);
+  
+  const convertImageToCanvas = (img: HTMLImageElement): string => {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width || 1024;
+    canvas.height = img.height || 1024;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Failed to get canvas context');
+    }
+    
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL('image/jpeg', 0.9);
+  };
+  
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    try {
+      // Once the image loads in the DOM, convert it to base64 via canvas
+      const img = event.currentTarget;
+      const base64Data = convertImageToCanvas(img);
+      console.log("Image converted to base64 successfully");
+      setImageAsBase64(base64Data);
+    } catch (error) {
+      console.error("Error converting image to base64:", error);
+    }
   };
   
   const handleDownload = async () => {
@@ -140,22 +97,29 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         showFeedback('error', t.common.connectionRequired);
+        toast({
+          title: t.common.connectionRequired || "Connexion requise",
+          description: "Veuillez vous connecter pour sauvegarder des designs",
+          variant: "destructive"
+        });
         setSaving(false);
         return;
       }
       
       const userId = sessionData.session.user.id;
       
-      // Use the base64 image data if available, otherwise use the original URL
-      const imageToUpload = imageAsBase64 || generatedDesign;
-      
-      if (!imageToUpload) {
+      // Prioritize using the base64 image data if available
+      if (!imageAsBase64 && !generatedDesign) {
         throw new Error('No image available to save');
       }
       
-      console.log("Using image for upload:", imageToUpload.substring(0, 100) + "...");
+      // Use the base64 version first if available, fall back to the URL
+      const imageToUpload = imageAsBase64 || generatedDesign;
+      
+      console.log("Using image for upload:", imageToUpload?.substring(0, 50) + "...");
       console.log("Uploading image to Supabase Storage...");
-      const publicUrl = await uploadImageToStorage(imageToUpload, userId);
+      
+      const publicUrl = await uploadImageToStorage(imageToUpload!, userId);
       console.log("Image uploaded successfully, public URL:", publicUrl);
       
       // Insert into saved_designs table with the Storage URL
@@ -197,6 +161,8 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     }
   };
   
+  if (!generatedDesign) return null;
+  
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}
@@ -216,9 +182,11 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         }}
       >
         <img 
-          src={imageAsBase64 || generatedDesign} 
+          src={generatedDesign} 
           alt="Generated nail design" 
           className="w-full object-cover"
+          onLoad={handleImageLoad}
+          crossOrigin="anonymous"
         />
       </motion.div>
       
@@ -247,7 +215,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
             <Download size={20} />
           )}
           
-          {/* Download success indicator */}
           <AnimatePresence>
             {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.downloadSuccess && (
               <motion.div 
@@ -278,7 +245,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
             <Save size={20} />
           )}
           
-          {/* Save success indicator */}
           <AnimatePresence>
             {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.savedSuccess && (
               <motion.div 
