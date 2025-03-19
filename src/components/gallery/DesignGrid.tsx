@@ -83,22 +83,27 @@ const DesignGrid: React.FC<DesignGridProps> = ({
               {/* Color indicator */}
               {design.nail_color && (
                 <div 
-                  className="h-4 w-4 rounded-full shadow-sm border border-gray-200/30" 
-                  style={{ backgroundColor: design.nail_color }}
+                  className="h-4 w-4 rounded-full shadow-md border border-gray-200/30" 
+                  style={{ 
+                    backgroundColor: design.nail_color,
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1)'
+                  }}
                 />
               )}
               
               {/* Shape indicator */}
               {ShapeIcon && (
-                <div className="h-5 w-5 flex items-center justify-center">
+                <div className="h-5 w-5 flex items-center justify-center filter drop-shadow-md">
                   <ShapeIcon className="h-full w-full text-white" />
                 </div>
               )}
               
               {/* Length indicator */}
               {design.nail_length && (
-                <div className="flex items-center">
-                  <div className={cn("h-1 rounded-full bg-white/90 shadow-sm", lengthClass)} />
+                <div className="flex items-center filter drop-shadow">
+                  <div className={cn("h-1 rounded-full bg-white/90 shadow-sm", lengthClass)} style={{
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                  }} />
                 </div>
               )}
             </div>
