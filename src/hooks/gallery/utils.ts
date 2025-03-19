@@ -7,61 +7,28 @@ export const downloadDesignImage = async (imageUrl: string, index: number) => {
     // Log the image URL for debugging
     console.log("Downloading image from URL:", imageUrl);
     
-    // Create a temporary invisible image to verify the image loads
-    const img = new Image();
-    img.crossOrigin = "anonymous"; // Try to avoid CORS issues
-    
-    // Return a promise that resolves when the image is loaded
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = imageUrl;
-    });
-    
-    // Now fetch the image with proper headers
-    const response = await fetch(imageUrl, {
-      method: 'GET',
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      },
-      cache: 'no-store',
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
-    }
-    
-    // Convert to blob
-    const blob = await response.blob();
-    
-    if (blob.size === 0) {
-      throw new Error("Downloaded image is empty");
-    }
-    
-    // Create object URL from blob
-    const url = URL.createObjectURL(blob);
+    // For Hugging Face and other CORS-restricted services, we'll use a different approach
+    // Instead of fetching the image directly, we'll open it in a new tab
+    // and let the user save it manually
     
     // Create a new anchor element
     const link = document.createElement('a');
     
-    // Set the href to the blob URL
-    link.href = url;
+    // Set the href to the image URL
+    link.href = imageUrl;
     
-    // Set download attribute with filename
-    link.download = `design-${index + 1}.jpg`;
+    // Set target to _blank to open in a new tab
+    link.target = '_blank';
     
     // Append to document, click, and remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     
-    // Clean up the blob URL to avoid memory leaks
-    URL.revokeObjectURL(url);
-    
-    console.log("Download completed successfully");
+    console.log("Image opened in a new tab for download");
+    return true;
   } catch (error) {
-    console.error("Error downloading image:", error);
+    console.error("Error opening image:", error);
     throw error;
   }
 };

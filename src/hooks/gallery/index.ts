@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { SavedDesign, ActionFeedback } from '@/types/gallery';
 import { fetchSavedDesigns, deleteDesignById, shareDesignToFeed } from './api';
 import { downloadDesignImage, createFeedbackHandler } from './utils';
+import { useLanguage } from '@/context/LanguageContext';
 
 export const useGallery = () => {
   const [designs, setDesigns] = useState<SavedDesign[]>([]);
@@ -10,6 +11,7 @@ export const useGallery = () => {
   const [selectedDesign, setSelectedDesign] = useState<SavedDesign | null>(null);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   // Initialize feedback handler
   const showFeedback = createFeedbackHandler(setFeedback);
@@ -36,10 +38,10 @@ export const useGallery = () => {
     try {
       setActionInProgress('download');
       await downloadDesignImage(imageUrl, index);
-      showFeedback('success', 'Image téléchargée');
+      showFeedback('success', t.result.imageOpened || 'Image ouverte dans un nouvel onglet');
     } catch (error) {
       console.error('Error downloading image:', error);
-      showFeedback('error', 'Impossible de télécharger l\'image');
+      showFeedback('error', t.result.downloadError || 'Impossible d\'ouvrir l\'image');
     } finally {
       setActionInProgress(null);
     }

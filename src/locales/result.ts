@@ -30,8 +30,8 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     savedError: 'Impossible de sauvegarder le design',
     shareSuccess: 'Design partagé avec succès!',
     shareError: 'Impossible de partager le design',
-    downloadSuccess: 'Image sauvegardée',
-    downloadError: "Impossible de télécharger l'image",
+    downloadSuccess: 'Image ouverte dans un nouvel onglet',
+    downloadError: "Impossible d'ouvrir l'image",
   },
   en: {
     working: 'Creating your design',
@@ -45,7 +45,7 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     savedError: 'Unable to save the design',
     shareSuccess: 'Design shared successfully!',
     shareError: 'Unable to share the design',
-    downloadSuccess: 'Image saved',
-    downloadError: 'Unable to download the image',
+    downloadSuccess: 'Image opened in a new tab',
+    downloadError: 'Unable to open the image',
   }
 };
