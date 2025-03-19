@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface UseImageLoaderProps {
   generatedDesign: string | null;
@@ -11,8 +11,6 @@ interface UseImageLoaderReturn {
   imageLoaded: boolean;
   imageError: boolean;
   retryCount: number;
-  handleImageLoad: () => void;
-  handleImageError: () => void;
 }
 
 export const useImageLoader = ({ 
@@ -24,6 +22,34 @@ export const useImageLoader = ({
   const [imageError, setImageError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
+  // Fonction pour tenter de précharger l'image
+  const preloadImage = useCallback((url: string) => {
+    console.log("Preloading image:", url);
+    const img = new Image();
+    
+    img.onload = () => {
+      console.log("Image pre-loaded successfully with dimensions:", 
+                img.width, "x", img.height);
+      setImageLoaded(true);
+      setImageError(false);
+    };
+    
+    img.onerror = (e) => {
+      console.error("Failed to pre-load image:", e);
+      setImageError(true);
+      setImageLoaded(false);
+    };
+    
+    // Set crossOrigin for CORS images
+    if (url.startsWith('http')) {
+      img.crossOrigin = "anonymous";
+    }
+    
+    // Ajout d'un cachebuster pour éviter les problèmes de cache
+    const cacheBuster = `${url.includes('?') ? '&' : '?'}t=${Date.now()}&r=${Math.random()}`;
+    img.src = url + cacheBuster;
+  }, []);
+
   // When generatedDesign changes, set up image with appropriate cache-busting
   useEffect(() => {
     if (generatedDesign) {
@@ -34,21 +60,12 @@ export const useImageLoader = ({
       
       // Always add a cache buster to prevent caching issues across all browsers
       const cacheBuster = `?t=${Date.now()}&r=${Math.random()}`;
-      setImageUrl(`${generatedDesign}${cacheBuster}`);
+      const finalUrl = `${generatedDesign}${cacheBuster}`;
+      setImageUrl(finalUrl);
       
-      // Pre-fetch for all browsers to ensure content is loaded
-      fetch(generatedDesign, { 
-        mode: 'no-cors',
-        cache: 'reload',
-        headers: {
-          'Pragma': 'no-cache',
-          'Cache-Control': 'no-cache, no-store, must-revalidate'
-        }
-      }).catch(error => {
-        console.log("Pre-fetch operation completed or failed:", error);
-      });
+      preloadImage(generatedDesign);
     }
-  }, [generatedDesign]);
+  }, [generatedDesign, preloadImage]);
 
   // Auto-retry logic when image fails to load
   useEffect(() => {
@@ -61,32 +78,18 @@ export const useImageLoader = ({
         console.log(`Retry ${retryCount + 1}/${maxRetries} with URL:`, newUrl);
         
         setImageUrl(newUrl);
-        setImageError(false);
         setRetryCount(prev => prev + 1);
-      }, 1000);
+        preloadImage(generatedDesign);
+      }, 1000 * (retryCount + 1)); // Incremental backoff
       
       return () => clearTimeout(timer);
     }
-  }, [imageError, generatedDesign, retryCount, maxRetries]);
-
-  const handleImageLoad = () => {
-    console.log("Image loaded successfully:", imageUrl);
-    setImageLoaded(true);
-    setImageError(false);
-  };
-
-  const handleImageError = () => {
-    console.error("Image failed to load:", imageUrl);
-    setImageError(true);
-    setImageLoaded(false);
-  };
+  }, [imageError, generatedDesign, retryCount, maxRetries, preloadImage]);
 
   return {
     imageUrl,
     imageLoaded,
     imageError,
-    retryCount,
-    handleImageLoad,
-    handleImageError
+    retryCount
   };
 };
