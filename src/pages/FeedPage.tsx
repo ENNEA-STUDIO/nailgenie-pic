@@ -73,10 +73,6 @@ const FeedPage: React.FC = () => {
       transition={{ duration: 0.4 }}
       className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-24 relative"
     >
-      <div className="flex-none text-2xl font-semibold text-center py-4">
-        {t.common.feed}
-      </div>
-      
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
