@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
@@ -97,6 +98,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       
       console.log("Prediction result received:", result ? "success" : "undefined");
       console.log("Result data:", result.data ? "exists" : "missing");
+      console.log("Full result object:", JSON.stringify(result, null, 2));
       
       if (result && result.data) {
         try {
@@ -113,8 +115,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const imageUrl = result.data[0][0].image.url;
             console.log("Extracted image URL:", imageUrl);
             
-            // We'll keep using this temporary URL for the preview
-            // The actual saving to storage happens in ResultPreview component
             setGeneratedDesign(imageUrl);
             toast.success("Design généré avec succès!");
           } else {

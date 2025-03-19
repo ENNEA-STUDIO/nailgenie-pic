@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, RefreshCw, Share, CheckCircle, XCircle } from 'lucide-react';
@@ -5,7 +6,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
-import { downloadDesignImage, shareImageExternally } from '@/hooks/gallery/utils';
 
 interface ResultActionsProps {
   onTryAgain: () => void;
@@ -31,6 +31,7 @@ const ResultActions: React.FC<ResultActionsProps> = ({
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
 
+  // Show feedback and automatically hide it after a delay
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message, visible: true });
     setTimeout(() => {
@@ -49,7 +50,30 @@ const ResultActions: React.FC<ResultActionsProps> = ({
     try {
       setActionInProgress('download');
       
-      await downloadDesignImage(generatedDesign, 0);
+      if (isSafari || isIOS) {
+        const win = window.open(generatedDesign, '_blank');
+        if (win) {
+          win.focus();
+          showFeedback('success', t.result.imageOpened);
+        } else {
+          const link = document.createElement('a');
+          link.href = generatedDesign;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          showFeedback('success', t.result.imageOpened);
+        }
+        return;
+      }
+      
+      const link = document.createElement('a');
+      link.href = generatedDesign;
+      link.download = `nailgenie-design-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
       showFeedback('success', t.result.downloadSuccess);
     } catch (error) {
@@ -66,7 +90,31 @@ const ResultActions: React.FC<ResultActionsProps> = ({
     try {
       setActionInProgress('share');
       
-      await shareImageExternally(generatedDesign, prompt);
+      if (isMobile) {
+        const shareText = language === 'fr' 
+          ? `Découvrez mon design d'ongles "${prompt}" créé avec NailGenie!`
+          : `Check out my nail design "${prompt}" created with NailGenie!`;
+          
+        await navigator.share({
+          title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
+          text: shareText,
+          url: generatedDesign
+        });
+      } else {
+        const response = await fetch(generatedDesign);
+        const blob = await response.blob();
+        const file = new File([blob], 'nailgenie-design.jpg', { type: 'image/jpeg' });
+        
+        const shareText = language === 'fr' 
+          ? `Découvrez mon design d'ongles "${prompt}" créé avec NailGenie!`
+          : `Check out my nail design "${prompt}" created with NailGenie!`;
+        
+        await navigator.share({
+          title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
+          text: shareText,
+          files: [file]
+        });
+      }
       
       showFeedback('success', t.result.shareSuccess);
     } catch (error) {
@@ -106,6 +154,7 @@ const ResultActions: React.FC<ResultActionsProps> = ({
             <Share size={28} />
           )}
           
+          {/* Success indicator */}
           <AnimatePresence>
             {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.shareSuccess && (
               <motion.div 
@@ -135,6 +184,7 @@ const ResultActions: React.FC<ResultActionsProps> = ({
           <Download size={28} />
         )}
         
+        {/* Success indicator */}
         <AnimatePresence>
           {feedback?.visible && feedback.type === 'success' && 
           (feedback.message === t.result.downloadSuccess || feedback.message === t.result.imageOpened) && (
@@ -150,6 +200,7 @@ const ResultActions: React.FC<ResultActionsProps> = ({
         </AnimatePresence>
       </motion.button>
       
+      {/* Visual feedback instead of toast */}
       <AnimatePresence>
         {feedback && feedback.visible && (
           <motion.div

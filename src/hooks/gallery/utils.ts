@@ -7,8 +7,9 @@ export const downloadDesignImage = async (imageUrl: string, index: number) => {
     // Log the image URL for debugging
     console.log("Downloading image from URL:", imageUrl);
     
-    // For Supabase Storage URLs, we can directly open them in a new tab
-    // as they are publicly accessible
+    // For Hugging Face and other CORS-restricted services, we'll use a different approach
+    // Instead of fetching the image directly, we'll open it in a new tab
+    // and let the user save it manually
     
     // Create a new anchor element
     const link = document.createElement('a');
@@ -16,21 +17,15 @@ export const downloadDesignImage = async (imageUrl: string, index: number) => {
     // Set the href to the image URL
     link.href = imageUrl;
     
-    // For Supabase Storage URLs, we can try to set a download attribute
-    if (imageUrl.includes('nail_designs')) {
-      const fileName = `nail-design-${index + 1}.jpg`;
-      link.download = fileName;
-    } else {
-      // For other URLs, open in new tab
-      link.target = '_blank';
-    }
+    // Set target to _blank to open in a new tab
+    link.target = '_blank';
     
     // Append to document, click, and remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     
-    console.log("Image download initiated");
+    console.log("Image opened in a new tab for download");
     return true;
   } catch (error) {
     console.error("Error opening image:", error);
@@ -48,15 +43,17 @@ export const shareImageExternally = async (imageUrl: string, prompt?: string) =>
 
     console.log("Sharing image:", imageUrl);
 
-    // Create share data
-    // For Supabase Storage URLs, we can directly share the URL
-    // since they are publicly accessible
+    // Create share data with text instead of URL for public sharing
+    // This approach avoids the permissions issue as we're sharing text with the description
+    // Instead of directly sharing the URL which might have permission issues
     const shareData = {
       title: 'My Nail Design',
       text: prompt 
         ? `Check out my nail design: "${prompt}"\n\nCreated with NailGenie!` 
         : 'Check out my nail design created with NailGenie!',
-      url: imageUrl // This URL will now be a public Supabase Storage URL
+      // For social media apps that can handle URLs, we still include it
+      // But the primary sharing mechanism is through text
+      url: imageUrl
     };
 
     // Trigger the native share dialog

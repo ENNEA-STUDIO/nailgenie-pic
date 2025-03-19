@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { Download, Save, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
@@ -6,12 +6,9 @@ import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { downloadDesignImage } from '@/hooks/gallery/utils';
-import { uploadImageToStorage } from '@/utils/storageUtils';
-import { useToast } from '@/hooks/use-toast';
 
 interface ResultPreviewProps {
   onTryAgain: () => void;
-  onImageError?: () => void;
 }
 
 interface ActionFeedback {
@@ -20,15 +17,16 @@ interface ActionFeedback {
   visible: boolean;
 }
 
-const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain, onImageError }) => {
+const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const { generatedDesign, prompt, nailShape, nailColor, nailLength } = useApp();
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
   const { t } = useLanguage();
-  const [imageAsBase64, setImageAsBase64] = useState<string | null>(null);
-  const { toast } = useToast();
   
+  if (!generatedDesign) return null;
+  
+  // Show feedback and automatically hide it after a delay
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message, visible: true });
     setTimeout(() => {
@@ -36,50 +34,12 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain, onImageError 
     }, 2000);
   };
   
-  useEffect(() => {
-    if (generatedDesign) {
-      console.log("Generated design available, proceeding with rendering");
-    }
-  }, [generatedDesign]);
-  
-  const convertImageToCanvas = (img: HTMLImageElement): string => {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width || 1024;
-    canvas.height = img.height || 1024;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      throw new Error('Failed to get canvas context');
-    }
-    
-    ctx.drawImage(img, 0, 0);
-    return canvas.toDataURL('image/jpeg', 0.9);
-  };
-  
-  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    try {
-      const img = event.currentTarget;
-      const base64Data = convertImageToCanvas(img);
-      console.log("Image converted to base64 successfully");
-      setImageAsBase64(base64Data);
-    } catch (error) {
-      console.error("Error converting image to base64:", error);
-    }
-  };
-  
-  const handleImageError = () => {
-    if (onImageError) {
-      onImageError();
-    }
-  };
-  
   const handleDownload = async () => {
     try {
       setDownloading(true);
       
-      const imageToDownload = imageAsBase64 || generatedDesign;
-      
-      await downloadDesignImage(imageToDownload, 0);
+      // Use our improved download function
+      await downloadDesignImage(generatedDesign, 0);
       
       showFeedback('success', t.result.downloadSuccess);
     } catch (error) {
@@ -94,38 +54,23 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain, onImageError 
     try {
       setSaving(true);
       
+      // Get current user
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         showFeedback('error', t.common.connectionRequired);
-        toast({
-          title: t.common.connectionRequired || "Connexion requise",
-          description: "Veuillez vous connecter pour sauvegarder des designs",
-          variant: "destructive"
-        });
         setSaving(false);
         return;
       }
       
       const userId = sessionData.session.user.id;
       
-      if (!imageAsBase64 && !generatedDesign) {
-        throw new Error('No image available to save');
-      }
-      
-      const imageToUpload = imageAsBase64 || generatedDesign;
-      
-      console.log("Using image for upload:", imageToUpload?.substring(0, 50) + "...");
-      console.log("Uploading image to Supabase Storage...");
-      
-      const publicUrl = await uploadImageToStorage(imageToUpload!, userId);
-      console.log("Image uploaded successfully, public URL:", publicUrl);
-      
+      // Insert into saved_designs table
       const { data, error } = await supabase
         .from('saved_designs')
         .insert([
           {
             user_id: userId,
-            image_url: publicUrl,
+            image_url: generatedDesign,
             prompt: prompt || 'Design personnalisé',
             nail_shape: nailShape,
             nail_color: nailColor,
@@ -136,27 +81,13 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain, onImageError 
       if (error) throw error;
       
       showFeedback('success', t.result.savedSuccess);
-      
-      toast({
-        title: t.result.savedSuccess || "Succès",
-        description: "Le design a été sauvegardé dans votre galerie",
-        variant: "default"
-      });
     } catch (error) {
       console.error("Error saving design:", error);
       showFeedback('error', t.result.savedError);
-      
-      toast({
-        title: t.result.savedError || "Erreur",
-        description: "Impossible d'enregistrer le design",
-        variant: "destructive"
-      });
     } finally {
       setSaving(false);
     }
   };
-  
-  if (!generatedDesign) return null;
   
   return (
     <motion.div 
@@ -180,9 +111,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain, onImageError 
           src={generatedDesign} 
           alt="Generated nail design" 
           className="w-full object-cover"
-          onLoad={handleImageLoad}
-          onError={handleImageError}
-          crossOrigin="anonymous"
         />
       </motion.div>
       
@@ -211,6 +139,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain, onImageError 
             <Download size={20} />
           )}
           
+          {/* Download success indicator */}
           <AnimatePresence>
             {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.downloadSuccess && (
               <motion.div 
@@ -241,6 +170,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain, onImageError 
             <Save size={20} />
           )}
           
+          {/* Save success indicator */}
           <AnimatePresence>
             {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.savedSuccess && (
               <motion.div 
@@ -256,6 +186,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain, onImageError 
         </Button>
       </div>
       
+      {/* Visual feedback instead of toast */}
       <AnimatePresence>
         {feedback && feedback.visible && (
           <motion.div

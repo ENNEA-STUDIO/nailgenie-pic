@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 interface UseImageLoaderProps {
   generatedDesign: string | null;
@@ -11,6 +11,8 @@ interface UseImageLoaderReturn {
   imageLoaded: boolean;
   imageError: boolean;
   retryCount: number;
+  handleImageLoad: () => void;
+  handleImageError: () => void;
 }
 
 export const useImageLoader = ({ 
@@ -22,42 +24,6 @@ export const useImageLoader = ({
   const [imageError, setImageError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Improved image preloading function with better error handling
-  const preloadImage = useCallback((url: string) => {
-    console.log("Attempting to preload image:", url);
-    
-    // Clear previous state when attempting a new load
-    setImageLoaded(false);
-    setImageError(false);
-    
-    const img = new Image();
-    
-    img.onload = () => {
-      console.log("Image pre-loaded successfully with dimensions:", 
-                img.width, "x", img.height);
-      setImageLoaded(true);
-      setImageError(false);
-    };
-    
-    img.onerror = (e) => {
-      console.error("Failed to pre-load image:", e);
-      setImageError(true);
-      setImageLoaded(false);
-    };
-    
-    // Always set crossOrigin for CORS images
-    img.crossOrigin = "anonymous";
-    
-    // Add a cache buster to avoid browser caching issues
-    const cacheBuster = `${url.includes('?') ? '&' : '?'}t=${Date.now()}&r=${Math.random()}`;
-    img.src = url + cacheBuster;
-    
-    // Return a cleanup function to abort loading if component unmounts
-    return () => {
-      img.src = '';
-    };
-  }, []);
-
   // When generatedDesign changes, set up image with appropriate cache-busting
   useEffect(() => {
     if (generatedDesign) {
@@ -68,41 +34,59 @@ export const useImageLoader = ({
       
       // Always add a cache buster to prevent caching issues across all browsers
       const cacheBuster = `?t=${Date.now()}&r=${Math.random()}`;
-      const finalUrl = `${generatedDesign}${cacheBuster}`;
-      setImageUrl(finalUrl);
+      setImageUrl(`${generatedDesign}${cacheBuster}`);
       
-      const cleanup = preloadImage(generatedDesign);
-      return cleanup;
+      // Pre-fetch for all browsers to ensure content is loaded
+      fetch(generatedDesign, { 
+        mode: 'no-cors',
+        cache: 'reload',
+        headers: {
+          'Pragma': 'no-cache',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      }).catch(error => {
+        console.log("Pre-fetch operation completed or failed:", error);
+      });
     }
-  }, [generatedDesign, preloadImage]);
+  }, [generatedDesign]);
 
   // Auto-retry logic when image fails to load
   useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
-    
     if (imageError && generatedDesign && retryCount < maxRetries) {
       console.log(`Attempting to reload image after error (retry ${retryCount + 1}/${maxRetries})`);
       
-      timer = setTimeout(() => {
+      const timer = setTimeout(() => {
         // Create a new cache-busting URL with retry information
         const newUrl = `${generatedDesign}?retry=${retryCount + 1}&t=${Date.now()}&r=${Math.random()}`;
         console.log(`Retry ${retryCount + 1}/${maxRetries} with URL:`, newUrl);
         
         setImageUrl(newUrl);
+        setImageError(false);
         setRetryCount(prev => prev + 1);
-        preloadImage(generatedDesign);
-      }, 1000 * (retryCount + 1)); // Incremental backoff
+      }, 1000);
+      
+      return () => clearTimeout(timer);
     }
-    
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [imageError, generatedDesign, retryCount, maxRetries, preloadImage]);
+  }, [imageError, generatedDesign, retryCount, maxRetries]);
+
+  const handleImageLoad = () => {
+    console.log("Image loaded successfully:", imageUrl);
+    setImageLoaded(true);
+    setImageError(false);
+  };
+
+  const handleImageError = () => {
+    console.error("Image failed to load:", imageUrl);
+    setImageError(true);
+    setImageLoaded(false);
+  };
 
   return {
     imageUrl,
     imageLoaded,
     imageError,
-    retryCount
+    retryCount,
+    handleImageLoad,
+    handleImageError
   };
 };
