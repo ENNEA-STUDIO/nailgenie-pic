@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import BottomNav from '@/components/navigation/BottomNav';
-import { Download, Trash2 } from 'lucide-react';
+import { Download, Trash2, Image } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface SavedDesign {
   id: string;
@@ -17,6 +18,7 @@ interface SavedDesign {
 const GalleryPage: React.FC = () => {
   const [designs, setDesigns] = useState<SavedDesign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDesign, setSelectedDesign] = useState<SavedDesign | null>(null);
 
   // Fetch saved designs on component mount
   useEffect(() => {
@@ -30,7 +32,6 @@ const GalleryPage: React.FC = () => {
         
         const userId = session.session.user.id;
         
-        // This is a placeholder query - you'll need to create this table in Supabase
         const { data, error } = await supabase
           .from('saved_designs')
           .select('*')
@@ -83,6 +84,9 @@ const GalleryPage: React.FC = () => {
       if (error) throw error;
       
       setDesigns(designs.filter(design => design.id !== id));
+      if (selectedDesign?.id === id) {
+        setSelectedDesign(null);
+      }
       toast.success('Design supprimé');
     } catch (error) {
       console.error('Error deleting design:', error);
@@ -98,7 +102,7 @@ const GalleryPage: React.FC = () => {
       transition={{ duration: 0.4 }}
       className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-24"
     >
-      <div className="flex-none text-xl font-medium text-center py-4">
+      <div className="flex-none text-2xl font-semibold text-center py-4">
         Mes designs
       </div>
       
@@ -108,45 +112,84 @@ const GalleryPage: React.FC = () => {
         </div>
       ) : designs.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
-          <div className="mb-4 text-4xl">✨</div>
-          <h3 className="text-lg font-medium mb-2">Aucun design sauvegardé</h3>
-          <p className="text-muted-foreground">
+          <div className="mb-6 p-6 rounded-full bg-muted/50">
+            <Image size={48} className="text-muted-foreground" />
+          </div>
+          <h3 className="text-xl font-medium mb-3">Aucun design sauvegardé</h3>
+          <p className="text-muted-foreground max-w-xs mx-auto">
             Commencez par créer un design de nails et sauvegardez-le pour le retrouver ici
           </p>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto grid grid-cols-2 gap-4">
-          {designs.map((design, index) => (
-            <motion.div
-              key={design.id}
-              initial={{ opacity: 0, scale: 0.9 }}
+        <div className="flex-1 overflow-y-auto">
+          {/* Selected design view */}
+          {selectedDesign && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }} 
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              className="glass-card rounded-xl overflow-hidden relative group"
+              className="mb-6"
             >
-              <img 
-                src={design.image_url} 
-                alt={`Design ${index + 1}`}
-                className="w-full aspect-square object-cover"
-              />
-              
-              <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex justify-between">
+              <div className="relative glass-card rounded-2xl overflow-hidden shadow-lg">
+                <img 
+                  src={selectedDesign.image_url} 
+                  alt="Design sélectionné"
+                  className="w-full aspect-square object-cover"
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md flex justify-between">
+                  <button 
+                    onClick={() => downloadDesign(selectedDesign.image_url, designs.indexOf(selectedDesign))}
+                    className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                  >
+                    <Download size={20} />
+                  </button>
+                  
+                  <button 
+                    onClick={() => deleteDesign(selectedDesign.id)}
+                    className="p-3 bg-white/10 hover:bg-destructive/80 text-white rounded-full transition-colors"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
                 <button 
-                  onClick={() => downloadDesign(design.image_url, index)}
-                  className="p-2 text-white hover:text-primary rounded-full"
+                  onClick={() => setSelectedDesign(null)}
+                  className="absolute top-2 right-2 p-2 bg-black/50 text-white rounded-full"
                 >
-                  <Download size={18} />
-                </button>
-                
-                <button 
-                  onClick={() => deleteDesign(design.id)}
-                  className="p-2 text-white hover:text-destructive rounded-full"
-                >
-                  <Trash2 size={18} />
+                  &times;
                 </button>
               </div>
+              <p className="text-sm text-muted-foreground mt-2 text-center">
+                {selectedDesign.prompt || "Sans description"}
+              </p>
             </motion.div>
-          ))}
+          )}
+          
+          {/* Grid gallery */}
+          <div className={cn(
+            "grid gap-3 auto-rows-max", 
+            selectedDesign ? "grid-cols-3" : "grid-cols-2"
+          )}>
+            {designs.map((design, index) => (
+              <motion.div
+                key={design.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className={cn(
+                  "glass-card rounded-xl overflow-hidden relative group cursor-pointer",
+                  selectedDesign?.id === design.id && "ring-2 ring-primary"
+                )}
+                onClick={() => setSelectedDesign(design)}
+              >
+                <img 
+                  src={design.image_url} 
+                  alt={`Design ${index + 1}`}
+                  className="w-full aspect-square object-cover"
+                />
+                
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
       
