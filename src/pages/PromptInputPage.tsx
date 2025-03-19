@@ -2,7 +2,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
 import PromptInput from '../components/prompt/PromptInput';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '../hooks/use-mobile';
@@ -71,14 +70,23 @@ const PromptInputPage: React.FC = () => {
   if (!handImage) return null;
 
   return (
-    <Layout showBackButton title="Décrivez votre design">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4"
+    >
       <div className="flex flex-col h-full max-h-screen overflow-hidden">
         <div className="flex-1">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="glass-card rounded-3xl overflow-hidden shadow-sm mx-4 mb-4 h-1/2"
+            className="glass-card rounded-3xl overflow-hidden shadow-md mx-auto mb-6 max-w-md"
+            style={{
+              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)"
+            }}
           >
             <img 
               src={handImage} 
@@ -88,10 +96,20 @@ const PromptInputPage: React.FC = () => {
           </motion.div>
           
           <div className="px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.3 }}
+              className="text-xl font-medium text-center mb-6"
+            >
+              Décrivez votre design
+            </motion.div>
+            
             <div className="mb-6">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
                 className="flex justify-center gap-2"
               >
                 <div className="bg-background rounded-lg px-3 py-1.5 text-sm border flex items-center gap-1.5">
@@ -117,7 +135,7 @@ const PromptInputPage: React.FC = () => {
           <PromptInput />
         </div>
       </div>
-    </Layout>
+    </motion.div>
   );
 };
 
