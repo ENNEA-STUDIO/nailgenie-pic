@@ -21,8 +21,17 @@ export const createFeedbackHandler = (
 ) => {
   return (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message, visible: true });
+    
+    // Use setTimeout to hide the feedback after a delay
     setTimeout(() => {
-      setFeedback(prev => prev ? { ...prev, visible: false } : null);
+      // Create a new feedback object with visible set to false
+      // instead of using a function that updates the previous state
+      setFeedback({ type, message, visible: false });
+      
+      // After another delay, set feedback to null completely
+      setTimeout(() => {
+        setFeedback(null);
+      }, 300); // small delay for exit animation
     }, 2000);
   };
 };
