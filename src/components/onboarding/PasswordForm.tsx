@@ -46,12 +46,8 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
   
   const isComplete = form.formState.isValid;
 
-  React.useEffect(() => {
-    if (isComplete) {
-      onSubmitValues(form.getValues());
-    }
-  }, [isComplete, form, onSubmitValues]);
-
+  // Supprimé l'autosubmit de useEffect pour éviter le double avancement
+  
   const toggleShowPassword = () => setShowPassword(prev => !prev);
   const toggleShowConfirmPassword = () => setShowConfirmPassword(prev => !prev);
 
@@ -63,7 +59,12 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
     >
       <Form {...form}>
         <form 
-          onChange={() => isComplete && onSubmitValues(form.getValues())}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (isComplete) {
+              onSubmitValues(form.getValues());
+            }
+          }}
           className="space-y-6"
         >
           <div className="mb-6">
@@ -193,6 +194,24 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ onSubmitValues }) => {
               </FormItem>
             )}
           />
+
+          <motion.div
+            whileHover={{ scale: 1.03 }} 
+            whileTap={{ scale: 0.97 }}
+            className="mx-auto w-full"
+          >
+            <button 
+              type="submit"
+              className="w-full rounded-full px-8 py-3 gap-2 h-12 text-white"
+              style={{
+                background: 'linear-gradient(90deg, #D946EF 0%, #9b87f5 100%)',
+                boxShadow: '0 10px 15px -3px rgba(214, 31, 255, 0.2), 0 4px 6px -2px rgba(215, 115, 247, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.3)'
+              }}
+              disabled={!isComplete}
+            >
+              <span className="font-medium">Continuer</span>
+            </button>
+          </motion.div>
         </form>
       </Form>
     </motion.div>

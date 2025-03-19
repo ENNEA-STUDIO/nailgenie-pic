@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 interface Preference {
   id: string;
@@ -59,15 +60,14 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({ onSubmitValues }) => 
   const togglePreference = (preferenceId: string) => {
     setSelectedPreferences(prev => {
       const isSelected = prev.includes(preferenceId);
-      const newSelection = isSelected
+      return isSelected
         ? prev.filter(id => id !== preferenceId)
         : [...prev, preferenceId];
-      
-      // Mettre à jour le parent chaque fois que la sélection change
-      onSubmitValues(newSelection);
-      
-      return newSelection;
     });
+  };
+
+  const handleSubmit = () => {
+    onSubmitValues(selectedPreferences);
   };
 
   const container = {
@@ -164,6 +164,23 @@ const PreferencesForm: React.FC<PreferencesFormProps> = ({ onSubmitValues }) => 
       >
         Sélectionnez les styles qui vous intéressent pour personnaliser votre expérience
       </motion.p>
+
+      <motion.div
+        whileHover={{ scale: 1.03 }} 
+        whileTap={{ scale: 0.97 }}
+        className="mx-auto w-full"
+      >
+        <button 
+          onClick={handleSubmit}
+          className="w-full rounded-full px-8 py-3 gap-2 h-12 text-white"
+          style={{
+            background: 'linear-gradient(90deg, #D946EF 0%, #9b87f5 100%)',
+            boxShadow: '0 10px 15px -3px rgba(214, 31, 255, 0.2), 0 4px 6px -2px rgba(215, 115, 247, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.3)'
+          }}
+        >
+          <span className="font-medium">Continuer</span>
+        </button>
+      </motion.div>
     </div>
   );
 };
