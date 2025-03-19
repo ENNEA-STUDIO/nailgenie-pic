@@ -51,7 +51,7 @@ const BottomNav: React.FC = () => {
             whileHover={{ y: -2 }}
           >
             <Rss className={`w-5 h-5 ${isFeed ? 'text-white' : 'text-foreground/80'}`} />
-            <span className="text-xs mt-1 font-medium">Feed</span>
+            <span className="text-xs mt-1 font-medium">{t.common.feed}</span>
           </motion.button>
         </div>
       </div>

@@ -6,12 +6,13 @@ import BottomNav from '@/components/navigation/BottomNav';
 import { Download, Trash2, Image, CheckCircle, XCircle, Rss } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface SavedDesign {
   id: string;
   created_at: string;
   image_url: string;
-  prompt: string;
+  prompt: string | null;
   user_id: string;
   is_shared?: boolean;
 }
@@ -28,6 +29,7 @@ const GalleryPage: React.FC = () => {
   const [selectedDesign, setSelectedDesign] = useState<SavedDesign | null>(null);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   // Show feedback and automatically hide it after a delay
   const showFeedback = (type: 'success' | 'error', message: string) => {

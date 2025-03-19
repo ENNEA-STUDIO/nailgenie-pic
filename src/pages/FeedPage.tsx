@@ -11,7 +11,7 @@ interface SharedDesign {
   id: string;
   created_at: string;
   image_url: string;
-  prompt: string;
+  prompt: string | null;
   user_id: string;
 }
 
@@ -74,7 +74,7 @@ const FeedPage: React.FC = () => {
       className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-24 relative"
     >
       <div className="flex-none text-2xl font-semibold text-center py-4">
-        Feed
+        {t.common.feed}
       </div>
       
       {loading ? (
