@@ -5,12 +5,14 @@ import ResultPreview from '../components/ResultPreview';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import BottomNav from '@/components/navigation/BottomNav';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ResultPage: React.FC = () => {
   const navigate = useNavigate();
   const { generatedDesign, resetState } = useApp();
   const [imagePreloaded, setImagePreloaded] = useState(false);
   const { isIOS, isSafari } = useIsMobile();
+  const { t } = useLanguage();
   
   // Log the generated design URL for debugging
   useEffect(() => {
@@ -48,7 +50,7 @@ const ResultPage: React.FC = () => {
     return (
       <div className="w-full h-screen flex items-center justify-center">
         <div className="w-16 h-16 rounded-full border-4 border-t-transparent border-primary animate-spin"></div>
-        <p className="ml-4 text-sm text-muted-foreground">Chargement de votre design...</p>
+        <p className="ml-4 text-sm text-muted-foreground">{t.common.loading}...</p>
       </div>
     );
   }

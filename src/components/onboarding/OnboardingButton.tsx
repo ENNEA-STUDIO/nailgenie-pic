@@ -5,11 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/context/LanguageContext';
 
 const OnboardingButton: React.FC = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { t, language } = useLanguage();
   
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -64,7 +66,7 @@ const OnboardingButton: React.FC = () => {
         className="shadow-lg px-6 py-6 h-auto rounded-full group"
         size="lg"
       >
-        <span>{isAuthenticated ? "Prendre une photo" : "Se connecter"}</span>
+        <span>{isAuthenticated ? (language === 'fr' ? "Prendre une photo" : "Take a photo") : (language === 'fr' ? "Se connecter" : "Login")}</span>
         <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
       </Button>
     </motion.div>

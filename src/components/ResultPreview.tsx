@@ -6,6 +6,7 @@ import { Download, Save, ArrowLeft, Share } from 'lucide-react';
 import { toast } from 'sonner';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ResultPreviewProps {
   onTryAgain: () => void;
@@ -14,6 +15,7 @@ interface ResultPreviewProps {
 const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const { generatedDesign, prompt } = useApp();
   const [saving, setSaving] = useState(false);
+  const { t } = useLanguage();
   
   if (!generatedDesign) return null;
   
@@ -32,7 +34,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     // Remove from the document
     document.body.removeChild(link);
     
-    toast.success("Design téléchargé !");
+    toast.success(t.result.downloadSuccess);
   };
   
   const handleSaveToGallery = async () => {
@@ -42,7 +44,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       // Get current user
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
-        toast.error("Vous devez être connecté pour sauvegarder un design");
+        toast.error(t.common.connectionRequired);
         setSaving(false);
         return;
       }
@@ -62,10 +64,10 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         
       if (error) throw error;
       
-      toast.success("Design sauvegardé dans votre gallerie !");
+      toast.success(t.result.savedSuccess);
     } catch (error) {
       console.error("Error saving design:", error);
-      toast.error("Impossible de sauvegarder le design");
+      toast.error(t.result.savedError);
     } finally {
       setSaving(false);
     }
@@ -78,7 +80,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       transition={{ duration: 0.5 }}
       className="w-full max-w-md flex flex-col items-center p-4"
     >
-      <h2 className="text-xl font-medium mb-6 text-center">Votre design</h2>
+      <h2 className="text-xl font-medium mb-6 text-center">{t.result.yourDesign}</h2>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -103,7 +105,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           className="flex items-center gap-2 flex-1"
         >
           <ArrowLeft size={18} />
-          Réessayer
+          {t.common.tryAgain}
         </Button>
         
         <Button 
@@ -112,7 +114,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           className="flex items-center gap-2 flex-1"
         >
           <Download size={18} />
-          Télécharger
+          {t.common.download}
         </Button>
         
         <Button
@@ -126,12 +128,12 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           {saving ? (
             <>
               <div className="w-4 h-4 rounded-full border-2 border-t-transparent border-white animate-spin mr-2"></div>
-              Sauvegarde...
+              {t.result.saving}
             </>
           ) : (
             <>
               <Save size={18} className="mr-2" />
-              Sauvegarder dans ma gallerie
+              {t.result.saveToGallery}
             </>
           )}
         </Button>
