@@ -17,17 +17,16 @@ export const uploadImageToStorage = async (imageSource: string, userId: string):
     
     if (isUrl) {
       try {
-        // For Hugging Face temporary URLs, we'll use a direct canvas approach
-        // since CORS issues and temporary URLs can cause problems
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
+        // Create an Image element to handle the URL and convert it to canvas
+        console.log("Processing URL image using canvas approach:", imageSource.substring(0, 50) + '...');
         
-        console.log("Fetching image from URL using canvas approach:", imageSource);
-        
-        // Create a promise that resolves when the image is loaded or fails
-        const imageLoaded = new Promise<Blob>((resolve, reject) => {
+        const blob = await new Promise<Blob>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          
           img.onload = () => {
             try {
+              console.log("Image loaded successfully, dimensions:", img.width, "x", img.height);
               const canvas = document.createElement('canvas');
               canvas.width = img.width;
               canvas.height = img.height;
@@ -42,12 +41,13 @@ export const uploadImageToStorage = async (imageSource: string, userId: string):
               ctx.drawImage(img, 0, 0);
               
               // Convert the canvas to a blob
-              canvas.toBlob((canvasBlob) => {
-                if (!canvasBlob) {
-                  reject(new Error("Could not convert canvas to blob"));
+              canvas.toBlob((blob) => {
+                if (!blob) {
+                  reject(new Error("Failed to create blob from canvas"));
                   return;
                 }
-                resolve(canvasBlob);
+                console.log("Successfully created blob from image:", blob.size, "bytes");
+                resolve(blob);
               }, 'image/jpeg', 0.95);
             } catch (err) {
               console.error("Canvas processing error:", err);
@@ -59,14 +59,12 @@ export const uploadImageToStorage = async (imageSource: string, userId: string):
             console.error("Image load error:", e);
             reject(new Error("Failed to load image from URL"));
           };
+          
+          // Set the src to start loading the image
+          img.src = imageSource;
         });
         
-        // Set the image source to trigger loading
-        img.src = imageSource;
-        
-        // Wait for the image to load and be processed
-        blob = await imageLoaded;
-        console.log("Successfully created blob from image:", blob.size, "bytes");
+        return await uploadBlobToStorage(blob, userId);
       } catch (fetchError) {
         console.error("Error processing image from URL:", fetchError);
         throw new Error("Could not process image from URL");
@@ -94,38 +92,45 @@ export const uploadImageToStorage = async (imageSource: string, userId: string):
       
       blob = new Blob(byteArrays, { type: 'image/jpeg' });
       console.log("Successfully created blob from base64:", blob.size, "bytes");
+      
+      return await uploadBlobToStorage(blob, userId);
     }
-    
-    // Create a unique filename with timestamp
-    const filename = `${userId}_${Date.now()}.jpg`;
-    const filePath = `${userId}/${filename}`;
-    
-    // Upload file to Supabase Storage
-    console.log("Uploading blob to Supabase Storage:", filePath, "Size:", blob.size, "bytes");
-    const { data, error } = await supabase.storage
-      .from('nail_designs')
-      .upload(filePath, blob, {
-        contentType: 'image/jpeg',
-        cacheControl: '3600',
-        upsert: false
-      });
-    
-    if (error) {
-      console.error("Supabase upload error:", error);
-      throw error;
-    }
-    
-    // Get public URL for the uploaded file
-    const { data: { publicUrl } } = supabase.storage
-      .from('nail_designs')
-      .getPublicUrl(data.path);
-    
-    console.log("Upload successful, public URL:", publicUrl);
-    return publicUrl;
   } catch (error) {
     console.error('Error uploading image to Supabase Storage:', error);
     throw new Error('Failed to upload image');
   }
+};
+
+/**
+ * Helper function to upload a blob to Supabase Storage
+ */
+const uploadBlobToStorage = async (blob: Blob, userId: string): Promise<string> => {
+  // Create a unique filename with timestamp
+  const filename = `${userId}_${Date.now()}.jpg`;
+  const filePath = `${userId}/${filename}`;
+  
+  // Upload file to Supabase Storage
+  console.log("Uploading blob to Supabase Storage:", filePath, "Size:", blob.size, "bytes");
+  const { data, error } = await supabase.storage
+    .from('nail_designs')
+    .upload(filePath, blob, {
+      contentType: 'image/jpeg',
+      cacheControl: '3600',
+      upsert: false
+    });
+  
+  if (error) {
+    console.error("Supabase upload error:", error);
+    throw error;
+  }
+  
+  // Get public URL for the uploaded file
+  const { data: { publicUrl } } = supabase.storage
+    .from('nail_designs')
+    .getPublicUrl(data.path);
+  
+  console.log("Upload successful, public URL:", publicUrl);
+  return publicUrl;
 };
 
 /**

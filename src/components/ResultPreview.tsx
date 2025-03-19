@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
@@ -80,6 +79,11 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         
         img.onerror = (e) => {
           console.error('Error loading image from URL:', url, e);
+          toast({
+            title: t.result.savedError || "Error",
+            description: "Could not load the image",
+            variant: "destructive"
+          });
           reject(new Error('Failed to load image'));
         };
       });
@@ -212,7 +216,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         }}
       >
         <img 
-          src={generatedDesign} 
+          src={imageAsBase64 || generatedDesign} 
           alt="Generated nail design" 
           className="w-full object-cover"
         />
