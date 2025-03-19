@@ -11,7 +11,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { toast } from "sonner";
 
-import Index from "./pages/Index";
 import CameraPage from "./pages/CameraPage";
 import PromptPage from "./pages/PromptPage";
 import PromptInputPage from "./pages/PromptInputPage";
@@ -112,7 +111,7 @@ const App = () => {
             <BrowserRouter>
               <AnimatePresence mode="wait">
                 <Routes>
-                  <Route path="/" element={<Index />} />
+                  <Route path="/" element={<Navigate to="/onboarding" replace />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route 
                     path="/camera" 

@@ -41,12 +41,12 @@ const OnboardingButton: React.FC = () => {
     if (isAuthenticated) {
       navigate('/camera');
     } else {
-      navigate('/');
+      navigate('/onboarding');
     }
   };
   
-  // Don't render the button on the index page or onboarding page
-  if (window.location.pathname === '/' || window.location.pathname === '/onboarding') {
+  // Don't render the button on the onboarding page
+  if (window.location.pathname === '/onboarding') {
     return null;
   }
   
