@@ -73,9 +73,12 @@ serve(async (req) => {
     const imageBlob = new Blob([buffer], { type: "image/jpeg" });
     console.log("Image blob created successfully");
 
-    // Prepare a full prompt that includes nail details
+    // Get color name based on hex code
+    const colorName = getColorName(nailColor);
+
+    // Prepare a full prompt that includes nail details with the specific color name
     const fullPrompt = `${prompt} avec des ongles ${nailLength === 'short' ? 'courts' : 
-      nailLength === 'medium' ? 'moyens' : 'longs'} de forme ${nailShape} de couleur principale ${nailColor}`;
+      nailLength === 'medium' ? 'moyens' : 'longs'} de forme ${nailShape} de couleur ${colorName}`;
     
     console.log("Full prompt:", fullPrompt);
     console.log("Connecting to Gemini Image Edit model...");
@@ -123,3 +126,63 @@ serve(async (req) => {
     });
   }
 });
+
+// Helper function to get a color name from hex code
+const getColorName = (hexColor: string): string => {
+  // Expanded color mapping for more precise color names
+  const colorMap: Record<string, string> = {
+    // Nude & Neutrals
+    '#E6CCAF': 'beige',
+    '#B8A99A': 'taupe',
+    '#F8F0DD': 'ivoire',
+    '#FFF3D9': 'crème',
+    '#A17249': 'cappuccino',
+    '#D2B48C': 'sable',
+    
+    // Cool Tones
+    '#0A2463': 'bleu marine',
+    '#7EC8E3': 'bleu ciel',
+    '#C8A2C8': 'lavande',
+    '#C8A4D4': 'lilas',
+    '#9CAF88': 'vert sauge',
+    '#98D8C8': 'menthe',
+    
+    // Warm Tones
+    '#D2042D': 'rouge cerise',
+    '#A52A2A': 'rouge brique',
+    '#FF7F50': 'corail',
+    '#FFE5B4': 'pêche',
+    '#CC5500': 'orange brûlé',
+    '#E2725B': 'terre cuite',
+    
+    // Metallic & Effects
+    '#D4AF37': 'or',
+    '#C0C0C0': 'argent',
+    '#B87333': 'cuivre',
+    '#E8E8E8': 'chrome',
+    '#EAEAEA': 'holographique',
+    '#F2F3F4': 'nacré',
+    
+    // Dark & Deep
+    '#000000': 'noir',
+    '#800020': 'bordeaux',
+    '#673147': 'prune',
+    '#7B3F00': 'chocolat',
+    '#046307': 'émeraude',
+    '#191970': 'bleu nuit',
+    
+    // Basic colors
+    '#FF0000': 'rouge',
+    '#FFA500': 'orange',
+    '#FFFF00': 'jaune',
+    '#00FF00': 'vert',
+    '#0000FF': 'bleu',
+    '#800080': 'violet',
+    '#FFC0CB': 'rose',
+    '#FFFFFF': 'blanc',
+    '#FFD700': 'doré'
+  };
+  
+  // Return the color name if it's in our map, otherwise just use a generic description
+  return colorMap[hexColor] || `personnalisée ${hexColor}`;
+};

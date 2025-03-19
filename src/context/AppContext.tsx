@@ -75,7 +75,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const colorName = getColorName(nailColor);
       
       // Template format where only the pattern (user input) changes
-      const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in a ${colorName} shade. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
+      // Using the specific color name instead of "custom shade"
+      const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in ${colorName}. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
       
       console.log("Full prompt:", fullPrompt);
       console.log("Connecting to Gemini Image Edit model...");
@@ -138,9 +139,49 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Helper function to get a color name from hex code
   const getColorName = (hexColor: string): string => {
-    // Basic color mapping - could be expanded for more precise color names
+    // Expanded color mapping for more precise color names
     const colorMap: Record<string, string> = {
+      // Nude & Neutrals
       '#E6CCAF': 'beige',
+      '#B8A99A': 'taupe',
+      '#F8F0DD': 'ivory',
+      '#FFF3D9': 'cream',
+      '#A17249': 'cappuccino',
+      '#D2B48C': 'sand',
+      
+      // Cool Tones
+      '#0A2463': 'navy blue',
+      '#7EC8E3': 'sky blue',
+      '#C8A2C8': 'lavender',
+      '#C8A4D4': 'lilac',
+      '#9CAF88': 'sage green',
+      '#98D8C8': 'mint',
+      
+      // Warm Tones
+      '#D2042D': 'cherry red',
+      '#A52A2A': 'brick red',
+      '#FF7F50': 'coral',
+      '#FFE5B4': 'peach',
+      '#CC5500': 'burnt orange',
+      '#E2725B': 'terracotta',
+      
+      // Metallic & Effects
+      '#D4AF37': 'gold',
+      '#C0C0C0': 'silver',
+      '#B87333': 'copper',
+      '#E8E8E8': 'chrome',
+      '#EAEAEA': 'holographic',
+      '#F2F3F4': 'pearl',
+      
+      // Dark & Deep
+      '#000000': 'black',
+      '#800020': 'burgundy',
+      '#673147': 'plum',
+      '#7B3F00': 'chocolate',
+      '#046307': 'emerald',
+      '#191970': 'midnight blue',
+      
+      // Basic colors
       '#FF0000': 'red',
       '#FFA500': 'orange',
       '#FFFF00': 'yellow',
@@ -149,13 +190,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       '#800080': 'purple',
       '#FFC0CB': 'pink',
       '#FFFFFF': 'white',
-      '#000000': 'black',
-      '#C0C0C0': 'silver',
       '#FFD700': 'gold'
     };
     
-    // Return the color name if it's in our map, otherwise just call it a custom color
-    return colorMap[hexColor] || 'custom';
+    // Return the color name if it's in our map, otherwise just call it by its hex value
+    return colorMap[hexColor] || `a custom ${hexColor} shade`;
   };
 
   const resetState = useCallback(() => {
