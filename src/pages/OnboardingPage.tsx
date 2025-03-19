@@ -22,18 +22,23 @@ const OnboardingPage: React.FC = () => {
   
   const handleProfileSubmit = (values: { fullName: string; email: string }) => {
     setUserData(prev => ({ ...prev, ...values }));
+    handleNext();
   };
   
   const handlePasswordSubmit = (values: { password: string; confirmPassword: string }) => {
     setUserData(prev => ({ ...prev, password: values.password }));
+    handleNext();
   };
   
   const handlePreferencesSubmit = (preferences: string[]) => {
     setUserData(prev => ({ ...prev, preferences }));
+    handleNext();
   };
   
   const handleComplete = async () => {
     try {
+      console.log("Creating account with data:", { email: userData.email, fullName: userData.fullName });
+      
       // Créer un compte utilisateur avec Supabase
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,

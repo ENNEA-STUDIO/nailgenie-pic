@@ -113,37 +113,6 @@ const SuccessStep: React.FC = () => {
           </motion.span>
         ))}
       </motion.div>
-      
-      <motion.div
-        variants={itemVariants}
-        className="flex flex-col gap-3 w-full max-w-xs mt-6"
-      >
-        <motion.div 
-          whileHover={{ 
-            scale: 1.05,
-            boxShadow: "0px 0px 30px rgba(214, 31, 255, 0.4)"
-          }}
-          whileTap={{ scale: 0.97 }}
-          className="relative overflow-hidden group"
-        >
-          <Button 
-            onClick={() => navigate('/camera')}
-            className="w-full h-16 rounded-xl font-bold text-lg text-white"
-            style={{
-              background: "linear-gradient(45deg, #FF719A 0%, #FF9674 50%, #FFD29F 100%)",
-              boxShadow: "0px 10px 20px rgba(219, 39, 119, 0.3), inset 0px 1px 3px rgba(255, 255, 255, 0.5)",
-              transition: "all 0.5s ease"
-            }}
-          >
-            <span className="absolute inset-0 overflow-hidden rounded-xl">
-              <span className="absolute inset-0 z-10 opacity-0 group-hover:opacity-80 transition-opacity duration-700 bg-[radial-gradient(circle_at_50%_50%,_rgba(255,255,255,0.8),_transparent_60%)] blur-xl"></span>
-            </span>
-            <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
-            <span>Prendre une photo</span>
-            <Camera className="ml-2 h-5 w-5" />
-          </Button>
-        </motion.div>
-      </motion.div>
     </motion.div>
   );
 };
