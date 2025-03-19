@@ -20,7 +20,8 @@ const GalleryPage: React.FC = () => {
     actionInProgress,
     downloadDesign,
     deleteDesign,
-    shareDesign
+    shareDesign,
+    shareExternally
   } = useGallery();
 
   return (
@@ -47,6 +48,7 @@ const GalleryPage: React.FC = () => {
               onDelete={deleteDesign}
               onDownload={downloadDesign}
               onShare={shareDesign}
+              onShareExternally={shareExternally}
               designIndex={designs.indexOf(selectedDesign)}
               actionInProgress={actionInProgress}
             />

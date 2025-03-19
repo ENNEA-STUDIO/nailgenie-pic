@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { SavedDesign, ActionFeedback } from '@/types/gallery';
 import { fetchSavedDesigns, deleteDesignById, shareDesignToFeed } from './api';
-import { downloadDesignImage, createFeedbackHandler } from './utils';
+import { downloadDesignImage, shareImageExternally, createFeedbackHandler } from './utils';
 import { useLanguage } from '@/context/LanguageContext';
 
 export const useGallery = () => {
@@ -42,6 +42,23 @@ export const useGallery = () => {
     } catch (error) {
       console.error('Error downloading image:', error);
       showFeedback('error', t.result.downloadError || 'Impossible d\'ouvrir l\'image');
+    } finally {
+      setActionInProgress(null);
+    }
+  };
+  
+  // Share design image externally (WhatsApp, Snapchat, etc.)
+  const shareExternally = async (imageUrl: string, prompt?: string) => {
+    try {
+      setActionInProgress('share-external');
+      await shareImageExternally(imageUrl, prompt);
+      showFeedback('success', 'Image partagée avec succès');
+    } catch (error) {
+      console.error('Error sharing image externally:', error);
+      const message = (error as Error).message.includes('not supported') 
+        ? 'Le partage n\'est pas supporté sur ce navigateur'
+        : 'Impossible de partager l\'image';
+      showFeedback('error', message);
     } finally {
       setActionInProgress(null);
     }
@@ -100,6 +117,7 @@ export const useGallery = () => {
     actionInProgress,
     downloadDesign,
     deleteDesign,
-    shareDesign
+    shareDesign,
+    shareExternally
   };
 };

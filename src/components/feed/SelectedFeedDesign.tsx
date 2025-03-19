@@ -1,13 +1,14 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Download } from 'lucide-react';
+import { Download, Share2 } from 'lucide-react';
 import { SharedDesign } from '@/types/feed';
 
 interface SelectedFeedDesignProps {
   design: SharedDesign;
   onClose: () => void;
   onDownload: (imageUrl: string, index: number) => void;
+  onShareExternally?: (imageUrl: string, prompt?: string) => void;
   designIndex: number;
   actionInProgress: string | null;
 }
@@ -16,6 +17,7 @@ const SelectedFeedDesign: React.FC<SelectedFeedDesignProps> = ({
   design,
   onClose,
   onDownload,
+  onShareExternally,
   designIndex,
   actionInProgress
 }) => {
@@ -29,6 +31,16 @@ const SelectedFeedDesign: React.FC<SelectedFeedDesignProps> = ({
     // Log the URL being downloaded
     console.log("SelectedFeedDesign - Starting download for:", design.image_url);
     onDownload(design.image_url, designIndex);
+  };
+
+  // Handle external share click
+  const handleShareClick = () => {
+    if (!design.image_url || !onShareExternally) {
+      console.error("Missing image URL or share function");
+      return;
+    }
+    
+    onShareExternally(design.image_url, design.prompt || undefined);
   };
 
   // Display nail details as badges
@@ -67,19 +79,37 @@ const SelectedFeedDesign: React.FC<SelectedFeedDesignProps> = ({
           className="w-full aspect-square object-cover"
         />
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md flex justify-between">
-          <motion.button 
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleDownloadClick}
-            className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
-            disabled={actionInProgress === 'download'}
-          >
-            {actionInProgress === 'download' ? (
-              <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin" />
-            ) : (
-              <Download size={20} />
+          <div className="flex gap-2">
+            <motion.button 
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleDownloadClick}
+              className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+              disabled={actionInProgress === 'download'}
+            >
+              {actionInProgress === 'download' ? (
+                <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin" />
+              ) : (
+                <Download size={20} />
+              )}
+            </motion.button>
+            
+            {onShareExternally && (
+              <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleShareClick}
+                className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                disabled={actionInProgress === 'share-external'}
+              >
+                {actionInProgress === 'share-external' ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin" />
+                ) : (
+                  <Share2 size={20} />
+                )}
+              </motion.button>
             )}
-          </motion.button>
+          </div>
         </div>
         <button 
           onClick={onClose}

@@ -15,6 +15,9 @@ export interface ResultTranslations {
   shareError: string;
   downloadSuccess: string;
   downloadError: string;
+  externalShareSuccess: string;
+  externalShareError: string;
+  shareNotSupported: string;
 }
 
 export const resultTranslations: Record<Language, ResultTranslations> = {
@@ -32,6 +35,9 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     shareError: 'Impossible de partager le design',
     downloadSuccess: 'Image ouverte dans un nouvel onglet',
     downloadError: "Impossible d'ouvrir l'image",
+    externalShareSuccess: 'Image partagée avec succès',
+    externalShareError: 'Impossible de partager l\'image',
+    shareNotSupported: 'Le partage n\'est pas supporté sur ce navigateur',
   },
   en: {
     working: 'Creating your design',
@@ -47,5 +53,8 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     shareError: 'Unable to share the design',
     downloadSuccess: 'Image opened in a new tab',
     downloadError: 'Unable to open the image',
+    externalShareSuccess: 'Image shared successfully',
+    externalShareError: 'Unable to share the image',
+    shareNotSupported: 'Sharing is not supported in this browser',
   }
 };

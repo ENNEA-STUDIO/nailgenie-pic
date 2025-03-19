@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Download, Trash2, Rss } from 'lucide-react';
+import { Download, Trash2, Rss, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { SavedDesign } from '@/types/gallery';
@@ -12,6 +12,7 @@ interface SelectedDesignDetailProps {
   onDelete: (id: string) => void;
   onDownload: (imageUrl: string, index: number) => void;
   onShare: (design: SavedDesign) => void;
+  onShareExternally: (imageUrl: string, prompt?: string) => void;
   designIndex: number;
   actionInProgress: string | null;
 }
@@ -22,6 +23,7 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
   onDelete,
   onDownload,
   onShare,
+  onShareExternally,
   designIndex,
   actionInProgress
 }) => {
@@ -61,28 +63,53 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
           className="w-full aspect-square object-cover"
         />
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md flex justify-between">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => onDownload(design.image_url, designIndex)}
-                  className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
-                  disabled={actionInProgress === 'download'}
-                >
-                  {actionInProgress === 'download' ? (
-                    <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin" />
-                  ) : (
-                    <Download size={20} />
-                  )}
-                </motion.button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Télécharger</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <div className="flex gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.button 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => onDownload(design.image_url, designIndex)}
+                    className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                    disabled={actionInProgress === 'download'}
+                  >
+                    {actionInProgress === 'download' ? (
+                      <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin" />
+                    ) : (
+                      <Download size={20} />
+                    )}
+                  </motion.button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Télécharger</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.button 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => onShareExternally(design.image_url, design.prompt || undefined)}
+                    className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                    disabled={actionInProgress === 'share-external'}
+                  >
+                    {actionInProgress === 'share-external' ? (
+                      <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin" />
+                    ) : (
+                      <Share2 size={20} />
+                    )}
+                  </motion.button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Partager (WhatsApp, etc.)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           
           <div className="flex gap-2">
             <TooltipProvider>

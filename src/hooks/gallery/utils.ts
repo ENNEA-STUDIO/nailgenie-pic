@@ -33,6 +33,34 @@ export const downloadDesignImage = async (imageUrl: string, index: number) => {
   }
 };
 
+// Share image using Web Share API
+export const shareImageExternally = async (imageUrl: string, prompt?: string) => {
+  try {
+    // Check if the Web Share API is supported by the browser
+    if (!navigator.share) {
+      throw new Error("Web Share API not supported in this browser");
+    }
+
+    console.log("Sharing image:", imageUrl);
+
+    // Create share data
+    const shareData = {
+      title: 'My Nail Design',
+      text: prompt || 'Check out my nail design!',
+      url: imageUrl
+    };
+
+    // Trigger the native share dialog
+    await navigator.share(shareData);
+
+    console.log("Image shared successfully");
+    return true;
+  } catch (error) {
+    console.error("Error sharing image:", error);
+    throw error;
+  }
+};
+
 // Create a feedback message handler
 export const createFeedbackHandler = (
   setFeedback: (feedback: ActionFeedback | null) => void
