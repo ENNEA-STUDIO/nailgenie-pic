@@ -108,7 +108,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
 
       {/* Navigation buttons */}
       <div className="flex justify-between mt-6 px-4">
-        {!isFirstStep && (
+        {!isFirstStep && currentStep.id !== "emailVerification" && (
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
             <Button
               variant="outline"
