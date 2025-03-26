@@ -1,49 +1,44 @@
 
 import { Language } from './types';
-import { commonTranslations, CommonTranslations } from './common';
-import { cameraTranslations, CameraTranslations } from './camera';
-import { promptTranslations, PromptTranslations } from './prompt';
-import { resultTranslations, ResultTranslations } from './result';
-import { 
-  shapesTranslations, 
-  shapeDescriptionsTranslations,
-  ShapesTranslations, 
-  ShapeDescriptionsTranslations 
-} from './shapes';
-import { onboardingTranslations, OnboardingTranslations } from './onboarding';
+import { commonTranslations } from './common';
+import { promptTranslations } from './prompt';
+import { onboardingTranslations } from './onboarding';
+import { cameraTranslations } from './camera';
+import { resultTranslations } from './result';
+import { shapesTranslations } from './shapes';
+import { creditsTranslations } from './credits';
 
-// Type for the combined translations structure
-export type TranslationKeys = {
-  common: CommonTranslations;
-  camera: CameraTranslations;
-  prompt: PromptTranslations;
-  result: ResultTranslations;
-  shapes: ShapesTranslations;
-  shapeDescriptions: ShapeDescriptionsTranslations;
-  onboarding: OnboardingTranslations;
-};
-
-// The actual combined translations
-export const translations: Record<Language, TranslationKeys> = {
+export const translations = {
   fr: {
     common: commonTranslations.fr,
-    camera: cameraTranslations.fr,
     prompt: promptTranslations.fr,
+    onboarding: onboardingTranslations.fr,
+    camera: cameraTranslations.fr,
     result: resultTranslations.fr,
     shapes: shapesTranslations.fr,
-    shapeDescriptions: shapeDescriptionsTranslations.fr,
-    onboarding: onboardingTranslations.fr,
+    credits: creditsTranslations.fr,
+    nav: {
+      camera: 'Caméra',
+      gallery: 'Galerie',
+      feed: 'Découvrir',
+      credits: 'Crédits'
+    }
   },
   en: {
     common: commonTranslations.en,
-    camera: cameraTranslations.en,
     prompt: promptTranslations.en,
+    onboarding: onboardingTranslations.en,
+    camera: cameraTranslations.en,
     result: resultTranslations.en,
     shapes: shapesTranslations.en,
-    shapeDescriptions: shapeDescriptionsTranslations.en,
-    onboarding: onboardingTranslations.en,
-  },
+    credits: creditsTranslations.en,
+    nav: {
+      camera: 'Camera',
+      gallery: 'Gallery',
+      feed: 'Discover',
+      credits: 'Credits'
+    }
+  }
 };
 
-// Re-export the Language type with proper syntax for isolatedModules
-export type { Language };
+export type TranslationType = typeof translations.en;

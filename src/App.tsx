@@ -15,6 +15,7 @@ import ResultPage from "./pages/ResultPage";
 import GalleryPage from "./pages/GalleryPage";
 import FeedPage from "./pages/FeedPage";
 import OnboardingPage from "./pages/OnboardingPage";
+import BuyCreditsPage from "./pages/BuyCreditsPage";
 import NotFound from "./pages/NotFound";
 
 // Create authentication context
@@ -166,6 +167,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <FeedPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/buy-credits" 
+                    element={
+                      <ProtectedRoute>
+                        <BuyCreditsPage />
                       </ProtectedRoute>
                     } 
                   />

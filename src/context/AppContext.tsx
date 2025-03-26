@@ -4,6 +4,7 @@ import React, {
   useState,
   useCallback,
   ReactNode,
+  useEffect,
 } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +28,7 @@ interface AppContextType {
   nailShape: NailShape;
   nailLength: NailLength;
   nailColor: string;
+  credits: number;
   setHandImage: (image: string | null) => void;
   setGeneratedDesign: (design: string | null) => void;
   setPrompt: (prompt: string) => void;
@@ -35,6 +37,8 @@ interface AppContextType {
   setNailColor: (color: string) => void;
   generateDesign: () => Promise<void>;
   resetState: () => void;
+  checkCredits: () => Promise<number>;
+  addCredits: (amount: number) => Promise<boolean>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -72,6 +76,96 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [nailShape, setNailShape] = useState<NailShape>("oval");
   const [nailLength, setNailLength] = useState<NailLength>("medium");
   const [nailColor, setNailColor] = useState<string>("#E6CCAF"); // Beige as default
+  const [credits, setCredits] = useState<number>(0);
+
+  useEffect(() => {
+    checkCredits();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event) => {
+        if (event === "SIGNED_IN") {
+          checkCredits();
+        } else if (event === "SIGNED_OUT") {
+          setCredits(0);
+        }
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const checkCredits = useCallback(async (): Promise<number> => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setCredits(0);
+        return 0;
+      }
+
+      const { data, error } = await supabase
+        .from('user_credits')
+        .select('credits')
+        .eq('user_id', sessionData.session.user.id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching credits:", error);
+        return 0;
+      }
+
+      if (data) {
+        setCredits(data.credits);
+        return data.credits;
+      } else {
+        const { data: newData, error: insertError } = await supabase
+          .from('user_credits')
+          .insert([{ user_id: sessionData.session.user.id, credits: 3 }])
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error("Error creating initial credits:", insertError);
+          return 0;
+        }
+
+        setCredits(newData?.credits || 0);
+        return newData?.credits || 0;
+      }
+    } catch (error) {
+      console.error("Error checking credits:", error);
+      return 0;
+    }
+  }, []);
+
+  const addCredits = useCallback(async (amount: number): Promise<boolean> => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error("You must be logged in to add credits");
+        return false;
+      }
+
+      const { data, error } = await supabase.rpc('add_user_credits', { 
+        user_id_param: sessionData.session.user.id,
+        credits_to_add: amount
+      });
+
+      if (error) {
+        console.error("Error adding credits:", error);
+        toast.error("Failed to add credits");
+        return false;
+      }
+
+      await checkCredits();
+      return true;
+    } catch (error) {
+      console.error("Error adding credits:", error);
+      toast.error("Failed to add credits");
+      return false;
+    }
+  }, [checkCredits]);
 
   const urlToBlob = async (url: string): Promise<Blob> => {
     const response = await fetch(url);
@@ -86,6 +180,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
     if (!prompt.trim()) {
       toast.error("Veuillez fournir une description de design");
+      return;
+    }
+
+    const currentCredits = await checkCredits();
+    if (currentCredits < 1) {
+      toast.error("Vous n'avez pas assez de crédits. Achetez-en plus pour continuer.");
       return;
     }
 
@@ -193,6 +293,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             console.log("Final URL:", publicUrl);
             setGeneratedDesign(publicUrl);
             toast.success("Design généré avec succès!");
+
+            const { error: creditError } = await supabase.rpc('use_credit');
+            if (creditError) {
+              console.error("Error deducting credit:", creditError);
+            } else {
+              setCredits(prev => Math.max(0, prev - 1));
+            }
           } catch (fetchError) {
             console.error("Error fetching/processing image:", fetchError);
             throw new Error(
@@ -217,7 +324,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [handImage, prompt, nailShape, nailLength, nailColor]);
+  }, [handImage, prompt, nailShape, nailLength, nailColor, checkCredits]);
 
   const getColorName = (hexColor: string): string => {
     const colorMap: Record<string, string> = {
@@ -287,6 +394,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     nailShape,
     nailLength,
     nailColor,
+    credits,
     setHandImage,
     setGeneratedDesign,
     setPrompt,
@@ -295,6 +403,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     setNailColor,
     generateDesign,
     resetState,
+    checkCredits,
+    addCredits,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
