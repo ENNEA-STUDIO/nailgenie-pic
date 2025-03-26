@@ -4,9 +4,36 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/context/LanguageContext';
 
 const Hero: React.FC = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  
+  const content = {
+    fr: {
+      title: "Visualisez votre manucure parfaite",
+      subtitle: "NailGenie utilise l'IA pour vous montrer à quoi ressembleraient différents designs sur vos propres ongles, avant même de vous rendre en salon.",
+      reviewText: "Plus de 10 000 designs générés",
+      buttonText: "Commencer l'expérience",
+      features: [
+        { icon: "✨", text: "Gratuit pour commencer" },
+        { icon: "🔒", text: "Sans carte bancaire" },
+        { icon: "⚡", text: "Résultats instantanés" }
+      ]
+    },
+    en: {
+      title: "Visualize your perfect manicure",
+      subtitle: "NailGenie uses AI to show you what different designs would look like on your own nails, before you even go to the salon.",
+      reviewText: "Over 10,000 designs generated",
+      buttonText: "Start the experience",
+      features: [
+        { icon: "✨", text: "Free to start" },
+        { icon: "🔒", text: "No credit card" },
+        { icon: "⚡", text: "Instant results" }
+      ]
+    }
+  };
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -45,13 +72,13 @@ const Hero: React.FC = () => {
             <div className="absolute bottom-0 right-1/4 w-32 h-32 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
           </div>
           <h2 className="text-4xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-500 drop-shadow-sm">
-            Visualisez votre manucure parfaite
+            {content[language].title}
           </h2>
         </motion.div>
         
         <motion.div variants={itemVariants} className="mb-10">
           <p className="text-lg md:text-xl text-gray-700 mb-4 max-w-2xl mx-auto">
-            NailGenie utilise l'IA pour vous montrer à quoi ressembleraient différents designs sur vos propres ongles, avant même de vous rendre en salon.
+            {content[language].subtitle}
           </p>
           
           <motion.div 
@@ -63,7 +90,7 @@ const Hero: React.FC = () => {
             {Array(5).fill(0).map((_, i) => (
               <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
             ))}
-            <span className="ml-1 text-sm text-gray-600">Plus de 10 000 designs générés</span>
+            <span className="ml-1 text-sm text-gray-600">{content[language].reviewText}</span>
           </motion.div>
         </motion.div>
         
@@ -96,7 +123,7 @@ const Hero: React.FC = () => {
                 }}
                 className="flex items-center justify-center gap-2"
               >
-                Commencer l'expérience
+                {content[language].buttonText}
                 <motion.div
                   animate={{ 
                     x: [0, 5, 0],
@@ -119,11 +146,7 @@ const Hero: React.FC = () => {
             transition={{ delay: 1, duration: 0.5 }}
             className="flex flex-wrap justify-center gap-3 max-w-lg"
           >
-            {[
-              { icon: "✨", text: "Gratuit pour commencer" },
-              { icon: "🔒", text: "Sans carte bancaire" },
-              { icon: "⚡", text: "Résultats instantanés" }
-            ].map((item, i) => (
+            {content[language].features.map((item, i) => (
               <div key={i} className="flex items-center gap-1 bg-white/40 backdrop-blur-sm px-3 py-1 rounded-full text-sm text-fuchsia-700 border border-fuchsia-100">
                 <span>{item.icon}</span>
                 <span>{item.text}</span>

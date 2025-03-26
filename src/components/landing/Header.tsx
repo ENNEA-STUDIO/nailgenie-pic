@@ -3,9 +3,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import NailPolishIcon from '@/components/credits/NailPolishIcon';
+import { useLanguage } from '@/context/LanguageContext';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   
   return (
     <header className="relative z-10 w-full py-6 px-4">
@@ -20,7 +22,7 @@ const Header: React.FC = () => {
           className="bg-white/70 backdrop-blur-sm border border-pink-100 text-pink-500 hover:bg-pink-50 hover:text-pink-600 font-medium"
           onClick={() => navigate('/onboarding')}
         >
-          Se connecter
+          {language === 'fr' ? 'Se connecter' : 'Login'}
         </Button>
       </div>
     </header>

@@ -4,9 +4,26 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/context/LanguageContext';
 
 const CTA: React.FC = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  
+  const content = {
+    fr: {
+      title: "Prête à découvrir votre prochaine manucure ?",
+      subtitle: "Rejoignez NailGenie aujourd'hui et transformez votre expérience de manucure avec la puissance de l'IA.",
+      buttonText: "Commencer l'aventure",
+      tagline: "✨ Gratuit pour commencer - Aucune carte de crédit requise"
+    },
+    en: {
+      title: "Ready to discover your next manicure?",
+      subtitle: "Join NailGenie today and transform your manicure experience with the power of AI.",
+      buttonText: "Start the adventure",
+      tagline: "✨ Free to start - No credit card required"
+    }
+  };
   
   return (
     <section className="relative z-10 container mx-auto px-4 py-16">
@@ -28,10 +45,10 @@ const CTA: React.FC = () => {
           className="max-w-3xl mx-auto"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">
-            Prête à découvrir votre prochaine manucure ?
+            {content[language].title}
           </h2>
           <p className="text-lg text-gray-700 mb-10 max-w-2xl mx-auto">
-            Rejoignez NailGenie aujourd'hui et transformez votre expérience de manucure avec la puissance de l'IA.
+            {content[language].subtitle}
           </p>
           
           <div className="flex justify-center">
@@ -49,7 +66,7 @@ const CTA: React.FC = () => {
                   boxShadow: "0 10px 15px -3px rgba(214, 31, 255, 0.2), 0 4px 6px -2px rgba(215, 115, 247, 0.1)"
                 }}
               >
-                <span className="mr-2">Commencer l'aventure</span>
+                <span className="mr-2">{content[language].buttonText}</span>
                 <ArrowRight className="h-5 w-5" />
               </Button>
             </motion.div>
@@ -61,7 +78,7 @@ const CTA: React.FC = () => {
             transition={{ delay: 0.5 }}
             className="text-sm text-pink-500 mt-6 font-medium"
           >
-            ✨ Gratuit pour commencer - Aucune carte de crédit requise
+            {content[language].tagline}
           </motion.p>
         </motion.div>
       </motion.div>
