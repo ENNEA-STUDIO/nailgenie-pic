@@ -4,17 +4,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import CameraComponent from '../components/camera/CameraComponent';
 import { useApp } from '../context/AppContext';
-import { Camera } from 'lucide-react';
+import { Camera, AlertCircle } from 'lucide-react';
 import BottomNav from '@/components/navigation/BottomNav';
 import { useLanguage } from '@/context/LanguageContext';
 import CreditsDisplay from '@/components/credits/CreditsDisplay';
 import { Card } from '@/components/ui/card';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 
 const CameraPage: React.FC = () => {
   const navigate = useNavigate();
-  const { handImage } = useApp();
+  const { handImage, credits } = useApp();
   const { t } = useLanguage();
   const [showTip, setShowTip] = useState(false);
+  const hasNoCredits = credits <= 0;
   
   // Show camera tip when page loads
   useEffect(() => {
@@ -39,6 +42,10 @@ const CameraPage: React.FC = () => {
     }
   }, [handImage, navigate]);
 
+  const handleBuyCredits = () => {
+    navigate('/buy-credits');
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -58,6 +65,31 @@ const CameraPage: React.FC = () => {
           <CreditsDisplay variant="large" />
         </Card>
       </motion.div>
+      
+      {/* No Credits Alert */}
+      {hasNoCredits && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="absolute top-20 left-4 right-4 z-20"
+        >
+          <Alert variant="destructive" className="border-red-300 bg-red-50 shadow-md">
+            <AlertCircle className="h-5 w-5" />
+            <AlertTitle className="text-red-800">{t.credits.notEnoughCredits}</AlertTitle>
+            <AlertDescription className="text-red-700 mt-2">
+              {t.credits.fewMoreDrops}
+              <Button 
+                onClick={handleBuyCredits} 
+                className="mt-3 bg-primary hover:bg-primary/90 text-white"
+                size="sm"
+              >
+                {t.credits.buyCredits}
+              </Button>
+            </AlertDescription>
+          </Alert>
+        </motion.div>
+      )}
       
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
