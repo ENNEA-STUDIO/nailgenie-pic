@@ -4,6 +4,7 @@ import Header from '@/components/landing/Header';
 import Hero from '@/components/landing/Hero';
 import PhoneDemo from '@/components/landing/PhoneDemo';
 import Features from '@/components/landing/Features';
+import FAQ from '@/components/landing/FAQ';
 import CTA from '@/components/landing/CTA';
 import Footer from '@/components/landing/Footer';
 
@@ -19,6 +20,7 @@ const LandingPage: React.FC = () => {
       <Hero />
       <PhoneDemo />
       <Features />
+      <FAQ />
       <CTA />
       <Footer />
     </div>
