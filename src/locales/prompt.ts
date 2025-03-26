@@ -14,6 +14,7 @@ export interface PromptTranslations {
   typePromptHere: string;
   or: string;
   chooseExample: string;
+  describeHelp: string; // Add the missing property
 }
 
 export const promptTranslations: Record<Language, PromptTranslations> = {
@@ -30,6 +31,7 @@ export const promptTranslations: Record<Language, PromptTranslations> = {
     typePromptHere: 'Décrivez votre design ici...',
     or: 'ou',
     chooseExample: 'choisissez un exemple',
+    describeHelp: 'Soyez précis pour obtenir exactement ce que vous voulez',
   },
   en: {
     customizeNails: 'Customize your nails',
@@ -44,5 +46,6 @@ export const promptTranslations: Record<Language, PromptTranslations> = {
     typePromptHere: 'Describe your design here...',
     or: 'or',
     chooseExample: 'choose an example',
+    describeHelp: 'Be specific to get exactly what you want',
   }
 };
