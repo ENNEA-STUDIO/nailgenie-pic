@@ -5,10 +5,10 @@ import { promptTranslations } from './prompt';
 import { onboardingTranslations } from './onboarding';
 import { cameraTranslations } from './camera';
 import { resultTranslations } from './result';
-import { shapesTranslations } from './shapes';
+import { shapesTranslations, shapeDescriptionsTranslations } from './shapes';
 import { creditsTranslations } from './credits';
 
-export { Language } from './types';
+export type { Language } from './types';
 
 export const translations = {
   fr: {
@@ -18,6 +18,7 @@ export const translations = {
     camera: cameraTranslations.fr,
     result: resultTranslations.fr,
     shapes: shapesTranslations.fr,
+    shapeDescriptions: shapeDescriptionsTranslations.fr,
     credits: creditsTranslations.fr,
     nav: {
       camera: 'Caméra',
@@ -33,6 +34,7 @@ export const translations = {
     camera: cameraTranslations.en,
     result: resultTranslations.en,
     shapes: shapesTranslations.en,
+    shapeDescriptions: shapeDescriptionsTranslations.en,
     credits: creditsTranslations.en,
     nav: {
       camera: 'Camera',
