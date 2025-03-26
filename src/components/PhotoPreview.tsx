@@ -1,9 +1,9 @@
-
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Check, RefreshCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
+import React from "react";
+import { motion } from "framer-motion";
+import { Check, RefreshCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useNavigate } from "react-router-dom";
 
 interface PhotoPreviewProps {
   photoSrc: string;
@@ -14,10 +14,17 @@ interface PhotoPreviewProps {
 const PhotoPreview: React.FC<PhotoPreviewProps> = ({
   photoSrc,
   onAccept,
-  onRetake
+  onRetake,
 }) => {
+  const navigate = useNavigate();
+
+  const handleAccept = () => {
+    onAccept();
+    navigate("/prompt");
+  };
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="h-full flex flex-col justify-between"
@@ -45,7 +52,7 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({
           className="w-full h-full object-cover"
         />
       </div>
-      
+
       {/* Action buttons */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -57,30 +64,34 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({
           whileTap={{ scale: 0.95 }}
           className="flex flex-col items-center"
         >
-          <Button 
-            onClick={onRetake} 
-            variant="outline" 
-            size="icon" 
+          <Button
+            onClick={onRetake}
+            variant="outline"
+            size="icon"
             className="h-16 w-16 rounded-full shadow-md bg-white/80 backdrop-blur-sm"
           >
             <RefreshCcw className="h-7 w-7" />
           </Button>
-          <span className="text-sm font-medium text-white drop-shadow-md mt-2">Reprendre</span>
+          <span className="text-sm font-medium text-white drop-shadow-md mt-2">
+            Reprendre
+          </span>
         </motion.div>
-        
+
         <motion.div
           whileTap={{ scale: 0.95 }}
           className="flex flex-col items-center"
         >
-          <Button 
-            onClick={onAccept} 
-            variant="default" 
-            size="icon" 
+          <Button
+            onClick={handleAccept}
+            variant="default"
+            size="icon"
             className="h-16 w-16 rounded-full shadow-md bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
           >
             <Check className="h-7 w-7" />
           </Button>
-          <span className="text-sm font-medium text-white drop-shadow-md mt-2">Valider</span>
+          <span className="text-sm font-medium text-white drop-shadow-md mt-2">
+            Valider
+          </span>
         </motion.div>
       </motion.div>
     </motion.div>
