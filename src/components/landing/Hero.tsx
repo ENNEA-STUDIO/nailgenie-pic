@@ -13,7 +13,7 @@ const Hero: React.FC = () => {
   const content = {
     fr: {
       title: "Visualisez votre manucure parfaite",
-      subtitle: "NailGenie utilise l'IA pour vous montrer à quoi ressembleraient différents designs sur vos propres ongles, avant même de vous rendre en salon.",
+      subtitle: "GeNails utilise l'IA pour vous montrer à quoi ressembleraient différents designs sur vos propres ongles, avant même de vous rendre en salon.",
       reviewText: "Plus de 10 000 designs générés",
       buttonText: "Commencer l'expérience",
       features: [
@@ -24,7 +24,7 @@ const Hero: React.FC = () => {
     },
     en: {
       title: "Visualize your perfect manicure",
-      subtitle: "NailGenie uses AI to show you what different designs would look like on your own nails, before you even go to the salon.",
+      subtitle: "GeNails uses AI to show you what different designs would look like on your own nails, before you even go to the salon.",
       reviewText: "Over 10,000 designs generated",
       buttonText: "Start the experience",
       features: [

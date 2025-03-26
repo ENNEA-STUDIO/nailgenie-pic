@@ -15,7 +15,7 @@ const Header: React.FC = () => {
         <div className="flex items-center gap-2">
           <NailPolishIcon className="h-8 w-8" />
           <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
-            NailGenie
+            GeNails
           </h1>
         </div>
         <Button 

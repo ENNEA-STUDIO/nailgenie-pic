@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Camera, Image, Sparkles, Star } from 'lucide-react';
@@ -10,8 +9,8 @@ const Features: React.FC = () => {
   
   const content = {
     fr: {
-      title: "Pourquoi choisir NailGenie ?",
-      subtitle: "Découvrez les avantages qui font de NailGenie l'application préférée des passionnés de manucure",
+      title: "Pourquoi choisir GeNails ?",
+      subtitle: "Découvrez les avantages qui font de GeNails l'application préférée des passionnés de manucure",
       benefits: [
         {
           icon: <Star className="h-10 w-10 text-yellow-400" />,
@@ -33,8 +32,8 @@ const Features: React.FC = () => {
       ]
     },
     en: {
-      title: "Why choose NailGenie?",
-      subtitle: "Discover the benefits that make NailGenie the preferred app for nail enthusiasts",
+      title: "Why choose GeNails?",
+      subtitle: "Discover the benefits that make GeNails the preferred app for nail enthusiasts",
       benefits: [
         {
           icon: <Star className="h-10 w-10 text-yellow-400" />,

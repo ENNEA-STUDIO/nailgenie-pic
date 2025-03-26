@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -15,12 +14,12 @@ const FAQ: React.FC = () => {
   const faqItems = {
     fr: [
       {
-        question: "Comment fonctionne NailGenie ?",
-        answer: "NailGenie utilise l'intelligence artificielle pour analyser la forme et la taille de vos ongles à partir d'une photo. L'application génère ensuite des designs de manucure personnalisés que vous pouvez visualiser sur vos propres ongles avant de vous rendre en salon."
+        question: "Comment fonctionne GeNails ?",
+        answer: "GeNails utilise l'intelligence artificielle pour analyser la forme et la taille de vos ongles à partir d'une photo. L'application génère ensuite des designs de manucure personnalisés que vous pouvez visualiser sur vos propres ongles avant de vous rendre en salon."
       },
       {
-        question: "Est-ce que NailGenie est gratuit ?",
-        answer: "NailGenie propose une version gratuite qui vous permet de générer un nombre limité de designs. Des abonnements premium sont disponibles pour accéder à des fonctionnalités avancées et des designs illimités."
+        question: "Est-ce que GeNails est gratuit ?",
+        answer: "GeNails propose une version gratuite qui vous permet de générer un nombre limité de designs. Des abonnements premium sont disponibles pour accéder à des fonctionnalités avancées et des designs illimités."
       },
       {
         question: "Puis-je partager mes designs avec mon salon de manucure ?",
@@ -28,7 +27,7 @@ const FAQ: React.FC = () => {
       },
       {
         question: "Quels types de manucures puis-je essayer ?",
-        answer: "NailGenie vous permet d'essayer une variété de styles, incluant le vernis traditionnel, le gel, les ongles en acrylique, les nail arts complexes, et bien plus encore. Vous pouvez également personnaliser les couleurs et les motifs selon vos préférences."
+        answer: "GeNails vous permet d'essayer une variété de styles, incluant le vernis traditionnel, le gel, les ongles en acrylique, les nail arts complexes, et bien plus encore. Vous pouvez également personnaliser les couleurs et les motifs selon vos préférences."
       },
       {
         question: "Comment puis-je prendre une bonne photo de mes ongles ?",
@@ -37,12 +36,12 @@ const FAQ: React.FC = () => {
     ],
     en: [
       {
-        question: "How does NailGenie work?",
-        answer: "NailGenie uses artificial intelligence to analyze the shape and size of your nails from a photo. The app then generates customized manicure designs that you can visualize on your own nails before going to the salon."
+        question: "How does GeNails work?",
+        answer: "GeNails uses artificial intelligence to analyze the shape and size of your nails from a photo. The app then generates customized manicure designs that you can visualize on your own nails before going to the salon."
       },
       {
-        question: "Is NailGenie free?",
-        answer: "NailGenie offers a free version that allows you to generate a limited number of designs. Premium subscriptions are available for access to advanced features and unlimited designs."
+        question: "Is GeNails free?",
+        answer: "GeNails offers a free version that allows you to generate a limited number of designs. Premium subscriptions are available for access to advanced features and unlimited designs."
       },
       {
         question: "Can I share my designs with my nail salon?",
@@ -50,7 +49,7 @@ const FAQ: React.FC = () => {
       },
       {
         question: "What types of manicures can I try?",
-        answer: "NailGenie allows you to try a variety of styles, including traditional polish, gel, acrylic nails, complex nail art, and much more. You can also customize colors and patterns according to your preferences."
+        answer: "GeNails allows you to try a variety of styles, including traditional polish, gel, acrylic nails, complex nail art, and much more. You can also customize colors and patterns according to your preferences."
       },
       {
         question: "How do I take a good photo of my nails?",
@@ -62,11 +61,11 @@ const FAQ: React.FC = () => {
   const titles = {
     fr: {
       title: "Questions fréquentes",
-      subtitle: "Tout ce que vous devez savoir sur NailGenie"
+      subtitle: "Tout ce que vous devez savoir sur GeNails"
     },
     en: {
       title: "Frequently Asked Questions",
-      subtitle: "Everything you need to know about NailGenie"
+      subtitle: "Everything you need to know about GeNails"
     }
   };
 

@@ -73,7 +73,7 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({
         className="space-y-2"
       >
         <h1 className="text-3xl font-bold text-center">
-          {language === 'fr' ? 'Bienvenue sur NailGenie' : 'Welcome to NailGenie'}
+          {language === 'fr' ? 'Bienvenue sur GeNails' : 'Welcome to GeNails'}
         </h1>
         <p className="text-muted-foreground">
           {language === 'fr' 

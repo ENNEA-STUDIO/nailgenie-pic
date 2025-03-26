@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -13,13 +12,13 @@ const CTA: React.FC = () => {
   const content = {
     fr: {
       title: "Prête à découvrir votre prochaine manucure ?",
-      subtitle: "Rejoignez NailGenie aujourd'hui et transformez votre expérience de manucure avec la puissance de l'IA.",
+      subtitle: "Rejoignez GeNails aujourd'hui et transformez votre expérience de manucure avec la puissance de l'IA.",
       buttonText: "Commencer l'aventure",
       tagline: "✨ Gratuit pour commencer - Aucune carte de crédit requise"
     },
     en: {
       title: "Ready to discover your next manicure?",
-      subtitle: "Join NailGenie today and transform your manicure experience with the power of AI.",
+      subtitle: "Join GeNails today and transform your manicure experience with the power of AI.",
       buttonText: "Start the adventure",
       tagline: "✨ Free to start - No credit card required"
     }
