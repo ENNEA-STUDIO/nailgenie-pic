@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import NailShapeSelector from '../components/NailShapeSelector';
@@ -10,10 +10,11 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import BottomNav from '@/components/navigation/BottomNav';
 import { useLanguage } from '@/context/LanguageContext';
+import ResultLoading from '../components/result/ResultLoading';
 
 const PromptPage: React.FC = () => {
   const navigate = useNavigate();
-  const { handImage } = useApp();
+  const { handImage, isLoading, prompt } = useApp();
   const { t } = useLanguage();
   
   // Redirect if no hand image
@@ -28,6 +29,16 @@ const PromptPage: React.FC = () => {
   };
 
   if (!handImage) return null;
+  
+  // Show loading if API is processing
+  if (isLoading) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center bg-background">
+        <ResultLoading prompt={prompt} />
+        <BottomNav />
+      </div>
+    );
+  }
 
   return (
     <motion.div 

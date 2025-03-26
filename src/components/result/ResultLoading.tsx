@@ -21,7 +21,7 @@ const ResultLoading: React.FC<ResultLoadingProps> = ({ prompt }) => {
       <NailPolishLoader text="Designing your nails" />
       
       <p className="text-sm text-muted-foreground text-center max-w-xs mt-2">
-        Creating "{prompt}"
+        {prompt ? `Creating "${prompt}"` : "Working on your perfect nail design..."}
       </p>
     </motion.div>
   );

@@ -47,7 +47,7 @@ const ResultPage: React.FC = () => {
   // Show loading while API is running
   if (isLoading) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-background">
+      <div className="w-full min-h-screen flex items-center justify-center bg-background">
         <ResultLoading prompt={prompt} />
         <BottomNav />
       </div>
@@ -59,15 +59,15 @@ const ResultPage: React.FC = () => {
   // Show loading state briefly before rendering the preview
   if (!imagePreloaded) {
     return (
-      <div className="w-full h-screen flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full border-4 border-t-transparent border-primary animate-spin"></div>
-        <p className="ml-4 text-sm text-muted-foreground">{t.common.loading}...</p>
+      <div className="w-full min-h-screen flex items-center justify-center bg-background">
+        <ResultLoading prompt={prompt} />
+        <BottomNav />
       </div>
     );
   }
 
   return (
-    <div className="w-full h-screen flex items-center justify-center bg-background pb-32">
+    <div className="w-full min-h-screen flex items-center justify-center bg-background pb-32">
       <ResultPreview onTryAgain={handleTryAgain} />
       <BottomNav />
     </div>
