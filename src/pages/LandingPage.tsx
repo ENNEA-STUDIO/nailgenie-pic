@@ -35,7 +35,7 @@ const LandingPage: React.FC = () => {
       transition: {
         duration: 4,
         repeat: Infinity,
-        repeatType: "reverse",
+        repeatType: "reverse" as const,
         ease: "easeInOut"
       }
     }
