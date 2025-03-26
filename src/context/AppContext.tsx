@@ -73,7 +73,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [nailLength, setNailLength] = useState<NailLength>("medium");
   const [nailColor, setNailColor] = useState<string>("#E6CCAF"); // Beige as default
 
-  // Add this helper function to convert URL to Blob
   const urlToBlob = async (url: string): Promise<Blob> => {
     const response = await fetch(url);
     return await response.blob();
@@ -101,7 +100,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         nailColor,
       });
 
-      // Convert base64 to blob
       const base64Data = handImage.replace(/^data:image\/\w+;base64,/, "");
       const byteString = atob(base64Data);
       const buffer = new Uint8Array(byteString.length);
@@ -112,7 +110,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
       const imageBlob = new Blob([buffer], { type: "image/jpeg" });
 
-      // Create a standardized prompt format with user input only affecting the pattern part
       const lengthText =
         nailLength === "short"
           ? "short"
@@ -121,14 +118,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           : "long";
       const colorName = getColorName(nailColor);
 
-      // Template format where only the pattern (user input) changes
-      // Using the specific color name instead of "custom shade"
       const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in ${colorName}. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
 
       console.log("Full prompt:", fullPrompt);
       console.log("Connecting to Gemini Image Edit model...");
 
-      // Connect to the Gemini Image Edit model
       const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", {
         hf_token: import.meta.env.VITE_HUGGINGFACE_TOKEN,
       });
@@ -136,7 +130,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       console.log("Connected to client successfully");
       console.log("Making prediction with prompt:", fullPrompt);
 
-      // Make API call to generate the design
       const result = await client.predict("/process_image_and_prompt", {
         composite_pil: imageBlob,
         prompt: fullPrompt,
@@ -162,7 +155,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           console.log("Gradio URL:", imageUrl);
 
           try {
-            // Extraire directement l'image depuis l'URL Gradio
             const response = await fetch(imageUrl, {
               headers: {
                 Authorization: `Bearer ${
@@ -227,11 +219,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [handImage, prompt, nailShape, nailLength, nailColor]);
 
-  // Helper function to get a color name from hex code
   const getColorName = (hexColor: string): string => {
-    // Expanded color mapping for more precise color names
     const colorMap: Record<string, string> = {
-      // Nude & Neutrals
       "#E6CCAF": "beige",
       "#B8A99A": "taupe",
       "#F8F0DD": "ivory",
@@ -239,7 +228,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       "#A17249": "cappuccino",
       "#D2B48C": "sand",
 
-      // Cool Tones
       "#0A2463": "navy blue",
       "#7EC8E3": "sky blue",
       "#C8A2C8": "lavender",
@@ -247,7 +235,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       "#9CAF88": "sage green",
       "#98D8C8": "mint",
 
-      // Warm Tones
       "#D2042D": "cherry red",
       "#A52A2A": "brick red",
       "#FF7F50": "coral",
@@ -255,7 +242,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       "#CC5500": "burnt orange",
       "#E2725B": "terracotta",
 
-      // Metallic & Effects
       "#D4AF37": "gold",
       "#C0C0C0": "silver",
       "#B87333": "copper",
@@ -263,7 +249,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       "#EAEAEA": "holographic",
       "#F2F3F4": "pearl",
 
-      // Dark & Deep
       "#000000": "black",
       "#800020": "burgundy",
       "#673147": "plum",
@@ -271,7 +256,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       "#046307": "emerald",
       "#191970": "midnight blue",
 
-      // Basic colors
       "#FF0000": "red",
       "#FFA500": "orange",
       "#FFFF00": "yellow",
@@ -283,7 +267,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       "#FFD700": "gold",
     };
 
-    // Return the color name if it's in our map, otherwise just call it by its hex value
     return colorMap[hexColor] || `a custom ${hexColor} shade`;
   };
 

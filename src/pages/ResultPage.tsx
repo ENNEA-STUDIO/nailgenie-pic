@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ResultPreview from '../components/ResultPreview';
+import ResultLoading from '../components/result/ResultLoading';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import BottomNav from '@/components/navigation/BottomNav';
@@ -9,7 +10,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const ResultPage: React.FC = () => {
   const navigate = useNavigate();
-  const { generatedDesign, resetState } = useApp();
+  const { generatedDesign, resetState, isLoading, prompt } = useApp();
   const [imagePreloaded, setImagePreloaded] = useState(false);
   const { isIOS, isSafari } = useIsMobile();
   const { t } = useLanguage();
@@ -31,17 +32,27 @@ const ResultPage: React.FC = () => {
     }
   }, [generatedDesign]);
   
-  // Redirect if no design
+  // Redirect if no design and not loading
   useEffect(() => {
-    if (!generatedDesign) {
+    if (!generatedDesign && !isLoading) {
       navigate('/');
     }
-  }, [generatedDesign, navigate]);
+  }, [generatedDesign, navigate, isLoading]);
 
   const handleTryAgain = () => {
     resetState();
     navigate('/');
   };
+
+  // Show loading while API is running
+  if (isLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-background">
+        <ResultLoading prompt={prompt} />
+        <BottomNav />
+      </div>
+    );
+  }
 
   if (!generatedDesign) return null;
   
