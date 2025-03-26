@@ -56,7 +56,7 @@ const Layout: React.FC<LayoutProps> = ({
             transition={{ duration: 0.3 }}
             className="text-sm font-medium text-muted-foreground"
           >
-            NailGenie
+            GeNails
           </motion.div>
         )}
       </header>

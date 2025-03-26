@@ -1,36 +1,14 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
-
-const NotFound = () => {
-  const navigate = useNavigate();
-
+const NotFound: React.FC = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-6">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center max-w-sm"
-      >
-        <div className="inline-flex mb-6 p-4 rounded-full bg-muted">
-          <span className="text-6xl">🔍</span>
-        </div>
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-muted-foreground mb-8">
-          Oops! This page doesn't exist
-        </p>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => navigate("/")}
-          className="px-6 py-3 bg-primary text-white rounded-xl font-medium flex items-center gap-2 shadow-md mx-auto"
-        >
-          <ArrowLeft size={18} />
-          <span>Back to Home</span>
-        </motion.button>
-      </motion.div>
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <h1 className="text-4xl font-bold text-gray-800 mb-4">404 - Page Not Found</h1>
+      <p className="text-gray-600 mb-8">The page you are looking for does not exist.</p>
+      <Link to="/" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        Go back to homepage
+      </Link>
     </div>
   );
 };
