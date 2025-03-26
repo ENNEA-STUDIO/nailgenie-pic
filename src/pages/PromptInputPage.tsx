@@ -48,6 +48,23 @@ const PromptInputPage: React.FC = () => {
       className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4 pb-24"
     >
       <div className="flex-1 w-full flex flex-col items-center justify-center max-w-md mx-auto">
+        {/* Hand Image Preview */}
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="glass-card rounded-3xl overflow-hidden shadow-md mb-6 w-full max-w-xs"
+          style={{
+            boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)"
+          }}
+        >
+          <img 
+            src={handImage} 
+            alt="Your hand" 
+            className="w-full object-cover aspect-square"
+          />
+        </motion.div>
+        
         <motion.h2
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
