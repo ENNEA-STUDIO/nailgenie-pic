@@ -40,7 +40,7 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     shareNotSupported: 'Le partage n\'est pas supporté sur ce navigateur',
   },
   en: {
-    working: 'Creating your design',
+    working: 'Designing your nails',
     loadingError: 'Unable to load the generated image. Please try again.',
     safariError: 'If you are using Safari, try opening this application in Chrome for better results.',
     yourDesign: 'Your design',

@@ -18,7 +18,7 @@ const ResultLoading: React.FC<ResultLoadingProps> = ({ prompt }) => {
       className="glass-card rounded-3xl overflow-hidden p-8 flex flex-col items-center justify-center max-w-md w-full"
       style={{ height: 'auto', minHeight: '320px' }}
     >
-      <NailPolishLoader text="Designing your nails" />
+      <NailPolishLoader text={t.result.working} timeoutMessage={true} />
       
       <p className="text-sm text-muted-foreground text-center max-w-xs mt-2">
         {prompt ? `Creating "${prompt}"` : "Working on your perfect nail design..."}

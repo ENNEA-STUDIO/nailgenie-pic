@@ -6,25 +6,44 @@ import { Progress } from "@/components/ui/progress";
 
 interface NailPolishLoaderProps {
   text?: string;
+  timeoutMessage?: boolean;
 }
 
-const NailPolishLoader: React.FC<NailPolishLoaderProps> = ({ text }) => {
+const NailPolishLoader: React.FC<NailPolishLoaderProps> = ({ text, timeoutMessage = false }) => {
   const [fillPercentage, setFillPercentage] = useState(0);
-  const { t } = useLanguage();
+  const [showTimeoutMessage, setShowTimeoutMessage] = useState(false);
+  const { t, language } = useLanguage();
   
   // Animate the fill level of the nail polish
   useEffect(() => {
-    const interval = setInterval(() => {
-      setFillPercentage(prev => {
-        if (prev >= 100) {
-          return 0; // Reset and start again for continuous animation
-        }
-        return prev + 1;
-      });
-    }, 60); // Speed of filling animation
+    const totalDuration = 10000; // 10 seconds
+    const interval = 100; // Update every 100ms
+    const steps = totalDuration / interval;
+    const increment = 100 / steps;
     
-    return () => clearInterval(interval);
-  }, []);
+    const timer = setInterval(() => {
+      setFillPercentage(prev => {
+        const newValue = prev + increment;
+        if (newValue >= 100) {
+          clearInterval(timer);
+          if (timeoutMessage) {
+            setShowTimeoutMessage(true);
+          }
+          return 100;
+        }
+        return newValue;
+      });
+    }, interval);
+    
+    return () => clearInterval(timer);
+  }, [timeoutMessage]);
+  
+  const getTimeoutText = () => {
+    if (language === 'fr') {
+      return "Encore quelques gouttes de vernis... Patience, votre chef-d'œuvre sera bientôt prêt !";
+    }
+    return "Just a few more drops of polish... Hang tight, your masterpiece is almost ready!";
+  };
   
   return (
     <div className="flex flex-col items-center justify-center py-6">
@@ -61,8 +80,11 @@ const NailPolishLoader: React.FC<NailPolishLoaderProps> = ({ text }) => {
         <h3 className="text-lg font-medium mb-1">
           {text || t.common.loading}
         </h3>
+        
         <p className="text-sm text-muted-foreground mb-4">
-          Creating your perfect nail design...
+          {showTimeoutMessage 
+            ? getTimeoutText()
+            : "Creating your perfect nail design..."}
         </p>
         
         <div className="w-64 mx-auto">
