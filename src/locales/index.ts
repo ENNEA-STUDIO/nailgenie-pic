@@ -8,6 +8,8 @@ import { resultTranslations } from './result';
 import { shapesTranslations } from './shapes';
 import { creditsTranslations } from './credits';
 
+export { Language } from './types';
+
 export const translations = {
   fr: {
     common: commonTranslations.fr,
@@ -41,4 +43,5 @@ export const translations = {
   }
 };
 
+// No need to export TranslationType as it's now defined in LanguageContext.tsx
 export type TranslationType = typeof translations.en;

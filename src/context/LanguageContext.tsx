@@ -1,6 +1,10 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { translations, Language, TranslationKeys } from '../locales';
+import { translations } from '../locales';
+import { Language } from '../locales/types';
+
+// Define TranslationKeys type based on the structure of translations
+export type TranslationKeys = typeof translations.en;
 
 interface LanguageContextType {
   language: Language;
@@ -8,7 +12,7 @@ interface LanguageContextType {
   setLanguage: (lang: Language) => void;
 }
 
-const defaultLanguage = 'fr';
+const defaultLanguage: Language = 'fr';
 
 // Create the language context
 const LanguageContext = createContext<LanguageContextType>({
