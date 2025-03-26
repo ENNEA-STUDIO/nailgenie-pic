@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -9,8 +8,8 @@ import NailPolishIcon from '@/components/credits/NailPolishIcon';
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
+  const [showInitialLoader, setShowInitialLoader] = useState(true);
   
-  // Steps in the animation sequence
   const steps = [
     { name: "camera", icon: <Camera className="h-10 w-10 text-fuchsia-500" />, title: "Prenez une photo" },
     { name: "customize", icon: <Sparkles className="h-10 w-10 text-fuchsia-500" />, title: "Personnalisez" },
@@ -18,12 +17,19 @@ const LandingPage: React.FC = () => {
     { name: "generate", icon: <Wand2 className="h-10 w-10 text-fuchsia-500" />, title: "Visualisez" }
   ];
 
-  // Auto-advance through the steps
   useEffect(() => {
+    const loaderTimer = setTimeout(() => {
+      setShowInitialLoader(false);
+    }, 2000);
+
     const interval = setInterval(() => {
       setCurrentStep((prev) => (prev + 1) % steps.length);
     }, 3000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(loaderTimer);
+    };
   }, []);
 
   const containerVariants = {
@@ -78,12 +84,10 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-b from-pink-50 to-purple-50">
-      {/* Animated background elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-subtle"></div>
       <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-subtle"></div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
 
-      {/* Header */}
       <header className="relative z-10 w-full py-6 px-4">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -101,7 +105,6 @@ const LandingPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="relative z-10 container mx-auto px-4 pt-8 pb-16 flex flex-col items-center text-center">
         <motion.div
           variants={containerVariants}
@@ -134,7 +137,6 @@ const LandingPage: React.FC = () => {
         </motion.div>
       </section>
 
-      {/* App Preview Section - Enhanced with step animation */}
       <section className="relative z-10 container mx-auto px-4 py-16">
         <motion.div 
           className="glass-card rounded-3xl overflow-hidden p-6 md:p-10 mb-16"
@@ -156,10 +158,8 @@ const LandingPage: React.FC = () => {
                       <div className="w-20 h-1 bg-gray-300 rounded-full"></div>
                     </div>
                     
-                    {/* Phone Screen Content - Animated Steps */}
                     <div className="pt-10 px-2 h-full relative">
                       <div className="bg-gradient-to-br from-pink-100 to-purple-100 h-full rounded-2xl overflow-hidden flex items-center justify-center relative">
-                        {/* Progress indicator */}
                         <div className="absolute top-4 left-0 right-0 flex justify-center gap-1 z-10">
                           {steps.map((_, index) => (
                             <div 
@@ -171,7 +171,6 @@ const LandingPage: React.FC = () => {
                           ))}
                         </div>
                         
-                        {/* Step screens */}
                         <AnimatePresence mode="wait">
                           <motion.div
                             key={currentStep}
@@ -339,17 +338,21 @@ const LandingPage: React.FC = () => {
                           </motion.div>
                         </AnimatePresence>
                         
-                        {/* Nail polish icon animation - only show on first load */}
                         <AnimatePresence>
-                          {currentStep === 0 && (
+                          {showInitialLoader && (
                             <motion.div
                               initial={{ opacity: 1 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none"
+                              transition={{ duration: 0.5 }}
+                              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none"
                             >
                               <NailPolishIcon className="w-16 h-16 text-fuchsia-500" animate={true} />
+                              
+                              <div className="mt-4 text-center">
+                                <p className="text-xs font-medium text-fuchsia-700">Bienvenue sur</p>
+                                <p className="text-sm font-bold text-fuchsia-800">NailGenie</p>
+                              </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -398,7 +401,6 @@ const LandingPage: React.FC = () => {
         </motion.div>
       </section>
 
-      {/* Benefits Section */}
       <section className="relative z-10 container mx-auto px-4 py-16">
         <motion.div
           initial={{ opacity: 0 }}
@@ -451,7 +453,6 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="relative z-10 container mx-auto px-4 py-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -483,7 +484,6 @@ const LandingPage: React.FC = () => {
         </motion.div>
       </section>
 
-      {/* Footer */}
       <footer className="relative z-10 container mx-auto px-4 py-8 mt-10">
         <div className="flex flex-col md:flex-row justify-between items-center border-t border-pink-100 pt-8">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
