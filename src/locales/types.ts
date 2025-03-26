@@ -7,3 +7,15 @@ export interface NavTranslations {
   feed: string;
   credits: string;
 }
+
+export interface CreditsTranslations {
+  buyCredits: string;
+  currentCredits: string;
+  creditsExplainer: string;
+  lowCredits: string;
+  notEnoughCredits: string;
+  processing: string;
+  success: string;
+  mostPopular: string;
+  fewMoreDrops: string;
+}

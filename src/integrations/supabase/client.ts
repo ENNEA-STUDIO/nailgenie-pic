@@ -76,6 +76,30 @@ export type CustomDatabase = Database & {
         };
         Relationships: [];
       };
+      user_credits: {
+        Row: {
+          id: string;
+          user_id: string;
+          credits: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          credits?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          credits?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     } & Database['public']['Tables'];
   };
 };

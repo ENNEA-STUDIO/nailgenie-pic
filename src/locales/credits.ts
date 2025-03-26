@@ -1,17 +1,5 @@
 
-import { Language } from './types';
-
-export interface CreditsTranslations {
-  buyCredits: string;
-  currentCredits: string;
-  creditsExplainer: string;
-  lowCredits: string;
-  notEnoughCredits: string;
-  processing: string;
-  success: string;
-  mostPopular: string;
-  fewMoreDrops: string;
-}
+import { Language, CreditsTranslations } from './types';
 
 export const creditsTranslations: Record<Language, CreditsTranslations> = {
   fr: {

@@ -7,7 +7,7 @@ import { useApp } from '../context/AppContext';
 import { Camera } from 'lucide-react';
 import BottomNav from '@/components/navigation/BottomNav';
 import { useLanguage } from '@/context/LanguageContext';
-import { toast } from '@/hooks/use-toast';
+import CreditsDisplay from '@/components/credits/CreditsDisplay';
 
 const CameraPage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,6 +46,11 @@ const CameraPage: React.FC = () => {
       transition={{ duration: 0.4 }}
       className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4 pb-32 relative"
     >
+      {/* Credits Display */}
+      <div className="absolute top-4 right-4 z-10">
+        <CreditsDisplay />
+      </div>
+      
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
