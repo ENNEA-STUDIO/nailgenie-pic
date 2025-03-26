@@ -5,18 +5,24 @@ import { motion } from 'framer-motion';
 interface NailPolishIconProps {
   className?: string;
   animate?: boolean;
+  color?: string;
+  fill?: string;
 }
 
 const NailPolishIcon: React.FC<NailPolishIconProps> = ({ 
   className = "", 
-  animate = false 
+  animate = false,
+  color = "currentColor",
+  fill
 }) => {
+  const bottleGradient = fill || "url(#nail-polish-gradient)";
+  
   return (
     <motion.svg 
       xmlns="http://www.w3.org/2000/svg" 
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -36,7 +42,7 @@ const NailPolishIcon: React.FC<NailPolishIconProps> = ({
       {/* Bouteille de vernis principale */}
       <motion.path 
         d="M14.5 21.5h-5c-1.1 0-2-.9-2-2v-8c0-1.1.9-2 2-2h5c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2z" 
-        fill="url(#nail-polish-gradient)" 
+        fill={bottleGradient}
         strokeWidth="1.2"
       />
       
@@ -51,7 +57,7 @@ const NailPolishIcon: React.FC<NailPolishIconProps> = ({
       <motion.path 
         d="M11.5 9.5v-3"
         strokeWidth="2.5"
-        stroke="currentColor"
+        stroke={color}
         strokeLinecap="round"
         opacity="0.7"
         animate={animate ? {
@@ -70,7 +76,7 @@ const NailPolishIcon: React.FC<NailPolishIconProps> = ({
         cx="11.5" 
         cy="13" 
         r="0.8" 
-        fill="currentColor"
+        fill={color}
         opacity="0.9"
         animate={animate ? {
           y: [0, 10],
@@ -88,7 +94,7 @@ const NailPolishIcon: React.FC<NailPolishIconProps> = ({
         cx="12.5" 
         cy="11" 
         r="0.6" 
-        fill="currentColor"
+        fill={color}
         opacity="0.8"
         animate={animate ? {
           y: [0, 8],

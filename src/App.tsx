@@ -8,6 +8,7 @@ import { LanguageProvider } from "./context/LanguageContext";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 
+import LandingPage from "./pages/LandingPage";
 import CameraPage from "./pages/CameraPage";
 import PromptPage from "./pages/PromptPage";
 import PromptInputPage from "./pages/PromptInputPage";
@@ -104,7 +105,7 @@ const App = () => {
       return <div className="flex items-center justify-center h-screen">Chargement...</div>;
     }
     
-    return authState.user ? <Navigate to="/camera" replace /> : <Navigate to="/onboarding" replace />;
+    return authState.user ? <Navigate to="/camera" replace /> : <Navigate to="/landing" replace />;
   };
 
   return (
@@ -116,6 +117,7 @@ const App = () => {
               <AnimatePresence mode="wait">
                 <Routes>
                   <Route path="/" element={<HomeRedirect />} />
+                  <Route path="/landing" element={<LandingPage />} />
                   <Route 
                     path="/onboarding" 
                     element={
