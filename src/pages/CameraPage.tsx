@@ -47,14 +47,14 @@ const CameraPage: React.FC = () => {
       transition={{ duration: 0.4 }}
       className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4 pb-32 relative"
     >
-      {/* Credits Display amélioré */}
+      {/* Credits Display amélioré avec animation */}
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
         className="absolute top-4 right-4 z-10"
       >
-        <Card className="bg-background/70 backdrop-blur-md border border-muted/70 shadow-md px-3 py-1.5 rounded-full">
+        <Card className="bg-background/60 backdrop-blur-md border border-primary/20 shadow-md px-3 py-1.5 rounded-full">
           <CreditsDisplay variant="large" />
         </Card>
       </motion.div>

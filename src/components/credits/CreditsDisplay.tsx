@@ -24,7 +24,7 @@ const CreditsDisplay: React.FC<CreditsDisplayProps> = ({
   
   const lowCredits = credits < 2;
   
-  // Variants for different display sizes
+  // Variants pour différentes tailles d'affichage
   const sizes = {
     compact: {
       container: "gap-1",
@@ -53,10 +53,11 @@ const CreditsDisplay: React.FC<CreditsDisplayProps> = ({
       <Tooltip delayDuration={300}>
         <TooltipTrigger asChild>
           <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className={`flex items-center ${currentSize.container} relative ${lowCredits ? 'animate-pulse-subtle' : ''} ${className}`}
-            whileTap={{ scale: 0.95 }}
+            className={`flex items-center ${currentSize.container} relative ${lowCredits ? 'animate-pulse-subtle' : ''} ${className} rounded-full px-2 py-0.5 bg-background/10 backdrop-blur-sm border border-primary/10`}
+            whileTap={{ scale: 0.92 }}
+            whileHover={{ scale: 1.05 }}
             onClick={() => navigate('/buy-credits')}
           >
             <NailPolishIcon 
@@ -64,7 +65,7 @@ const CreditsDisplay: React.FC<CreditsDisplayProps> = ({
               animate={lowCredits} 
             />
             
-            <span className={`font-medium ${currentSize.text} ${lowCredits ? 'text-red-500' : ''}`}>
+            <span className={`font-medium ${currentSize.text} ${lowCredits ? 'text-red-500' : 'text-primary'}`}>
               {credits}
             </span>
             
@@ -72,15 +73,15 @@ const CreditsDisplay: React.FC<CreditsDisplayProps> = ({
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`absolute ${currentSize.tooltip} whitespace-nowrap text-xs bg-white/90 backdrop-blur-sm shadow-md px-2 py-1 rounded-md text-red-600 font-medium`}
+                className={`absolute ${currentSize.tooltip} whitespace-nowrap text-xs bg-white/90 backdrop-blur-sm shadow-md px-2 py-1 rounded-md text-red-600 font-medium border border-red-200`}
               >
                 {t.credits.lowCredits}
               </motion.div>
             )}
           </motion.div>
         </TooltipTrigger>
-        <TooltipContent>
-          <p>{t.credits.currentCredits}: {credits}</p>
+        <TooltipContent side="top" className="bg-background/90 backdrop-blur-sm border border-primary/20">
+          <p>{t.credits.currentCredits}: <span className="font-semibold text-primary">{credits}</span></p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
