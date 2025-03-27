@@ -1,4 +1,3 @@
-
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -99,15 +98,6 @@ const App = () => {
     return <>{children}</>;
   };
 
-  // Redirect based on auth state
-  const HomeRedirect = () => {
-    if (authState.isLoading) {
-      return <div className="flex items-center justify-center h-screen">Chargement...</div>;
-    }
-    
-    return authState.user ? <Navigate to="/camera" replace /> : <Navigate to="/landing" replace />;
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -116,7 +106,8 @@ const App = () => {
             <BrowserRouter>
               <AnimatePresence mode="wait">
                 <Routes>
-                  <Route path="/" element={<HomeRedirect />} />
+                  {/* Direct root path to landing page */}
+                  <Route path="/" element={<LandingPage />} />
                   <Route path="/landing" element={<LandingPage />} />
                   <Route 
                     path="/onboarding" 

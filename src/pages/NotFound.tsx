@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import NailPolishIcon from '@/components/credits/NailPolishIcon';
+import { useLanguage } from '@/context/LanguageContext';
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
+  const { language, t } = useLanguage();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-50 to-purple-50 px-6">
@@ -21,7 +23,7 @@ const NotFound: React.FC = () => {
         </div>
         <h1 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">404</h1>
         <p className="text-xl text-gray-600 mb-8">
-          Oops! Cette page n'existe pas
+          {language === 'fr' ? 'Oops! Cette page n\'existe pas' : 'Oops! This page doesn\'t exist'}
         </p>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -34,7 +36,7 @@ const NotFound: React.FC = () => {
           }}
         >
           <ArrowLeft size={18} />
-          <span>Retour à l'accueil</span>
+          <span>{language === 'fr' ? 'Retour à l\'accueil' : 'Back to Home'}</span>
         </motion.button>
       </motion.div>
     </div>
