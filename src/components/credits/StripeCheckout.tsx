@@ -27,7 +27,10 @@ const StripeCheckout = ({
     
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { priceId },
+        body: { 
+          priceId,
+          publicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY
+        },
       });
       
       if (error) {

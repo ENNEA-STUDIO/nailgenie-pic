@@ -30,13 +30,14 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
-    const { priceId } = await req.json();
+    const { priceId, publicKey } = await req.json();
     if (!priceId) {
       throw new Error('Price ID is required');
     }
 
     console.log('Creating payment session...');
     
+    // We'll continue to use the server-side secret key for security
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
       apiVersion: '2023-10-16',
     });
@@ -66,6 +67,7 @@ serve(async (req) => {
       cancel_url: `${req.headers.get('origin')}/buy-credits`,
       metadata: {
         userId: user.id,
+        publicKey: publicKey || 'not_provided', // Store the public key in metadata for reference
       },
     });
 
