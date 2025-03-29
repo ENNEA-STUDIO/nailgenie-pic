@@ -10,7 +10,15 @@ import {
   OvalNailIcon, 
   AlmondNailIcon, 
   StilettoNailIcon, 
-  CoffinNailIcon 
+  CoffinNailIcon,
+  SquovalNailIcon,
+  BallerinaNailIcon,
+  DuckNailIcon,
+  LipsNailIcon,
+  EdgeNailIcon,
+  ArrowheadNailIcon,
+  FlareNailIcon,
+  LipstickNailIcon 
 } from '../NailShapeIcons';
 
 interface DesignGridProps {
@@ -28,6 +36,14 @@ const shapeIconMap: Record<string, React.FC<{ className?: string }>> = {
   almond: AlmondNailIcon,
   stiletto: StilettoNailIcon,
   coffin: CoffinNailIcon,
+  squoval: SquovalNailIcon,
+  ballerina: BallerinaNailIcon,
+  duck: DuckNailIcon,
+  lips: LipsNailIcon,
+  edge: EdgeNailIcon,
+  arrowhead: ArrowheadNailIcon,
+  flare: FlareNailIcon,
+  lipstick: LipstickNailIcon,
 };
 
 // Length indicators

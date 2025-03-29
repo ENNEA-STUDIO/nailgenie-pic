@@ -18,7 +18,15 @@ export type NailShape =
   | "oval"
   | "almond"
   | "stiletto"
-  | "coffin";
+  | "coffin"
+  | "squoval"
+  | "ballerina"
+  | "duck"
+  | "lips"
+  | "edge"
+  | "arrowhead"
+  | "flare"
+  | "lipstick";
 export type NailLength = "short" | "medium" | "long";
 
 interface AppContextType {

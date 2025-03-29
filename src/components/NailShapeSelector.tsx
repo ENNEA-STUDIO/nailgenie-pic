@@ -8,7 +8,15 @@ import {
   OvalNailIcon, 
   AlmondNailIcon, 
   StilettoNailIcon, 
-  CoffinNailIcon 
+  CoffinNailIcon,
+  SquovalNailIcon,
+  BallerinaNailIcon,
+  DuckNailIcon,
+  LipsNailIcon,
+  EdgeNailIcon,
+  ArrowheadNailIcon,
+  FlareNailIcon,
+  LipstickNailIcon
 } from './NailShapeIcons';
 import { 
   Tooltip,
@@ -26,6 +34,14 @@ const shapeIcons = {
   almond: AlmondNailIcon,
   stiletto: StilettoNailIcon,
   coffin: CoffinNailIcon,
+  squoval: SquovalNailIcon,
+  ballerina: BallerinaNailIcon,
+  duck: DuckNailIcon,
+  lips: LipsNailIcon,
+  edge: EdgeNailIcon,
+  arrowhead: ArrowheadNailIcon,
+  flare: FlareNailIcon,
+  lipstick: LipstickNailIcon,
 };
 
 // Composant qui affiche les options de formes d'ongles
