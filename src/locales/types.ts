@@ -167,4 +167,13 @@ export interface CreditsTranslations {
   shareInvite: string;
   inviteCodeCopied: string;
   invitationSuccess: string;
+  rewardAmount: string;
+  shareAndEarn: string;
+  earnCredits: string;
+  forYouAndFriend: string;
+  inviteLinkReady: string;
+  tapToShare: string;
+  invalidInviteCode: string;
+  enterInviteCode: string;
+  successInviteCode: string;
 }

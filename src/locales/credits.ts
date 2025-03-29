@@ -17,9 +17,18 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     inviteExplainer: 'Invitez vos amis et recevez chacun 5 crédits gratuits lorsqu\'ils s\'inscrivent!',
     generateInvite: 'Générer un lien d\'invitation',
     copyCode: 'Copier le lien',
-    shareInvite: 'Partager l\'invitation',
+    shareInvite: 'Partager',
     inviteCodeCopied: 'Lien d\'invitation copié!',
     invitationSuccess: 'Invitation validée! Vous recevez 5 crédits!',
+    rewardAmount: '5 crédits offerts',
+    shareAndEarn: 'Partagez et gagnez des crédits',
+    earnCredits: 'Gagnez 5 crédits gratuits',
+    forYouAndFriend: 'pour vous et vos amis',
+    inviteLinkReady: 'Votre lien d\'invitation est prêt!',
+    tapToShare: 'Appuyez pour partager',
+    invalidInviteCode: 'Code d\'invitation invalide',
+    enterInviteCode: 'Entrez un code d\'invitation',
+    successInviteCode: 'Code d\'invitation validé!'
   },
   en: {
     buyCredits: 'Buy Credits',
@@ -36,8 +45,17 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     inviteExplainer: 'Invite your friends and both get 5 free credits when they sign up!',
     generateInvite: 'Generate Invitation Link',
     copyCode: 'Copy Link',
-    shareInvite: 'Share Invitation',
+    shareInvite: 'Share',
     inviteCodeCopied: 'Invitation link copied!',
     invitationSuccess: 'Invitation validated! You received 5 credits!',
+    rewardAmount: '5 free credits',
+    shareAndEarn: 'Share and earn credits',
+    earnCredits: 'Earn 5 free credits',
+    forYouAndFriend: 'for you and your friends',
+    inviteLinkReady: 'Your invitation link is ready!',
+    tapToShare: 'Tap to share',
+    invalidInviteCode: 'Invalid invitation code',
+    enterInviteCode: 'Enter invitation code',
+    successInviteCode: 'Invitation code validated!'
   }
 };

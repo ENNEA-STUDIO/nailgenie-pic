@@ -4,9 +4,9 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Copy, Share2, CheckCircle } from 'lucide-react';
+import { Copy, Share2, CheckCircle, Gift } from 'lucide-react';
 import { toast } from 'sonner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const InvitationSection: React.FC = () => {
   const { t } = useLanguage();
@@ -91,59 +91,75 @@ const InvitationSection: React.FC = () => {
   return (
     <Card className="mt-8 bg-gradient-to-br from-purple-50 to-pink-50 border-primary/20">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold text-primary">{t.credits.inviteFriends}</CardTitle>
-        <CardDescription>{t.credits.inviteExplainer}</CardDescription>
+        <CardTitle className="text-xl font-semibold text-primary flex items-center gap-2">
+          <Gift className="h-5 w-5 text-primary" />
+          {t.credits.inviteFriends}
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        {inviteCode ? (
-          <>
-            <div className="bg-white p-4 rounded-lg border border-primary/20 text-center mb-4">
-              <span className="text-sm font-medium text-muted-foreground">
-                {window.location.origin}/onboarding?invite=
-              </span>
-              <span className="text-base font-mono font-bold text-primary">{inviteCode}</span>
+        <div className="bg-white rounded-xl border border-primary/10 shadow-inner overflow-hidden mb-4">
+          <div className="bg-primary/5 p-4 text-center">
+            <div className="flex justify-center items-center gap-2 mb-1">
+              <span className="text-2xl font-bold text-primary">{t.credits.rewardAmount}</span>
             </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                className="flex-1 flex items-center justify-center gap-2"
-                onClick={copyToClipboard}
+            <p className="text-primary/80 font-medium text-sm">{t.credits.forYouAndFriend}</p>
+          </div>
+          
+          <div className="p-4 text-center">
+            <h3 className="font-medium text-primary mb-2">{t.credits.shareAndEarn}</h3>
+            <p className="text-sm text-muted-foreground mb-3">{t.credits.inviteExplainer}</p>
+            
+            {inviteCode ? (
+              <div className="space-y-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={shareInvite}
+                  className="w-full bg-primary text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 font-medium"
+                >
+                  <Share2 className="h-5 w-5" />
+                  {t.credits.shareInvite}
+                </motion.button>
+                
+                <div className="text-xs text-center text-muted-foreground">
+                  {t.credits.inviteLinkReady}
+                </div>
+                
+                <button 
+                  className="text-xs text-primary flex items-center justify-center gap-1 w-full"
+                  onClick={copyToClipboard}
+                >
+                  {isCopied ? <CheckCircle className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  {isCopied ? t.credits.success : t.credits.copyCode}
+                </button>
+              </div>
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                {isCopied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {isCopied ? t.credits.success : t.credits.copyCode}
-              </Button>
-              <Button 
-                variant="default"
-                className="flex-1 flex items-center justify-center gap-2"
-                onClick={shareInvite}
-              >
-                <Share2 className="h-4 w-4" />
-                {t.credits.shareInvite}
-              </Button>
-            </div>
-          </>
-        ) : (
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Button
-              variant="default"
-              className="w-full"
-              onClick={generateInviteCode}
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <span className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" />
-                  {t.credits.processing}
-                </span>
-              ) : (
-                t.credits.generateInvite
-              )}
-            </Button>
-          </motion.div>
-        )}
+                <Button
+                  variant="default"
+                  className="w-full"
+                  onClick={generateInviteCode}
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" />
+                      {t.credits.processing}
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Gift className="h-5 w-5" />
+                      {t.credits.generateInvite}
+                    </span>
+                  )}
+                </Button>
+              </motion.div>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
