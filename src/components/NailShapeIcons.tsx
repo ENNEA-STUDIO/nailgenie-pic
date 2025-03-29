@@ -147,7 +147,7 @@ export const CoffinNailIcon: React.FC<{ className?: string }> = ({ className }) 
   </svg>
 );
 
-// New shape icons
+// Updated shape icons based on detailed descriptions
 export const SquovalNailIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg viewBox="0 0 40 60" className={className} xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -157,13 +157,13 @@ export const SquovalNailIcon: React.FC<{ className?: string }> = ({ className })
       </linearGradient>
     </defs>
     <path 
-      d="M5 50 L5 20 Q5 5 12 5 L28 5 Q35 5 35 20 L35 50 Z" 
+      d="M5 50 L5 20 Q5 5 12 5 L28 5 Q35 5 35 20 L35 50 Q35 45 30 40 L10 40 Q5 45 5 50 Z" 
       fill="url(#squovalGradient)" 
       stroke="currentColor" 
       strokeWidth="1"
     />
     <path 
-      d="M10 45 L10 22 Q10 10 15 10 L25 10 Q30 10 30 22 L30 45 Z" 
+      d="M10 45 L10 22 Q10 10 15 10 L25 10 Q30 10 30 22 L30 45 Q30 42 25 38 L15 38 Q10 42 10 45 Z" 
       fill="white" 
       fillOpacity="0.2" 
     />
@@ -179,16 +179,17 @@ export const BallerinaNailIcon: React.FC<{ className?: string }> = ({ className 
       </linearGradient>
     </defs>
     <path 
-      d="M5 50 L5 20 Q5 5 12 5 L28 5 Q35 5 35 20 L35 50 L30 42 L10 42 L5 50 Z" 
+      d="M8 50 L8 15 Q8 5 15 5 L25 5 Q32 5 32 15 L32 50 L28 42 L12 42 L8 50 Z" 
       fill="url(#ballerinaGradient)" 
       stroke="currentColor" 
       strokeWidth="1"
     />
     <path 
-      d="M10 42 L10 22 Q10 10 16 10 L24 10 Q30 10 30 22 L30 42 L27 38 L13 38 L10 42 Z" 
+      d="M12 45 L12 18 Q12 10 17 10 L23 10 Q28 10 28 18 L28 45 L25 38 L15 38 L12 45 Z" 
       fill="white" 
       fillOpacity="0.2" 
     />
+    <line x1="12" y1="42" x2="28" y2="42" stroke="white" strokeOpacity="0.5" strokeWidth="0.5" />
   </svg>
 );
 
@@ -201,16 +202,17 @@ export const DuckNailIcon: React.FC<{ className?: string }> = ({ className }) =>
       </linearGradient>
     </defs>
     <path 
-      d="M5 50 L5 20 Q5 5 15 5 L25 5 Q35 5 35 20 L35 50 L40 40 L0 40 L5 50 Z" 
+      d="M10 50 L10 15 Q10 5 20 5 Q30 5 30 15 L30 50 L40 40 L0 40 L10 50 Z" 
       fill="url(#duckGradient)" 
       stroke="currentColor" 
       strokeWidth="1"
     />
     <path 
-      d="M10 45 L10 22 Q10 10 16 10 L24 10 Q30 10 30 22 L30 45 L33 37 L7 37 L10 45 Z" 
+      d="M13 45 L13 18 Q13 10 20 10 Q27 10 27 18 L27 45 L35 37 L5 37 L13 45 Z" 
       fill="white" 
       fillOpacity="0.2" 
     />
+    <line x1="0" y1="40" x2="40" y2="40" stroke="white" strokeOpacity="0.3" strokeWidth="0.5" />
   </svg>
 );
 
@@ -223,16 +225,17 @@ export const LipsNailIcon: React.FC<{ className?: string }> = ({ className }) =>
       </linearGradient>
     </defs>
     <path 
-      d="M5 50 L5 20 Q5 5 20 5 Q35 5 35 20 L35 50 Q30 45 25 48 Q20 50 15 48 Q10 45 5 50 Z" 
+      d="M10 50 L10 20 Q10 5 20 5 Q30 5 30 20 L30 50 L45 38 L-5 38 L10 50 Z" 
       fill="url(#lipsGradient)" 
       stroke="currentColor" 
       strokeWidth="1"
     />
     <path 
-      d="M10 45 L10 22 Q10 10 20 10 Q30 10 30 22 L30 45 Q26 41 20 43 Q14 41 10 45 Z" 
+      d="M13 45 L13 22 Q13 10 20 10 Q27 10 27 22 L27 45 L38 35 L2 35 L13 45 Z" 
       fill="white" 
       fillOpacity="0.2" 
     />
+    <path d="M5 38 Q20 45 35 38" stroke="white" strokeOpacity="0.3" strokeWidth="0.8" fill="none" />
   </svg>
 );
 
@@ -245,16 +248,17 @@ export const EdgeNailIcon: React.FC<{ className?: string }> = ({ className }) =>
       </linearGradient>
     </defs>
     <path 
-      d="M5 50 L5 20 Q5 5 20 5 Q35 5 35 20 L35 50 L28 40 L12 40 L5 50 Z" 
+      d="M8 50 L8 15 Q8 5 20 5 Q32 5 32 15 L32 50 L25 40 L20 30 L15 40 L8 50 Z" 
       fill="url(#edgeGradient)" 
       stroke="currentColor" 
       strokeWidth="1"
     />
     <path 
-      d="M10 45 L10 22 Q10 10 20 10 Q30 10 30 22 L30 45 L25 37 L15 37 L10 45 Z" 
+      d="M12 45 L12 18 Q12 10 20 10 Q28 10 28 18 L28 45 L22 37 L20 32 L18 37 L12 45 Z" 
       fill="white" 
       fillOpacity="0.2" 
     />
+    <path d="M20 10 L20 32" stroke="white" strokeOpacity="0.5" strokeWidth="0.8" />
   </svg>
 );
 
@@ -267,16 +271,17 @@ export const ArrowheadNailIcon: React.FC<{ className?: string }> = ({ className 
       </linearGradient>
     </defs>
     <path 
-      d="M5 50 L5 20 Q5 5 20 5 Q35 5 35 20 L35 50 Q35 35 20 20 Q5 35 5 50 Z" 
+      d="M8 50 L8 25 Q8 15 20 5 Q32 15 32 25 L32 50 Z" 
       fill="url(#arrowheadGradient)" 
       stroke="currentColor" 
       strokeWidth="1"
     />
     <path 
-      d="M10 45 L10 22 Q10 10 20 10 Q30 10 30 22 L30 45 Q30 35 20 25 Q10 35 10 45 Z" 
+      d="M12 45 L12 27 Q12 20 20 12 Q28 20 28 27 L28 45 Z" 
       fill="white" 
       fillOpacity="0.2" 
     />
+    <path d="M20 12 L20 30" stroke="white" strokeOpacity="0.4" strokeWidth="0.8" />
   </svg>
 );
 
@@ -289,16 +294,17 @@ export const FlareNailIcon: React.FC<{ className?: string }> = ({ className }) =
       </linearGradient>
     </defs>
     <path 
-      d="M5 50 L5 20 Q5 5 20 5 Q35 5 35 20 L35 50 L45 40 L-5 40 L5 50 Z" 
+      d="M10 50 L10 15 Q10 5 20 5 Q30 5 30 15 L30 50 L50 35 L-10 35 L10 50 Z" 
       fill="url(#flareGradient)" 
       stroke="currentColor" 
       strokeWidth="1"
     />
     <path 
-      d="M10 45 L10 22 Q10 10 20 10 Q30 10 30 22 L30 45 L37 37 L3 37 L10 45 Z" 
+      d="M14 45 L14 18 Q14 10 20 10 Q26 10 26 18 L26 45 L40 33 L0 33 L14 45 Z" 
       fill="white" 
       fillOpacity="0.2" 
     />
+    <line x1="-5" y1="35" x2="45" y2="35" stroke="white" strokeOpacity="0.3" strokeWidth="0.5" />
   </svg>
 );
 
@@ -311,15 +317,16 @@ export const LipstickNailIcon: React.FC<{ className?: string }> = ({ className }
       </linearGradient>
     </defs>
     <path 
-      d="M5 50 L5 20 Q5 5 20 5 Q35 5 35 20 L35 50 L10 40 L5 50 Z" 
+      d="M8 50 L8 15 Q8 5 15 5 L25 5 Q32 5 32 15 L32 50 L8 35 Z" 
       fill="url(#lipstickGradient)" 
       stroke="currentColor" 
       strokeWidth="1"
     />
     <path 
-      d="M10 45 L10 22 Q10 10 20 10 Q30 10 30 22 L30 45 L15 37 L10 45 Z" 
+      d="M12 45 L12 18 Q12 10 16 10 L24 10 Q28 10 28 18 L28 45 L12 33 Z" 
       fill="white" 
       fillOpacity="0.2" 
     />
+    <line x1="12" y1="35" x2="28" y2="35" stroke="white" strokeOpacity="0.4" strokeWidth="0.5" transform="rotate(15, 20, 35)" />
   </svg>
 );

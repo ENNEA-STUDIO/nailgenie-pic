@@ -137,7 +137,7 @@ serve(async (req) => {
 
 // Helper function to get a color name from hex code
 const getColorName = (hexColor: string): string => {
-  // Expanded color mapping for more precise color names
+  // Expanded color mapping for more precise color names in French
   const colorMap: Record<string, string> = {
     // Nude & Neutrals
     '#E6CCAF': 'beige',
