@@ -26,10 +26,10 @@ serve(async (req) => {
   );
 
   try {
-    const url = new URL(req.url);
-    const sessionId = url.searchParams.get('session_id');
+    // Get session_id from the request body
+    const { session_id } = await req.json();
     
-    if (!sessionId) {
+    if (!session_id) {
       throw new Error('Session ID is required');
     }
 
@@ -37,7 +37,7 @@ serve(async (req) => {
       apiVersion: '2023-10-16',
     });
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const session = await stripe.checkout.sessions.retrieve(session_id);
     
     if (session.payment_status !== 'paid') {
       throw new Error('Payment not completed');

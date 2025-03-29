@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -16,8 +15,8 @@ import StripeCheckout from '@/components/credits/StripeCheckout';
 
 type OfferType = 'credits' | 'subscription';
 
-// Replace this with your actual Stripe price ID for the 10 credits product
-const CREDITS_PRICE_ID = 'price_1O9h1pAuPj3XkhYVuRrEOtW8';
+// Updated to use the actual Stripe price ID provided by the user
+const CREDITS_PRICE_ID = 'price_1R7z0D2cCjTevmPYrexpwwZT';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, addCredits } = useApp();

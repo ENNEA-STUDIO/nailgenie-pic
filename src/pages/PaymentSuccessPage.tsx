@@ -29,8 +29,9 @@ const PaymentSuccessPage = () => {
           return;
         }
         
+        // Fixed: Using proper parameter format for supabase.functions.invoke
         const { data, error } = await supabase.functions.invoke('payment-success', {
-          queryParams: { session_id: sessionId },
+          body: { session_id: sessionId }
         });
         
         if (error) {
