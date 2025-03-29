@@ -15,7 +15,7 @@ interface SharedDesign {
   nail_color: string;
   nail_length: string;
   invite_code: string;
-  sharer_name?: string;
+  sharer_name?: string; // Added as optional property
 }
 
 const SharedDesignPage: React.FC = () => {
@@ -55,7 +55,7 @@ const SharedDesignPage: React.FC = () => {
           // Add a default sharer name if not available
           const designWithSharerName = {
             ...data as SharedDesign,
-            sharer_name: data.sharer_name || language === 'fr' ? 'Quelqu\'un' : 'Someone'
+            sharer_name: data.sharer_name || (language === 'fr' ? 'Quelqu\'un' : 'Someone')
           };
           setDesign(designWithSharerName);
         }
