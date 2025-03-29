@@ -38,7 +38,8 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     subscribe: 'S\'abonner',
     subscriptionExplainer: 'Abonnement mensuel',
     unlimitedDesigns: 'Designs illimités',
-    cancelAnytime: 'Annulez à tout moment'
+    cancelAnytime: 'Annulez à tout moment',
+    tenCreditsForDesigns: '10 crédits pour générer des designs d\'ongles'
   },
   en: {
     buyCredits: 'Buy Credits',
@@ -76,6 +77,7 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     subscribe: 'Subscribe',
     subscriptionExplainer: 'Monthly subscription',
     unlimitedDesigns: 'Unlimited designs',
-    cancelAnytime: 'Cancel anytime'
+    cancelAnytime: 'Cancel anytime',
+    tenCreditsForDesigns: '10 credits to generate nail designs'
   }
 };

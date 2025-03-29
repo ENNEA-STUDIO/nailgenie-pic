@@ -185,4 +185,5 @@ export interface CreditsTranslations {
   subscriptionExplainer: string;
   unlimitedDesigns: string;
   cancelAnytime: string;
+  tenCreditsForDesigns: string;
 }

@@ -17,7 +17,7 @@ type OfferType = 'credits' | 'subscription';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, addCredits } = useApp();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
@@ -51,7 +51,7 @@ const BuyCreditsPage: React.FC = () => {
     
     // Simulate subscription processing
     setTimeout(() => {
-      toast.success("Abonnement activé avec succès!");
+      toast.success(language === 'fr' ? "Abonnement activé avec succès!" : "Subscription activated successfully!");
       setIsProcessing(false);
       setProcessingOption(null);
     }, 1500);
@@ -103,7 +103,7 @@ const BuyCreditsPage: React.FC = () => {
               {t.credits.creditPack}
             </CardTitle>
             <CardDescription>
-              10 designs = 10 crédits
+              10 designs = 10 {language === 'fr' ? 'crédits' : 'credits'}
             </CardDescription>
           </CardHeader>
           
@@ -115,7 +115,7 @@ const BuyCreditsPage: React.FC = () => {
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-sm">
                 <Zap className="h-4 w-4 text-green-500" />
-                10 crédits pour générer des designs d'ongles
+                {t.credits.tenCreditsForDesigns}
               </li>
             </ul>
           </CardContent>
