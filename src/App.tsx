@@ -1,3 +1,4 @@
+
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -16,6 +17,7 @@ import GalleryPage from "./pages/GalleryPage";
 import FeedPage from "./pages/FeedPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import BuyCreditsPage from "./pages/BuyCreditsPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import NotFound from "./pages/NotFound";
 
 // Create authentication context
@@ -168,6 +170,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <BuyCreditsPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/payment-success" 
+                    element={
+                      <ProtectedRoute>
+                        <PaymentSuccessPage />
                       </ProtectedRoute>
                     } 
                   />

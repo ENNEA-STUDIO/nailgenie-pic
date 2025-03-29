@@ -3,3 +3,9 @@ project_id = "yvtdpfampfndlnjqoocm"
 
 [functions.generate-nail-design]
 verify_jwt = false
+
+[functions.create-checkout-session]
+verify_jwt = false
+
+[functions.payment-success]
+verify_jwt = false

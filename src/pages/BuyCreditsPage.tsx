@@ -12,8 +12,12 @@ import InvitationSection from '@/components/credits/InvitationSection';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import StripeCheckout from '@/components/credits/StripeCheckout';
 
 type OfferType = 'credits' | 'subscription';
+
+// Replace this with your actual Stripe price ID for the 10 credits product
+const CREDITS_PRICE_ID = 'price_1O9h1pAuPj3XkhYVuRrEOtW8';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, addCredits } = useApp();
@@ -121,26 +125,12 @@ const BuyCreditsPage: React.FC = () => {
           </CardContent>
           
           <CardFooter>
-            <Button 
-              className="w-full" 
-              size="lg"
-              onClick={handleBuyCredits}
-              disabled={isProcessing}
-            >
-              {isProcessing && processingOption === 'credits' ? (
-                showSuccess ? (
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                ) : (
-                  <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2" />
-                )
-              ) : null}
-              
-              {isProcessing && processingOption === 'credits' && showSuccess
-                ? t.credits.success
-                : isProcessing && processingOption === 'credits'
-                ? t.credits.processing
-                : t.credits.creditPackPrice}
-            </Button>
+            <StripeCheckout
+              priceId={CREDITS_PRICE_ID}
+              buttonText={t.credits.creditPackPrice}
+              isProcessing={isProcessing && processingOption === 'credits'}
+              showSuccess={showSuccess}
+            />
           </CardFooter>
         </Card>
         
