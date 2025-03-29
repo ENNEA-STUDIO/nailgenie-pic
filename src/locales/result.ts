@@ -18,6 +18,9 @@ export interface ResultTranslations {
   externalShareSuccess: string;
   externalShareError: string;
   shareNotSupported: string;
+  shareLinkCopied: string; // New translation key
+  sharedDesignTitle: string; // New translation key
+  tryItFree: string; // New translation key
 }
 
 export const resultTranslations: Record<Language, ResultTranslations> = {
@@ -38,6 +41,9 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     externalShareSuccess: 'Image partagée avec succès',
     externalShareError: 'Impossible de partager l\'image',
     shareNotSupported: 'Le partage n\'est pas supporté sur ce navigateur',
+    shareLinkCopied: 'Lien de partage copié!',
+    sharedDesignTitle: 'Design Partagé',
+    tryItFree: 'Essayer gratuitement',
   },
   en: {
     working: 'Designing your nails',
@@ -56,5 +62,8 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     externalShareSuccess: 'Image shared successfully',
     externalShareError: 'Unable to share the image',
     shareNotSupported: 'Sharing is not supported in this browser',
+    shareLinkCopied: 'Share link copied!',
+    sharedDesignTitle: 'Shared Design',
+    tryItFree: 'Try it Free',
   }
 };

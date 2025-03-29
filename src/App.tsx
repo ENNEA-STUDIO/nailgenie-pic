@@ -18,6 +18,7 @@ import FeedPage from "./pages/FeedPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import BuyCreditsPage from "./pages/BuyCreditsPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import SharedDesignPage from "./pages/SharedDesignPage";
 import NotFound from "./pages/NotFound";
 
 // Create authentication context
@@ -181,6 +182,8 @@ const App = () => {
                       </ProtectedRoute>
                     } 
                   />
+                  {/* New shared design route that doesn't require authentication */}
+                  <Route path="/shared/:id" element={<SharedDesignPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AnimatePresence>

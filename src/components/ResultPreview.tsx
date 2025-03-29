@@ -6,6 +6,7 @@ import { Download, Save, RefreshCw, CheckCircle, XCircle, CreditCard, Share2 } f
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
+import { downloadDesignImage } from '@/hooks/gallery/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface ResultPreviewProps {
@@ -59,33 +60,48 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         inviteCode = inviteData[0].code;
       }
       
-      // Create invite URL
-      const inviteUrl = `${window.location.origin}/onboarding?invite=${inviteCode}`;
+      // Create a shareable link to view the design
+      // First, save this design to a temporary shared_view table
+      const { data: viewData, error: viewError } = await supabase
+        .from('shared_views')
+        .insert([
+          {
+            image_url: generatedDesign,
+            prompt: prompt || 'Custom design',
+            nail_shape: nailShape,
+            nail_color: nailColor,
+            nail_length: nailLength,
+            invite_code: inviteCode
+          }
+        ])
+        .select('id')
+        .single();
+      
+      if (viewError) throw viewError;
+      
+      // Create view URL with the shared view ID
+      const viewUrl = `${window.location.origin}/shared/${viewData.id}`;
       
       // Create share message
       const shareText = language === 'fr' 
-        ? `Regarde ce design d'ongle que j'ai créé avec NailGenie: "${prompt}". Inscris-toi et obtiens 5 crédits gratuits: ${inviteUrl}`
-        : `Check out this nail design I created with NailGenie: "${prompt}". Sign up and get 5 free credits: ${inviteUrl}`;
+        ? `Regarde ce design d'ongle que j'ai créé avec NailGenie: "${prompt}". Clique ici pour le voir et essayer toi-même: ${viewUrl}`
+        : `Check out this nail design I created with NailGenie: "${prompt}". Click here to view it and try it yourself: ${viewUrl}`;
       
-      // Use the Web Share API to share the image directly
+      // Use the Web Share API to share the text with the link
       if (navigator.share) {
-        // Create a share object with the image URL, title and text
         await navigator.share({
           title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
           text: shareText,
-          // Pass the image URL directly
-          url: generatedDesign
         });
         
         showFeedback('success', t.result.shareSuccess);
       } else {
         // Fallback for browsers that don't support Web Share API
         await navigator.clipboard.writeText(shareText);
-        window.open(generatedDesign, '_blank');
         
         showFeedback('success', language === 'fr' 
-          ? 'Image ouverte et message copié!' 
-          : 'Image opened and message copied!');
+          ? 'Lien de partage copié!' 
+          : 'Share link copied!');
       }
     } catch (error) {
       console.error("Error sharing design:", error);
