@@ -21,7 +21,7 @@ export interface ResultTranslations {
   shareLinkCopied: string; 
   sharedDesignTitle: string; 
   tryItFree: string; 
-  sharedBy: string; // New translation key
+  sharedBy: string; // Translation key for shared by text
 }
 
 export const resultTranslations: Record<Language, ResultTranslations> = {
