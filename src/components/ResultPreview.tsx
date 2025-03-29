@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
-import { Download, Save, RefreshCw, CheckCircle, XCircle, CreditCard } from 'lucide-react';
+import { Download, Save, RefreshCw, CheckCircle, XCircle, CreditCard, Share2 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
@@ -22,9 +22,9 @@ interface ActionFeedback {
 const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const { generatedDesign, prompt, nailShape, nailColor, nailLength, credits } = useApp();
   const [saving, setSaving] = useState(false);
-  const [downloading, setDownloading] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   if (!generatedDesign) return null;
   
@@ -36,10 +36,65 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     }, 2000);
   };
   
+  const handleShare = async () => {
+    try {
+      setSharing(true);
+      
+      // Get an invitation code to include in the share
+      const { data: inviteData, error: inviteError } = await supabase
+        .from('invitations')
+        .select('code')
+        .order('created_at', { ascending: false })
+        .limit(1);
+        
+      let inviteCode = '';
+      
+      if (inviteError || !inviteData || inviteData.length === 0) {
+        // Create a new invitation code if none exists
+        const { data: newInviteData, error: newInviteError } = await supabase.rpc('create_invitation');
+        
+        if (!newInviteError && newInviteData) {
+          inviteCode = newInviteData;
+        }
+      } else {
+        inviteCode = inviteData[0].code;
+      }
+      
+      // Create invite URL
+      const inviteUrl = `${window.location.origin}/onboarding?invite=${inviteCode}`;
+      
+      // Create share message
+      const shareText = language === 'fr' 
+        ? `Regarde ce design d'ongle que j'ai créé avec NailGenie: "${prompt}". Inscris-toi et obtiens 5 crédits gratuits: ${inviteUrl}`
+        : `Check out this nail design I created with NailGenie: "${prompt}". Sign up and get 5 free credits: ${inviteUrl}`;
+        
+      if (navigator.share) {
+        await navigator.share({
+          title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
+          text: shareText,
+          url: generatedDesign
+        });
+        
+        showFeedback('success', t.result.shareSuccess);
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        await navigator.clipboard.writeText(shareText);
+        window.open(generatedDesign, '_blank');
+        
+        showFeedback('success', language === 'fr' 
+          ? 'Image ouverte et message copié!' 
+          : 'Image opened and message copied!');
+      }
+    } catch (error) {
+      console.error("Error sharing design:", error);
+      showFeedback('error', t.result.shareError);
+    } finally {
+      setSharing(false);
+    }
+  };
+  
   const handleDownload = async () => {
     try {
-      setDownloading(true);
-      
       // Use our improved download function
       await downloadDesignImage(generatedDesign, 0);
       
@@ -47,8 +102,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     } catch (error) {
       console.error("Error during download:", error);
       showFeedback('error', t.result.downloadError || "Erreur lors du téléchargement");
-    } finally {
-      setDownloading(false);
     }
   };
   
@@ -150,23 +203,24 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           </Tooltip>
         </TooltipProvider>
         
+        {/* Nouveau bouton de partage au milieu */}
         <Button 
-          onClick={handleDownload}
+          onClick={handleShare}
           variant="outline" 
           size="icon"
-          disabled={downloading}
-          className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative"
-          title={t.common.download}
+          disabled={sharing}
+          className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative bg-gradient-to-br from-blue-400 to-blue-600 text-white hover:from-blue-500 hover:to-blue-700"
+          title={language === 'fr' ? 'Partager avec un ami' : 'Share with a friend'}
         >
-          {downloading ? (
-            <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-current animate-spin"></div>
+          {sharing ? (
+            <div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white animate-spin"></div>
           ) : (
-            <Download size={20} />
+            <Share2 size={20} />
           )}
           
-          {/* Download success indicator */}
+          {/* Share success indicator */}
           <AnimatePresence>
-            {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.downloadSuccess && (
+            {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.shareSuccess && (
               <motion.div 
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
