@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ResultPreview from '../components/ResultPreview';
 import ResultLoading from '../components/result/ResultLoading';
+import ResultError from '../components/result/ResultError';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import BottomNav from '@/components/navigation/BottomNav';
@@ -10,7 +11,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const ResultPage: React.FC = () => {
   const navigate = useNavigate();
-  const { generatedDesign, resetState, isLoading, prompt } = useApp();
+  const { generatedDesign, resetState, isLoading, prompt, error } = useApp();
   const [imagePreloaded, setImagePreloaded] = useState(false);
   const { isIOS, isSafari } = useIsMobile();
   const { t } = useLanguage();
@@ -34,10 +35,10 @@ const ResultPage: React.FC = () => {
   
   // Redirect if no design and not loading
   useEffect(() => {
-    if (!generatedDesign && !isLoading) {
+    if (!generatedDesign && !isLoading && !error) {
       navigate('/');
     }
-  }, [generatedDesign, navigate, isLoading]);
+  }, [generatedDesign, navigate, isLoading, error]);
 
   const handleTryAgain = () => {
     resetState();
@@ -49,6 +50,16 @@ const ResultPage: React.FC = () => {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-background">
         <ResultLoading prompt={prompt} />
+        <BottomNav />
+      </div>
+    );
+  }
+
+  // Show error state if there's an error
+  if (error) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center bg-background">
+        <ResultError onTryAgain={handleTryAgain} isSafari={isSafari} isIOS={isIOS} errorMessage={error} />
         <BottomNav />
       </div>
     );

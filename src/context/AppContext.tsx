@@ -37,6 +37,7 @@ interface AppContextType {
   nailLength: NailLength;
   nailColor: string;
   credits: number;
+  error: string | null;
   setHandImage: (image: string | null) => void;
   setGeneratedDesign: (design: string | null) => void;
   setPrompt: (prompt: string) => void;
@@ -62,6 +63,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [nailLength, setNailLength] = useState<NailLength>("medium");
   const [nailColor, setNailColor] = useState<string>("#E6CCAF"); // Beige as default
   const [credits, setCredits] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     checkCredits();
@@ -171,6 +173,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     setIsLoading(true);
+    setError(null);
 
     try {
       console.log("Preparing to generate design with params:", {
@@ -194,12 +197,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
       if (error) {
         console.error("Edge function error:", error);
+        setError(`Erreur lors de la génération: ${error.message}`);
         throw new Error(`Erreur lors de la génération: ${error.message}`);
       }
 
       if (!data || !data.success) {
         const errorMessage = data?.error || "Erreur inconnue";
         console.error("API error:", errorMessage);
+        setError(`Erreur: ${errorMessage}`);
         throw new Error(`Erreur: ${errorMessage}`);
       }
 
@@ -212,12 +217,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           const imageUrl = resultData[0]?.[0]?.image?.url;
 
           if (!imageUrl) {
+            setError("URL de l'image non trouvée");
             throw new Error("URL de l'image non trouvée");
           }
 
           console.log("Image URL from API:", imageUrl);
 
           try {
+            // For images directly returned as data URLs
+            if (imageUrl.startsWith('data:')) {
+              setGeneratedDesign(imageUrl);
+              toast.success("Design généré avec succès!");
+              
+              const { error: creditError } = await supabase.rpc('use_credit');
+              if (creditError) {
+                console.error("Error deducting credit:", creditError);
+              } else {
+                setCredits(prev => Math.max(0, prev - 1));
+              }
+              return;
+            }
+
+            // For images that need to be fetched from a URL
             const response = await fetch(imageUrl, {
               headers: {
                 Authorization: `Bearer ${import.meta.env.VITE_HUGGINGFACE_TOKEN}`,
@@ -225,6 +246,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             });
 
             if (!response.ok) {
+              setError(`Échec de récupération de l'image: ${response.status}`);
               throw new Error(`Failed to fetch image: ${response.status}`);
             }
 
@@ -243,6 +265,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
             if (uploadError) {
               console.error("Upload error details:", uploadError);
+              setError(`Erreur d'upload: ${uploadError.message}`);
               throw uploadError;
             }
 
@@ -262,20 +285,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             }
           } catch (fetchError) {
             console.error("Error fetching/processing image:", fetchError);
+            setError(`Erreur lors de la récupération de l'image: ${fetchError.message}`);
             throw new Error(
               `Erreur lors de la récupération de l'image: ${fetchError.message}`
             );
           }
         } catch (error) {
           console.error("Detailed error:", error);
+          setError(`Erreur: ${error.message || "Erreur inconnue"}`);
           toast.error(`Erreur: ${error.message || "Erreur inconnue"}`);
         }
       } else {
         console.error("Unexpected data format:", data);
+        setError("Aucune donnée d'image reçue de l'API");
         throw new Error("Aucune donnée d'image reçue de l'API");
       }
     } catch (error) {
       console.error("Erreur lors de la génération du design:", error);
+      setError(error.message || "Veuillez réessayer.");
       toast.error(
         `Échec de la génération du design: ${
           error.message || "Veuillez réessayer."
@@ -344,6 +371,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     setNailShape("oval");
     setNailLength("medium");
     setNailColor("#E6CCAF");
+    setError(null);
   }, []);
 
   const value = {
@@ -355,6 +383,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     nailLength,
     nailColor,
     credits,
+    error,
     setHandImage,
     setGeneratedDesign,
     setPrompt,
