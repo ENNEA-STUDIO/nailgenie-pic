@@ -120,23 +120,32 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                onClick={onTryAgain}
-                variant="outline" 
-                size="icon"
-                className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative"
-              >
-                <RefreshCw size={20} />
-                <span className="absolute -top-2 -right-2 flex items-center justify-center bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5">
-                  1
-                </span>
-              </Button>
+              <div className="flex flex-col items-center gap-1">
+                <Button 
+                  onClick={onTryAgain}
+                  variant="outline" 
+                  size="icon"
+                  className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative"
+                >
+                  <RefreshCw size={20} />
+                  <div className="absolute -top-2 -right-2 flex items-center justify-center bg-orange-500 text-white text-xs font-bold rounded-full w-6 h-6 border-2 border-white">
+                    1
+                  </div>
+                </Button>
+                <span className="text-xs text-muted-foreground">{t.credits.costOneCredit}</span>
+              </div>
             </TooltipTrigger>
-            <TooltipContent side="top">
-              <p>{t.common.tryAgain} - {t.credits.costOneCredit}</p>
-              {credits < 1 && (
-                <p className="text-red-500 text-xs">{t.credits.notEnoughCredits}</p>
-              )}
+            <TooltipContent side="top" className="bg-background border border-muted p-3 shadow-lg">
+              <div className="flex flex-col gap-1">
+                <p className="font-medium">{t.common.tryAgain}</p>
+                <div className="flex items-center gap-1 text-orange-500">
+                  <CreditCard size={14} />
+                  <p className="text-sm">{t.credits.costOneCredit}</p>
+                </div>
+                {credits < 1 && (
+                  <p className="text-red-500 text-xs mt-1">{t.credits.notEnoughCredits}</p>
+                )}
+              </div>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
