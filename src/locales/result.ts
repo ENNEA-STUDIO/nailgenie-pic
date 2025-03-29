@@ -18,9 +18,10 @@ export interface ResultTranslations {
   externalShareSuccess: string;
   externalShareError: string;
   shareNotSupported: string;
-  shareLinkCopied: string; // New translation key
-  sharedDesignTitle: string; // New translation key
-  tryItFree: string; // New translation key
+  shareLinkCopied: string; 
+  sharedDesignTitle: string; 
+  tryItFree: string; 
+  sharedBy: string; // New translation key
 }
 
 export const resultTranslations: Record<Language, ResultTranslations> = {
@@ -44,6 +45,7 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     shareLinkCopied: 'Lien de partage copié!',
     sharedDesignTitle: 'Design Partagé',
     tryItFree: 'Essayer gratuitement',
+    sharedBy: 'partagé par',
   },
   en: {
     working: 'Designing your nails',
@@ -65,5 +67,6 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     shareLinkCopied: 'Share link copied!',
     sharedDesignTitle: 'Shared Design',
     tryItFree: 'Try it Free',
+    sharedBy: 'shared by',
   }
 };

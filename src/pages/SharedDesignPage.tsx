@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { motion } from 'framer-motion';
-import { CameraIcon, ChevronRight, Share2 } from 'lucide-react';
+import { CameraIcon, ChevronRight, Share2, Sparkles } from 'lucide-react';
 
 interface SharedDesign {
   id: string;
@@ -15,6 +15,7 @@ interface SharedDesign {
   nail_color: string;
   nail_length: string;
   invite_code: string;
+  sharer_name?: string;
 }
 
 const SharedDesignPage: React.FC = () => {
@@ -34,6 +35,7 @@ const SharedDesignPage: React.FC = () => {
           return;
         }
 
+        // Fetch the shared design
         const { data, error } = await supabase
           .from('shared_views')
           .select('*')
@@ -50,7 +52,12 @@ const SharedDesignPage: React.FC = () => {
         if (!data) {
           setError('Design not found');
         } else {
-          setDesign(data as SharedDesign);
+          // Add a default sharer name if not available
+          const designWithSharerName = {
+            ...data as SharedDesign,
+            sharer_name: data.sharer_name || language === 'fr' ? 'Quelqu\'un' : 'Someone'
+          };
+          setDesign(designWithSharerName);
         }
       } catch (err) {
         console.error('Error fetching shared design:', err);
@@ -61,7 +68,7 @@ const SharedDesignPage: React.FC = () => {
     };
 
     fetchSharedDesign();
-  }, [id]);
+  }, [id, language]);
 
   const handleShare = async () => {
     if (!design) return;
@@ -115,24 +122,53 @@ const SharedDesignPage: React.FC = () => {
     );
   }
 
+  // Dynamic header messages with sharer's name
+  const getFrenchHeaderMessage = () => (
+    <>
+      <span className="block font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
+        {design.sharer_name} te partage
+      </span>
+      <span className="block">sa création nail art ✨</span>
+    </>
+  );
+
+  const getEnglishHeaderMessage = () => (
+    <>
+      <span className="block font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
+        {design.sharer_name} shared
+      </span>
+      <span className="block">this amazing nail design ✨</span>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 pb-20">
       <div className="max-w-md mx-auto pt-8 px-4">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            {t.result.sharedDesignTitle}
-          </h1>
-          <p className="text-gray-600 text-sm">
-            {design.prompt}
-          </p>
-        </div>
-        
-        {/* Design Image */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+        {/* Header with Animation */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">
+            {language === 'fr' ? getFrenchHeaderMessage() : getEnglishHeaderMessage()}
+          </h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="text-gray-600 text-sm italic bg-white/50 p-2 rounded-full inline-block mt-2"
+          >
+            "{design.prompt}"
+          </motion.p>
+        </motion.div>
+        
+        {/* Design Image with Enhanced Animation */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
           className="rounded-2xl overflow-hidden shadow-xl bg-white mb-8"
         >
           <img 
@@ -160,14 +196,20 @@ const SharedDesignPage: React.FC = () => {
           </Link>
         </div>
         
-        {/* App Promotion */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">
+        {/* Enhanced App Promotion */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-purple-100"
+        >
+          <h2 className="text-xl font-bold flex items-center gap-2 text-gray-800 mb-4">
+            <Sparkles className="text-purple-500" size={20} />
             {language === 'fr' ? 'Créez votre propre design d\'ongles' : 'Create Your Own Nail Design'}
           </h2>
           
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 flex items-center justify-center flex-shrink-0">
               <CameraIcon className="text-purple-500" size={24} />
             </div>
             <p className="text-gray-600 text-sm">
@@ -182,7 +224,7 @@ const SharedDesignPage: React.FC = () => {
               {language === 'fr' ? 'Commencer avec 5 crédits gratuits' : 'Get Started with 5 Free Credits'}
             </Button>
           </Link>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
