@@ -10,7 +10,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const ResultPage: React.FC = () => {
   const navigate = useNavigate();
-  const { generatedDesign, resetState, isLoading, prompt } = useApp();
+  const { generatedDesign, resetState, isLoading, prompt, generateDesign } = useApp();
   const [imagePreloaded, setImagePreloaded] = useState(false);
   const { isIOS, isSafari } = useIsMobile();
   const { t } = useLanguage();
@@ -40,8 +40,9 @@ const ResultPage: React.FC = () => {
   }, [generatedDesign, navigate, isLoading]);
 
   const handleTryAgain = () => {
-    resetState();
-    navigate('/');
+    // Instead of resetting state and navigating away, we'll regenerate with the same prompt
+    setImagePreloaded(false);
+    generateDesign();
   };
 
   // Show loading while API is running
