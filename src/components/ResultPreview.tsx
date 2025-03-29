@@ -128,7 +128,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
                   className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative"
                 >
                   <RefreshCw size={20} />
-                  <div className="absolute -top-2 -right-2 flex items-center justify-center bg-orange-500 text-white text-xs font-bold rounded-full w-6 h-6 border-2 border-white">
+                  <div className="absolute -top-2 -right-2 flex items-center justify-center bg-primary text-white text-xs font-bold rounded-full w-6 h-6 border-2 border-white">
                     1
                   </div>
                 </Button>
@@ -138,7 +138,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
             <TooltipContent side="top" className="bg-background border border-muted p-3 shadow-lg">
               <div className="flex flex-col gap-1">
                 <p className="font-medium">{t.common.tryAgain}</p>
-                <div className="flex items-center gap-1 text-orange-500">
+                <div className="flex items-center gap-1 text-primary">
                   <CreditCard size={14} />
                   <p className="text-sm">{t.credits.costOneCredit}</p>
                 </div>
