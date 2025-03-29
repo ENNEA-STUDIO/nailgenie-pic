@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
-import { Download, Save, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { Download, Save, RefreshCw, CheckCircle, XCircle, CreditCard } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { downloadDesignImage } from '@/hooks/gallery/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface ResultPreviewProps {
   onTryAgain: () => void;
@@ -19,7 +20,7 @@ interface ActionFeedback {
 }
 
 const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
-  const { generatedDesign, prompt, nailShape, nailColor, nailLength } = useApp();
+  const { generatedDesign, prompt, nailShape, nailColor, nailLength, credits } = useApp();
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
@@ -116,15 +117,29 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       </motion.div>
       
       <div className="flex justify-center gap-4 w-full">
-        <Button 
-          onClick={onTryAgain}
-          variant="outline" 
-          size="icon"
-          className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative"
-          title={t.common.tryAgain}
-        >
-          <RefreshCw size={20} />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                onClick={onTryAgain}
+                variant="outline" 
+                size="icon"
+                className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-300 relative"
+              >
+                <RefreshCw size={20} />
+                <span className="absolute -top-2 -right-2 flex items-center justify-center bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5">
+                  1
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{t.common.tryAgain} - {t.credits.costOneCredit}</p>
+              {credits < 1 && (
+                <p className="text-red-500 text-xs">{t.credits.notEnoughCredits}</p>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         <Button 
           onClick={handleDownload}

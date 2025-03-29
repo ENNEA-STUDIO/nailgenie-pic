@@ -1,11 +1,149 @@
 
-export type Language = 'fr' | 'en';
+export type Language = 'en' | 'fr';
 
-export interface NavTranslations {
-  camera: string;
-  gallery: string;
-  feed: string;
-  credits: string;
+export interface CommonTranslations {
+  back: string;
+  next: string;
+  skip: string;
+  submit: string;
+  cancel: string;
+  save: string;
+  edit: string;
+  delete: string;
+  loading: string;
+  error: string;
+  success: string;
+  tryAgain: string;
+  chooseOne: string;
+  optionRequired: string;
+  download: string;
+  share: string;
+  connectionRequired: string;
+}
+
+export interface OnboardingTranslations {
+  welcome: string;
+  welcomeMessage: string;
+  getStarted: string;
+  createAccount: string;
+  signIn: string;
+  emailVerification: string;
+  checkEmail: string;
+  checkEmailMessage: string;
+  resendEmail: string;
+  emailResent: string;
+  setupProfile: string;
+  firstName: string;
+  lastName: string;
+  preferredLanguage: string;
+  preferences: string;
+  chooseShape: string;
+  chooseColor: string;
+  chooseLength: string;
+  completeSignup: string;
+  congratulations: string;
+  accountCreated: string;
+  startGenerating: string;
+  alreadyHaveAccount: string;
+}
+
+export interface PromptTranslations {
+  title: string;
+  description: string;
+  placeholder: string;
+  examplesTitle: string;
+  submit: string;
+  error: string;
+  tips: string;
+  tipsText: string;
+  lengthWarning: string;
+  generating: string;
+  categories: {
+    seasonal: string;
+    french: string;
+    abstract: string;
+    floral: string;
+    geometric: string;
+    minimalist: string;
+    nailArt: string;
+    ombre: string;
+    glitter: string;
+    gems: string;
+    animal: string;
+    marble: string;
+  };
+}
+
+export interface CameraTranslations {
+  title: string;
+  description: string;
+  takePicture: string;
+  retake: string;
+  continue: string;
+  permissionDenied: string;
+  permissionError: string;
+  handNotDetected: string;
+  switchCamera: string;
+  holdStill: string;
+  processing: string;
+  help: string;
+  helpText: string;
+  noHandDetected: string;
+  noCameraDetected: string;
+  errorLoadingCamera: string;
+  cameraInstructions: string;
+  instructionSteps: {
+    first: string;
+    second: string;
+    third: string;
+  };
+  tip: string;
+}
+
+export interface ResultTranslations {
+  yourDesign: string;
+  saveToGallery: string;
+  downloadSuccess: string;
+  downloadError: string;
+  savedSuccess: string;
+  savedError: string;
+  shareSuccess: string;
+  shareError: string;
+  imageOpened: string;
+}
+
+export interface ShapesTranslations {
+  round: string;
+  square: string;
+  oval: string;
+  almond: string;
+  stiletto: string;
+  coffin: string;
+  squoval: string;
+  ballerina: string;
+  duck: string;
+  lips: string;
+  edge: string;
+  arrowhead: string;
+  flare: string;
+  lipstick: string;
+}
+
+export interface ShapeDescriptionsTranslations {
+  round: string;
+  square: string;
+  oval: string;
+  almond: string;
+  stiletto: string;
+  coffin: string;
+  squoval: string;
+  ballerina: string;
+  duck: string;
+  lips: string;
+  edge: string;
+  arrowhead: string;
+  flare: string;
+  lipstick: string;
 }
 
 export interface CreditsTranslations {
@@ -18,4 +156,5 @@ export interface CreditsTranslations {
   success: string;
   mostPopular: string;
   fewMoreDrops: string;
+  costOneCredit: string;
 }

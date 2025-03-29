@@ -12,6 +12,7 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     success: 'Succès!',
     mostPopular: 'Plus populaire',
     fewMoreDrops: 'Encore quelques gouttes de vernis...',
+    costOneCredit: 'Coûte 1 crédit',
   },
   en: {
     buyCredits: 'Buy Credits',
@@ -23,5 +24,6 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     success: 'Success!',
     mostPopular: 'Most Popular',
     fewMoreDrops: 'Just a few more drops of polish...',
+    costOneCredit: 'Costs 1 credit',
   }
 };
