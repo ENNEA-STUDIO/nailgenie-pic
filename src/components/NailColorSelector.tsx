@@ -150,6 +150,36 @@ const colorCategories = [
       { hex: '#EAEAEA', name: 'Holo Chrome', gradient: 'linear-gradient(135deg, #C0C0C0 0%, #EAEAEA 50%, #C0C0C0 100%)' },
     ]
   },
+  {
+    name: "Bi-Color / Color Combos",
+    colors: [
+      { hex: '#FFC0CB', name: 'Blush Pink & Burgundy', gradient: 'linear-gradient(135deg, #FFC0CB 0%, #800020 100%)' },
+      { hex: '#FFF3D9', name: 'Cream & Chocolate', gradient: 'linear-gradient(135deg, #FFF3D9 0%, #7B3F00 100%)' },
+      { hex: '#B0E0E6', name: 'Baby Blue & Navy', gradient: 'linear-gradient(135deg, #B0E0E6 0%, #191970 100%)' },
+      { hex: '#9CAF88', name: 'Sage Green & Gold', gradient: 'linear-gradient(135deg, #9CAF88 0%, #D4AF37 100%)' },
+      { hex: '#C8A4D4', name: 'Lilac & Silver', gradient: 'linear-gradient(135deg, #C8A4D4 0%, #C0C0C0 100%)' },
+      { hex: '#FFE5B4', name: 'Peach & Coral', gradient: 'linear-gradient(135deg, #FFE5B4 0%, #FF7F50 100%)' },
+      { hex: '#E2725B', name: 'Terracotta & Olive', gradient: 'linear-gradient(135deg, #E2725B 0%, #556B2F 100%)' },
+      { hex: '#FF69B4', name: 'Pink & Electric Blue', gradient: 'linear-gradient(135deg, #FF69B4 0%, #1E90FF 100%)' },
+      { hex: '#000000', name: 'Black & Nude', gradient: 'linear-gradient(135deg, #000000 0%, #E6CCAF 100%)' },
+      { hex: '#014421', name: 'Forest & Champagne', gradient: 'linear-gradient(135deg, #014421 0%, #F7E7CE 100%)' },
+      { hex: '#E6E6FA', name: 'Lavender & Mustard', gradient: 'linear-gradient(135deg, #E6E6FA 0%, #E1AD01 100%)' },
+      { hex: '#7B3F00', name: 'Rust & Dusty Pink', gradient: 'linear-gradient(135deg, #7B3F00 0%, #C08081 100%)' },
+      { hex: '#FFFFFF', name: 'White & Emerald', gradient: 'linear-gradient(135deg, #FFFFFF 0%, #046307 100%)' },
+      { hex: '#A5F2F3', name: 'Ice Blue & Grey', gradient: 'linear-gradient(135deg, #A5F2F3 0%, #E8E8E8 100%)' },
+      { hex: '#B76E79', name: 'Rose Gold & Plum', gradient: 'linear-gradient(135deg, #B76E79 0%, #673147 100%)' },
+      { hex: '#98D8C8', name: 'Mint & Pearl', gradient: 'linear-gradient(135deg, #98D8C8 0%, #EAEAEA 100%)' },
+      { hex: '#FFFACD', name: 'Yellow & Sky Blue', gradient: 'linear-gradient(135deg, #FFFACD 0%, #87CEEB 100%)' },
+      { hex: '#000000', name: 'Black & Hot Pink', gradient: 'linear-gradient(135deg, #000000 0%, #FF69B4 100%)' },
+      { hex: '#556B2F', name: 'Olive & Bronze', gradient: 'linear-gradient(135deg, #556B2F 0%, #B87333 100%)' },
+      { hex: '#C8A2C8', name: 'Mauve & Cream', gradient: 'linear-gradient(135deg, #C8A2C8 0%, #FFF3D9 100%)' },
+      { hex: '#E6E6FA', name: 'Lavender & White', gradient: 'linear-gradient(135deg, #E6E6FA 0%, #F0FFFF 100%)' },
+      { hex: '#B0E0E6', name: 'Powder Blue & Orange', gradient: 'linear-gradient(135deg, #B0E0E6 0%, #FF7F00 100%)' },
+      { hex: '#F2F3F4', name: 'Gloss & Chrome', gradient: 'linear-gradient(135deg, #F2F3F4 0%, #C0C0C0 100%)' },
+      { hex: '#FFFACD', name: 'Yellow & Baby Pink', gradient: 'linear-gradient(135deg, #FFFACD 0%, #FFC0CB 100%)' },
+      { hex: '#191970', name: 'Midnight & Silver', gradient: 'linear-gradient(135deg, #191970 0%, #C0C0C0 100%)' },
+    ]
+  },
 ];
 
 const NailColorSelector: React.FC = () => {

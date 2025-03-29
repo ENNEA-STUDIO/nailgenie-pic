@@ -225,7 +225,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           : nailLength === "medium"
           ? "medium"
           : "long";
-      const colorName = getColorName(nailColor);
+      
+      // Check if it's a gradient color (from bi-color category)
+      const isGradient = nailColor.includes('gradient');
+      // For gradient colors, we add a special suffix to use our mapping properly
+      const colorKey = isGradient ? `${nailColor}_gradient` : nailColor;
+      const colorName = getColorName(colorKey);
 
       const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in ${colorName}. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
 
@@ -437,6 +442,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       '#BFFF00': 'lime techno',
       // '#EAEAEA': 'holo chrome', // Already defined above
       
+      // New Bi-Color mappings
+      // We add them with their gradient names so they'll be used properly in the prompt
+      '#FFC0CB_gradient': 'blush pink and burgundy gradient',
+      '#FFF3D9_gradient': 'cream and chocolate gradient',
+      '#B0E0E6_gradient': 'baby blue and navy gradient',
+      '#9CAF88_gradient': 'sage green and gold gradient',
+      '#C8A4D4_gradient': 'lilac and silver gradient',
+      '#FFE5B4_gradient': 'peach and coral gradient',
+      '#E2725B_gradient': 'terracotta and olive gradient',
+      '#FF69B4_gradient': 'pink and electric blue gradient',
+      '#000000_gradient1': 'black and nude gradient',
+      '#014421_gradient': 'forest green and champagne gradient',
+      '#E6E6FA_gradient1': 'lavender and mustard gradient',
+      '#7B3F00_gradient': 'rust and dusty pink gradient',
+      '#FFFFFF_gradient': 'white and emerald gradient',
+      '#A5F2F3_gradient': 'ice blue and pale grey gradient',
+      '#B76E79_gradient': 'rose gold and matte plum gradient',
+      '#98D8C8_gradient': 'soft mint and pearl gradient',
+      '#FFFACD_gradient1': 'pastel yellow and sky blue gradient',
+      '#000000_gradient2': 'jet black and hot pink gradient',
+      '#556B2F_gradient': 'olive green and bronze gradient',
+      '#C8A2C8_gradient': 'mauve and cream gradient',
+      '#E6E6FA_gradient2': 'soft lavender and frosted white gradient',
+      '#B0E0E6_gradient2': 'powder blue and citrus orange gradient',
+      '#F2F3F4_gradient': 'transparent gloss and chrome gradient',
+      '#FFFACD_gradient2': 'butter yellow and baby pink gradient',
+      '#191970_gradient': 'midnight blue and silver chrome gradient',
+      
       // Basic colors
       '#FF0000': 'red',
       '#FFA500': 'orange',
@@ -446,6 +479,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       '#FFD700': 'gold',
     };
 
+    // Check if it's a gradient color by seeing if the hex code has a _gradient suffix
+    if (hexColor.includes('_gradient')) {
+      return colorMap[hexColor] || `a custom two-tone gradient`;
+    }
+    
     return colorMap[hexColor] || `a custom ${hexColor} shade`;
   };
 
