@@ -15,6 +15,12 @@ export interface CommonTranslations {
   confirm: string;
   success: string;
   skip: string;
+  tryAgain: string;
+  download: string;
+  logout: string;
+  logoutSuccess: string;
+  errorMessage: string;
+  connectionRequired: string;
 }
 
 export interface OnboardingTranslations {
