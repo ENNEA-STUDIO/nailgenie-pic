@@ -1,4 +1,3 @@
-
 export type Language = 'en' | 'fr';
 
 export interface CommonTranslations {
@@ -176,4 +175,14 @@ export interface CreditsTranslations {
   invalidInviteCode: string;
   enterInviteCode: string;
   successInviteCode: string;
+  creditPack: string;
+  creditPackPrice: string;
+  unlimitedPlan: string;
+  unlimitedPlanPrice: string;
+  unlimitedExplainer: string;
+  oneTimePurchase: string;
+  subscribe: string;
+  subscriptionExplainer: string;
+  unlimitedDesigns: string;
+  cancelAnytime: string;
 }

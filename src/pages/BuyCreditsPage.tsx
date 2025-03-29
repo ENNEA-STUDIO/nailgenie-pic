@@ -4,33 +4,32 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, CreditCard, Infinity, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '@/components/navigation/BottomNav';
 import NailPolishIcon from '@/components/credits/NailPolishIcon';
 import InvitationSection from '@/components/credits/InvitationSection';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+
+type OfferType = 'credits' | 'subscription';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, addCredits } = useApp();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processingOption, setProcessingOption] = useState<number | null>(null);
+  const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   
-  const creditOptions = [
-    { credits: 5, price: '2.99', popular: false },
-    { credits: 15, price: '6.99', popular: true },
-    { credits: 30, price: '9.99', popular: false },
-  ];
-  
-  const handleBuyCredits = async (amount: number) => {
+  const handleBuyCredits = async () => {
     setIsProcessing(true);
-    setProcessingOption(amount);
+    setProcessingOption('credits');
     
     // Simulate payment processing
     setTimeout(async () => {
-      const success = await addCredits(amount);
+      const success = await addCredits(10);
       
       if (success) {
         setShowSuccess(true);
@@ -43,6 +42,18 @@ const BuyCreditsPage: React.FC = () => {
         setIsProcessing(false);
         setProcessingOption(null);
       }
+    }, 1500);
+  };
+  
+  const handleSubscribe = async () => {
+    setIsProcessing(true);
+    setProcessingOption('subscription');
+    
+    // Simulate subscription processing
+    setTimeout(() => {
+      toast.success("Abonnement activé avec succès!");
+      setIsProcessing(false);
+      setProcessingOption(null);
     }, 1500);
   };
   
@@ -80,51 +91,114 @@ const BuyCreditsPage: React.FC = () => {
         </p>
       </div>
       
-      <div className="flex-1">
-        <div className="grid gap-4">
-          {creditOptions.map((option) => (
-            <motion.div
-              key={option.credits}
-              className={`glass-card rounded-2xl p-5 relative ${
-                option.popular ? 'border-2 border-primary' : ''
-              }`}
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
+      <div className="flex-1 space-y-6">
+        {/* Pack de crédits */}
+        <Card className="border-2 overflow-hidden">
+          <CardHeader className="pb-2">
+            <Badge variant="outline" className="w-fit mb-2">
+              {t.credits.oneTimePurchase}
+            </Badge>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-primary" />
+              {t.credits.creditPack}
+            </CardTitle>
+            <CardDescription>
+              10 designs = 10 crédits
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="pb-2">
+            <div className="flex items-center mb-3">
+              <span className="text-3xl font-bold text-primary">{t.credits.creditPackPrice}</span>
+            </div>
+            
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2 text-sm">
+                <Zap className="h-4 w-4 text-green-500" />
+                10 crédits pour générer des designs d'ongles
+              </li>
+            </ul>
+          </CardContent>
+          
+          <CardFooter>
+            <Button 
+              className="w-full" 
+              size="lg"
+              onClick={handleBuyCredits}
+              disabled={isProcessing}
             >
-              {option.popular && (
-                <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {t.credits.mostPopular}
-                </span>
-              )}
+              {isProcessing && processingOption === 'credits' ? (
+                showSuccess ? (
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                ) : (
+                  <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2" />
+                )
+              ) : null}
               
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <NailPolishIcon className="w-5 h-5 text-primary mr-2" />
-                  <span className="text-xl font-bold">{option.credits}</span>
-                </div>
-                <Button
-                  onClick={() => handleBuyCredits(option.credits)}
-                  disabled={isProcessing}
-                  className={`${option.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
-                >
-                  {isProcessing && processingOption === option.credits ? (
-                    showSuccess ? (
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                    ) : (
-                      <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2" />
-                    )
-                  ) : null}
-                  
-                  {isProcessing && processingOption === option.credits && showSuccess
-                    ? t.credits.success
-                    : isProcessing && processingOption === option.credits
-                    ? t.credits.processing
-                    : `$${option.price}`}
-                </Button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              {isProcessing && processingOption === 'credits' && showSuccess
+                ? t.credits.success
+                : isProcessing && processingOption === 'credits'
+                ? t.credits.processing
+                : t.credits.creditPackPrice}
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        {/* Abonnement illimité */}
+        <Card className="border-2 border-primary overflow-hidden relative">
+          <div className="absolute top-0 right-0">
+            <Badge className="m-2 bg-primary">
+              {t.credits.mostPopular}
+            </Badge>
+          </div>
+          
+          <CardHeader className="pb-2">
+            <Badge variant="outline" className="w-fit mb-2">
+              {t.credits.subscriptionExplainer}
+            </Badge>
+            <CardTitle className="flex items-center gap-2">
+              <Infinity className="h-5 w-5 text-primary" />
+              {t.credits.unlimitedPlan}
+            </CardTitle>
+            <CardDescription>
+              {t.credits.unlimitedExplainer}
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="pb-2">
+            <div className="flex items-center mb-3">
+              <span className="text-3xl font-bold text-primary">{t.credits.unlimitedPlanPrice}</span>
+            </div>
+            
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2 text-sm">
+                <Zap className="h-4 w-4 text-green-500" />
+                {t.credits.unlimitedDesigns}
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <Zap className="h-4 w-4 text-green-500" />
+                {t.credits.cancelAnytime}
+              </li>
+            </ul>
+          </CardContent>
+          
+          <CardFooter>
+            <Button 
+              className="w-full" 
+              size="lg"
+              onClick={handleSubscribe}
+              disabled={isProcessing}
+            >
+              {isProcessing && processingOption === 'subscription' ? (
+                <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2" />
+              ) : null}
+              
+              {isProcessing && processingOption === 'subscription'
+                ? t.credits.processing
+                : t.credits.subscribe}
+            </Button>
+          </CardFooter>
+        </Card>
         
         <InvitationSection />
       </div>

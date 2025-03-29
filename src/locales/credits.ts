@@ -28,7 +28,17 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     tapToShare: 'Appuyez pour partager',
     invalidInviteCode: 'Code d\'invitation invalide',
     enterInviteCode: 'Entrez un code d\'invitation',
-    successInviteCode: 'Code d\'invitation validé!'
+    successInviteCode: 'Code d\'invitation validé!',
+    creditPack: 'Pack de 10 crédits',
+    creditPackPrice: '2,99 €',
+    unlimitedPlan: 'Crédits illimités',
+    unlimitedPlanPrice: '8,99 €/mois',
+    unlimitedExplainer: 'Générez autant de designs que vous voulez',
+    oneTimePurchase: 'Achat unique',
+    subscribe: 'S\'abonner',
+    subscriptionExplainer: 'Abonnement mensuel',
+    unlimitedDesigns: 'Designs illimités',
+    cancelAnytime: 'Annulez à tout moment'
   },
   en: {
     buyCredits: 'Buy Credits',
@@ -56,6 +66,16 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     tapToShare: 'Tap to share',
     invalidInviteCode: 'Invalid invitation code',
     enterInviteCode: 'Enter invitation code',
-    successInviteCode: 'Invitation code validated!'
+    successInviteCode: 'Invitation code validated!',
+    creditPack: '10 Credits Pack',
+    creditPackPrice: '$2.99',
+    unlimitedPlan: 'Unlimited Credits',
+    unlimitedPlanPrice: '$8.99/month',
+    unlimitedExplainer: 'Generate as many designs as you want',
+    oneTimePurchase: 'One-time purchase',
+    subscribe: 'Subscribe',
+    subscriptionExplainer: 'Monthly subscription',
+    unlimitedDesigns: 'Unlimited designs',
+    cancelAnytime: 'Cancel anytime'
   }
 };
