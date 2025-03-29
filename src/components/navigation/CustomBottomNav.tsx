@@ -3,13 +3,16 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
-import { Camera, Image, Home } from 'lucide-react';
+import { Camera, Image, Home, CreditCard, Sparkles } from 'lucide-react';
 import CreditsDisplay from '../credits/CreditsDisplay';
 import { Card } from '../ui/card';
+import { useApp } from '@/context/AppContext';
 
 const CustomBottomNav: React.FC = () => {
   const location = useLocation();
   const { t } = useLanguage();
+  const { credits } = useApp();
+  const hasLowCredits = credits <= 1; // Consider 1 or fewer credits as "low"
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -46,11 +49,11 @@ const CustomBottomNav: React.FC = () => {
             </Link>
           ))}
           
-          {/* Credits display */}
+          {/* Credits display - with attention-grabbing animation when low */}
           <Link to="/buy-credits" className="flex-1">
             <div
               className={`flex flex-col items-center py-2 relative ${
-                isActive('/buy-credits') ? 'text-primary' : 'text-muted-foreground'
+                isActive('/buy-credits') ? 'text-primary' : hasLowCredits ? 'text-amber-500' : 'text-muted-foreground'
               }`}
             >
               {isActive('/buy-credits') && (
@@ -61,8 +64,30 @@ const CustomBottomNav: React.FC = () => {
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               )}
-              <CreditsDisplay showTooltip={false} className="mb-1" />
-              <span className="text-xs">{t.nav.credits}</span>
+              
+              {hasLowCredits ? (
+                <motion.div 
+                  initial={{ scale: 1 }}
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    repeatType: "reverse", 
+                    duration: 1.5 
+                  }}
+                  className="relative"
+                >
+                  <CreditsDisplay showTooltip={false} className="mb-1" />
+                  <Sparkles 
+                    className="absolute -top-1 -right-1 w-4 h-4 text-amber-500" 
+                  />
+                </motion.div>
+              ) : (
+                <CreditsDisplay showTooltip={false} className="mb-1" />
+              )}
+              
+              <span className={`text-xs ${hasLowCredits ? 'font-medium' : ''}`}>
+                {hasLowCredits ? t.credits.buyCredits : t.nav.credits}
+              </span>
             </div>
           </Link>
         </div>

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import CameraComponent from "../components/camera/CameraComponent";
 import { useApp } from "../context/AppContext";
-import { Camera, AlertCircle } from "lucide-react";
+import { Camera, AlertCircle, CreditCard, Sparkles } from "lucide-react";
 import BottomNav from "@/components/navigation/BottomNav";
 import { useLanguage } from "@/context/LanguageContext";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -37,6 +37,69 @@ const CameraPage: React.FC = () => {
     navigate("/buy-credits");
   };
 
+  // If user has no credits, show the credits purchase page
+  if (hasNoCredits) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.4 }}
+        className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4 pb-32 relative"
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+          className="w-full max-w-md text-center px-4 py-8"
+        >
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.4 }}
+            className="mb-6 flex flex-col items-center"
+          >
+            <div className="p-6 mb-4 rounded-full bg-primary/10">
+              <Sparkles className="h-12 w-12 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">{t.credits.notEnoughCredits}</h2>
+            <p className="text-muted-foreground max-w-sm mb-4">
+              {t.credits.fewMoreDrops}
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="w-full max-w-md mx-auto mb-8 bg-background/80 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-primary/20"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-bold text-lg">{t.credits.creditPack}</h3>
+                <p className="text-sm text-muted-foreground">{t.credits.tenCreditsForDesigns}</p>
+              </div>
+              <span className="text-xl font-bold">{t.credits.creditPackPrice}</span>
+            </div>
+            <Button 
+              onClick={handleBuyCredits} 
+              className="w-full py-6 text-base" 
+              size="lg"
+              style={{
+                background: "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)",
+                boxShadow: "0 10px 25px -5px rgba(155, 135, 245, 0.3)"
+              }}
+            >
+              <CreditCard className="mr-2 h-5 w-5" /> {t.credits.buyCredits}
+            </Button>
+          </motion.div>
+        </motion.div>
+
+        <BottomNav />
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -45,45 +108,6 @@ const CameraPage: React.FC = () => {
       transition={{ duration: 0.4 }}
       className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4 pb-32 relative"
     >
-      {/* No Credits Alert */}
-      {hasNoCredits && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="absolute top-20 left-4 right-4 z-20"
-        >
-          <Alert
-            variant="destructive"
-            className="border-red-300 bg-red-50 shadow-md"
-          >
-            <AlertCircle className="h-5 w-5" />
-            <AlertTitle className="text-red-800">
-              {t.credits.notEnoughCredits}
-            </AlertTitle>
-            <AlertDescription className="text-red-700 mt-2">
-              {t.credits.fewMoreDrops}
-              <Button
-                onClick={handleBuyCredits}
-                className="mt-3 bg-primary hover:bg-primary/90 text-white"
-                size="sm"
-              >
-                {t.credits.buyCredits}
-              </Button>
-            </AlertDescription>
-          </Alert>
-        </motion.div>
-      )}
-
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.1, duration: 0.4 }}
-        className="w-full max-w-md"
-      >
-        <CameraComponent />
-      </motion.div>
-
       {/* Visual tip instead of toast */}
       <AnimatePresence>
         {showTip && (
@@ -100,6 +124,15 @@ const CameraPage: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="w-full max-w-md"
+      >
+        <CameraComponent />
+      </motion.div>
 
       <BottomNav />
     </motion.div>

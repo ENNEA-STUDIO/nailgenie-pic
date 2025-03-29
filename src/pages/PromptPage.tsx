@@ -7,15 +7,16 @@ import NailLengthSelector from '../components/NailLengthSelector';
 import NailColorSelector from '../components/NailColorSelector';
 import { useApp } from '../context/AppContext';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, CreditCard, Sparkles } from 'lucide-react';
 import BottomNav from '@/components/navigation/BottomNav';
 import { useLanguage } from '@/context/LanguageContext';
 import ResultLoading from '../components/result/ResultLoading';
 
 const PromptPage: React.FC = () => {
   const navigate = useNavigate();
-  const { handImage, isLoading, prompt } = useApp();
+  const { handImage, isLoading, prompt, credits } = useApp();
   const { t } = useLanguage();
+  const hasNoCredits = credits <= 0;
   
   // Redirect if no hand image
   useEffect(() => {
@@ -26,6 +27,10 @@ const PromptPage: React.FC = () => {
 
   const handleContinue = () => {
     navigate('/prompt-input');
+  };
+
+  const handleBuyCredits = () => {
+    navigate('/buy-credits');
   };
 
   if (!handImage) return null;
@@ -90,17 +95,48 @@ const PromptPage: React.FC = () => {
         </div>
         
         <div className="px-4 py-4 mt-auto">
-          <Button 
-            onClick={handleContinue} 
-            className="w-full py-6 rounded-xl" 
-            size="lg"
-            style={{
-              background: "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)",
-              boxShadow: "0 10px 25px -5px rgba(155, 135, 245, 0.3)"
-            }}
-          >
-            {t.prompt.continue} <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          {hasNoCredits ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="w-full"
+            >
+              <div className="bg-primary/10 rounded-xl p-4 mb-4 flex items-center">
+                <div className="p-2 rounded-full bg-primary/20 mr-3">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm">{t.credits.notEnoughCredits}</h3>
+                  <p className="text-xs text-muted-foreground">{t.credits.fewMoreDrops}</p>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={handleBuyCredits} 
+                className="w-full py-6 rounded-xl" 
+                size="lg"
+                style={{
+                  background: "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)",
+                  boxShadow: "0 10px 25px -5px rgba(155, 135, 245, 0.3)"
+                }}
+              >
+                <CreditCard className="mr-2 h-5 w-5" /> {t.credits.buyCredits}
+              </Button>
+            </motion.div>
+          ) : (
+            <Button 
+              onClick={handleContinue} 
+              className="w-full py-6 rounded-xl" 
+              size="lg"
+              style={{
+                background: "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)",
+                boxShadow: "0 10px 25px -5px rgba(155, 135, 245, 0.3)"
+              }}
+            >
+              {t.prompt.continue} <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          )}
         </div>
       </div>
       
