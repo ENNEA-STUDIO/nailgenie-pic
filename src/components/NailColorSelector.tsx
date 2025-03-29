@@ -153,31 +153,181 @@ const colorCategories = [
   {
     name: "Bi-Color / Color Combos",
     colors: [
-      { hex: '#FFC0CB', name: 'Blush Pink & Burgundy', gradient: 'linear-gradient(135deg, #FFC0CB 0%, #800020 100%)' },
-      { hex: '#FFF3D9', name: 'Cream & Chocolate', gradient: 'linear-gradient(135deg, #FFF3D9 0%, #7B3F00 100%)' },
-      { hex: '#B0E0E6', name: 'Baby Blue & Navy', gradient: 'linear-gradient(135deg, #B0E0E6 0%, #191970 100%)' },
-      { hex: '#9CAF88', name: 'Sage Green & Gold', gradient: 'linear-gradient(135deg, #9CAF88 0%, #D4AF37 100%)' },
-      { hex: '#C8A4D4', name: 'Lilac & Silver', gradient: 'linear-gradient(135deg, #C8A4D4 0%, #C0C0C0 100%)' },
-      { hex: '#FFE5B4', name: 'Peach & Coral', gradient: 'linear-gradient(135deg, #FFE5B4 0%, #FF7F50 100%)' },
-      { hex: '#E2725B', name: 'Terracotta & Olive', gradient: 'linear-gradient(135deg, #E2725B 0%, #556B2F 100%)' },
-      { hex: '#FF69B4', name: 'Pink & Electric Blue', gradient: 'linear-gradient(135deg, #FF69B4 0%, #1E90FF 100%)' },
-      { hex: '#000000', name: 'Black & Nude', gradient: 'linear-gradient(135deg, #000000 0%, #E6CCAF 100%)' },
-      { hex: '#014421', name: 'Forest & Champagne', gradient: 'linear-gradient(135deg, #014421 0%, #F7E7CE 100%)' },
-      { hex: '#E6E6FA', name: 'Lavender & Mustard', gradient: 'linear-gradient(135deg, #E6E6FA 0%, #E1AD01 100%)' },
-      { hex: '#7B3F00', name: 'Rust & Dusty Pink', gradient: 'linear-gradient(135deg, #7B3F00 0%, #C08081 100%)' },
-      { hex: '#FFFFFF', name: 'White & Emerald', gradient: 'linear-gradient(135deg, #FFFFFF 0%, #046307 100%)' },
-      { hex: '#A5F2F3', name: 'Ice Blue & Grey', gradient: 'linear-gradient(135deg, #A5F2F3 0%, #E8E8E8 100%)' },
-      { hex: '#B76E79', name: 'Rose Gold & Plum', gradient: 'linear-gradient(135deg, #B76E79 0%, #673147 100%)' },
-      { hex: '#98D8C8', name: 'Mint & Pearl', gradient: 'linear-gradient(135deg, #98D8C8 0%, #EAEAEA 100%)' },
-      { hex: '#FFFACD', name: 'Yellow & Sky Blue', gradient: 'linear-gradient(135deg, #FFFACD 0%, #87CEEB 100%)' },
-      { hex: '#000000', name: 'Black & Hot Pink', gradient: 'linear-gradient(135deg, #000000 0%, #FF69B4 100%)' },
-      { hex: '#556B2F', name: 'Olive & Bronze', gradient: 'linear-gradient(135deg, #556B2F 0%, #B87333 100%)' },
-      { hex: '#C8A2C8', name: 'Mauve & Cream', gradient: 'linear-gradient(135deg, #C8A2C8 0%, #FFF3D9 100%)' },
-      { hex: '#E6E6FA', name: 'Lavender & White', gradient: 'linear-gradient(135deg, #E6E6FA 0%, #F0FFFF 100%)' },
-      { hex: '#B0E0E6', name: 'Powder Blue & Orange', gradient: 'linear-gradient(135deg, #B0E0E6 0%, #FF7F00 100%)' },
-      { hex: '#F2F3F4', name: 'Gloss & Chrome', gradient: 'linear-gradient(135deg, #F2F3F4 0%, #C0C0C0 100%)' },
-      { hex: '#FFFACD', name: 'Yellow & Baby Pink', gradient: 'linear-gradient(135deg, #FFFACD 0%, #FFC0CB 100%)' },
-      { hex: '#191970', name: 'Midnight & Silver', gradient: 'linear-gradient(135deg, #191970 0%, #C0C0C0 100%)' },
+      { 
+        hex: '#FFC0CB', 
+        name: 'Blush Pink & Burgundy', 
+        biColor: true,
+        color1: '#FFC0CB',
+        color2: '#800020'
+      },
+      { 
+        hex: '#FFF3D9', 
+        name: 'Cream & Chocolate', 
+        biColor: true,
+        color1: '#FFF3D9',
+        color2: '#7B3F00'
+      },
+      { 
+        hex: '#B0E0E6', 
+        name: 'Baby Blue & Navy', 
+        biColor: true,
+        color1: '#B0E0E6',
+        color2: '#191970'
+      },
+      { 
+        hex: '#9CAF88', 
+        name: 'Sage Green & Gold', 
+        biColor: true,
+        color1: '#9CAF88',
+        color2: '#D4AF37'
+      },
+      { 
+        hex: '#C8A4D4', 
+        name: 'Lilac & Silver', 
+        biColor: true,
+        color1: '#C8A4D4',
+        color2: '#C0C0C0'
+      },
+      { 
+        hex: '#FFE5B4', 
+        name: 'Peach & Coral', 
+        biColor: true,
+        color1: '#FFE5B4',
+        color2: '#FF7F50'
+      },
+      { 
+        hex: '#E2725B', 
+        name: 'Terracotta & Olive', 
+        biColor: true,
+        color1: '#E2725B',
+        color2: '#556B2F'
+      },
+      { 
+        hex: '#FF69B4', 
+        name: 'Pink & Electric Blue', 
+        biColor: true,
+        color1: '#FF69B4',
+        color2: '#1E90FF'
+      },
+      { 
+        hex: '#000000', 
+        name: 'Black & Nude', 
+        biColor: true,
+        color1: '#000000',
+        color2: '#E6CCAF'
+      },
+      { 
+        hex: '#014421', 
+        name: 'Forest & Champagne', 
+        biColor: true,
+        color1: '#014421',
+        color2: '#F7E7CE'
+      },
+      { 
+        hex: '#E6E6FA', 
+        name: 'Lavender & Mustard', 
+        biColor: true,
+        color1: '#E6E6FA',
+        color2: '#E1AD01'
+      },
+      { 
+        hex: '#7B3F00', 
+        name: 'Rust & Dusty Pink', 
+        biColor: true,
+        color1: '#7B3F00',
+        color2: '#C08081'
+      },
+      { 
+        hex: '#FFFFFF', 
+        name: 'White & Emerald', 
+        biColor: true,
+        color1: '#FFFFFF',
+        color2: '#046307'
+      },
+      { 
+        hex: '#A5F2F3', 
+        name: 'Ice Blue & Grey', 
+        biColor: true,
+        color1: '#A5F2F3',
+        color2: '#E8E8E8'
+      },
+      { 
+        hex: '#B76E79', 
+        name: 'Rose Gold & Plum', 
+        biColor: true,
+        color1: '#B76E79',
+        color2: '#673147'
+      },
+      { 
+        hex: '#98D8C8', 
+        name: 'Mint & Pearl', 
+        biColor: true,
+        color1: '#98D8C8',
+        color2: '#EAEAEA'
+      },
+      { 
+        hex: '#FFFACD', 
+        name: 'Yellow & Sky Blue', 
+        biColor: true,
+        color1: '#FFFACD',
+        color2: '#87CEEB'
+      },
+      { 
+        hex: '#000000', 
+        name: 'Black & Hot Pink', 
+        biColor: true,
+        color1: '#000000',
+        color2: '#FF69B4'
+      },
+      { 
+        hex: '#556B2F', 
+        name: 'Olive & Bronze', 
+        biColor: true,
+        color1: '#556B2F',
+        color2: '#B87333'
+      },
+      { 
+        hex: '#C8A2C8', 
+        name: 'Mauve & Cream', 
+        biColor: true,
+        color1: '#C8A2C8',
+        color2: '#FFF3D9'
+      },
+      { 
+        hex: '#E6E6FA', 
+        name: 'Lavender & White', 
+        biColor: true,
+        color1: '#E6E6FA',
+        color2: '#F0FFFF'
+      },
+      { 
+        hex: '#B0E0E6', 
+        name: 'Powder Blue & Orange', 
+        biColor: true,
+        color1: '#B0E0E6',
+        color2: '#FF7F00'
+      },
+      { 
+        hex: '#F2F3F4', 
+        name: 'Gloss & Chrome', 
+        biColor: true,
+        color1: '#F2F3F4',
+        color2: '#C0C0C0'
+      },
+      { 
+        hex: '#FFFACD', 
+        name: 'Yellow & Baby Pink', 
+        biColor: true,
+        color1: '#FFFACD',
+        color2: '#FFC0CB'
+      },
+      { 
+        hex: '#191970', 
+        name: 'Midnight & Silver', 
+        biColor: true,
+        color1: '#191970',
+        color2: '#C0C0C0'
+      },
     ]
   },
 ];
@@ -252,20 +402,36 @@ const NailColorSelector: React.FC = () => {
                                 ? 'border-gray-800 scale-110 shadow-md' 
                                 : 'border-transparent hover:border-gray-300 hover:scale-105'
                             }`}
-                            style={color.gradient ? 
-                              { background: color.gradient } : 
-                              { backgroundColor: color.hex }
+                            style={
+                              color.biColor 
+                                ? { position: 'relative', overflow: 'hidden' } 
+                                : color.gradient 
+                                  ? { background: color.gradient } 
+                                  : { backgroundColor: color.hex }
                             }
                             aria-label={`Select ${color.name} color`}
                           >
+                            {color.biColor && (
+                              <>
+                                <div 
+                                  className="absolute top-0 left-0 w-1/2 h-full" 
+                                  style={{ backgroundColor: color.color1 }}
+                                ></div>
+                                <div 
+                                  className="absolute top-0 right-0 w-1/2 h-full" 
+                                  style={{ backgroundColor: color.color2 }}
+                                ></div>
+                                <div className="absolute w-px h-full bg-gray-300/50 left-1/2 transform -translate-x-1/2 rotate-12"></div>
+                              </>
+                            )}
                             {isSelected && (
                               <Check 
                                 size={14} 
-                                className={
+                                className={`z-10 ${
                                   ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4', '#F0FFFF', '#FFFACD'].includes(color.hex) 
                                     ? 'text-black' 
                                     : 'text-white'
-                                } 
+                                }`} 
                               />
                             )}
                           </button>
