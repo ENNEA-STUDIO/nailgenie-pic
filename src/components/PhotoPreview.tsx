@@ -1,9 +1,11 @@
+
 import React from "react";
 import { motion } from "framer-motion";
 import { Check, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface PhotoPreviewProps {
   photoSrc: string;
@@ -17,6 +19,7 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({
   onRetake,
 }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleAccept = () => {
     onAccept();
@@ -37,7 +40,7 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({
         className="absolute top-4 left-0 right-0 z-10 flex justify-center"
       >
         <div className="bg-black/60 backdrop-blur-md rounded-full text-white text-sm font-medium px-4 py-2">
-          Vérifiez votre photo
+          {t.camera.verifyPhoto}
         </div>
       </motion.div>
 
@@ -73,7 +76,7 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({
             <RefreshCcw className="h-7 w-7" />
           </Button>
           <span className="text-sm font-medium text-white drop-shadow-md mt-2">
-            Reprendre
+            {t.camera.retake}
           </span>
         </motion.div>
 
@@ -90,7 +93,7 @@ const PhotoPreview: React.FC<PhotoPreviewProps> = ({
             <Check className="h-7 w-7" />
           </Button>
           <span className="text-sm font-medium text-white drop-shadow-md mt-2">
-            Valider
+            {t.camera.accept}
           </span>
         </motion.div>
       </motion.div>
