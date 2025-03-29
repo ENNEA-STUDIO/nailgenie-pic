@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { Client } from "https://esm.sh/@gradio/client@2.1.11";
 
 const HUGGINGFACE_TOKEN = Deno.env.get("HUGGINGFACE_TOKEN");
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
@@ -81,31 +80,40 @@ serve(async (req) => {
       nailLength === 'medium' ? 'moyens' : 'longs'} de forme ${nailShape} de couleur ${colorName}`;
     
     console.log("Full prompt:", fullPrompt);
-    console.log("Connecting to Gemini Image Edit model...");
     
-    // Connect to the Gemini Image Edit model
+    // Connect directly to the Huggingface Inference API for Gemini Image Edit model
     try {
-      const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", { 
-        hf_token: HUGGINGFACE_TOKEN 
+      console.log("Preparing to send request to Huggingface API");
+      
+      // Create a FormData object to send the image and prompt
+      const formData = new FormData();
+      formData.append("composite_pil", imageBlob);
+      formData.append("prompt", fullPrompt);
+      formData.append("gemini_api_key", GEMINI_API_KEY);
+      
+      // Make direct API call to the Huggingface model endpoint
+      const response = await fetch("https://api-inference.huggingface.co/models/BenKCDQ/Gemini-Image-Edit-nails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${HUGGINGFACE_TOKEN}`
+        },
+        body: formData
       });
       
-      console.log("Connected to client successfully");
-      console.log("Making prediction with prompt:", fullPrompt);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API call failed:", response.status, errorText);
+        throw new Error(`API call failed with status ${response.status}: ${errorText}`);
+      }
       
-      // Make API call to generate the design
-      const result = await client.predict("/process_image_and_prompt", {
-        composite_pil: imageBlob,
-        prompt: fullPrompt,
-        gemini_api_key: GEMINI_API_KEY,
-      });
+      // Process the response
+      const result = await response.json();
+      console.log("API call successful, received result");
       
-      console.log("Prediction result received:", result ? "success" : "undefined");
-      console.log("Result data:", result.data ? "exists" : "missing");
-
       // Return the result
       return new Response(JSON.stringify({ 
         success: true, 
-        data: result.data
+        data: result
       }), { 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });

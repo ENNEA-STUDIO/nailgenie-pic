@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Client } from "@gradio/client";
 
 // Types pour les options d'ongles
 export type NailShape =
@@ -51,29 +50,6 @@ interface AppContextType {
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
-
-interface GradioImageData {
-  image: {
-    path: string;
-    url: string;
-    size: number | null;
-    orig_name: string | null;
-    mime_type: string | null;
-    is_stream: boolean;
-    meta: {
-      _type: string;
-    };
-  };
-  caption: string | null;
-}
-
-interface GradioResult {
-  type: string;
-  time: Date;
-  data: [GradioImageData[], string];
-  endpoint: string;
-  fn_index: number;
-}
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -177,11 +153,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [checkCredits]);
 
-  const urlToBlob = async (url: string): Promise<Blob> => {
-    const response = await fetch(url);
-    return await response.blob();
-  };
-
   const generateDesign = useCallback(async () => {
     if (!handImage) {
       toast.error("Veuillez prendre une photo de votre main d'abord");
@@ -210,66 +181,46 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         nailColor,
       });
 
-      const base64Data = handImage.replace(/^data:image\/\w+;base64,/, "");
-      const byteString = atob(base64Data);
-      const buffer = new Uint8Array(byteString.length);
+      // Call the Edge Function directly with all required information
+      const { data, error } = await supabase.functions.invoke("generate-nail-design", {
+        body: {
+          imageBase64: handImage,
+          prompt,
+          nailShape,
+          nailLength,
+          nailColor,
+        },
+      });
 
-      for (let i = 0; i < byteString.length; i++) {
-        buffer[i] = byteString.charCodeAt(i);
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(`Erreur lors de la génération: ${error.message}`);
       }
 
-      const imageBlob = new Blob([buffer], { type: "image/jpeg" });
+      if (!data || !data.success) {
+        const errorMessage = data?.error || "Erreur inconnue";
+        console.error("API error:", errorMessage);
+        throw new Error(`Erreur: ${errorMessage}`);
+      }
 
-      const lengthText =
-        nailLength === "short"
-          ? "short"
-          : nailLength === "medium"
-          ? "medium"
-          : "long";
-      const colorName = getColorName(nailColor);
+      console.log("Design generated successfully", data);
 
-      const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in ${colorName}. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
-
-      console.log("Full prompt:", fullPrompt);
-      console.log("Connecting to Gemini Image Edit model...");
-
-      const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", {
-        hf_token: import.meta.env.VITE_HUGGINGFACE_TOKEN,
-      });
-
-      console.log("Connected to client successfully");
-      console.log("Making prediction with prompt:", fullPrompt);
-
-      const result = await client.predict("/process_image_and_prompt", {
-        composite_pil: imageBlob,
-        prompt: fullPrompt,
-        gemini_api_key: import.meta.env.VITE_GEMINI_API_KEY,
-      });
-
-      console.log(
-        "Prediction result received:",
-        result ? "success" : "undefined"
-      );
-      console.log("Result data:", result.data ? "exists" : "missing");
-      console.log("Full result object:", JSON.stringify(result, null, 2));
-
-      if (result && "data" in result) {
+      if (data.data) {
         try {
-          const gradioResult = result as unknown as GradioResult;
-          const imageUrl = gradioResult.data[0]?.[0]?.image?.url;
+          // Handling the response from our edge function
+          const resultData = data.data;
+          const imageUrl = resultData[0]?.[0]?.image?.url;
 
           if (!imageUrl) {
             throw new Error("URL de l'image non trouvée");
           }
 
-          console.log("Gradio URL:", imageUrl);
+          console.log("Image URL from API:", imageUrl);
 
           try {
             const response = await fetch(imageUrl, {
               headers: {
-                Authorization: `Bearer ${
-                  import.meta.env.VITE_HUGGINGFACE_TOKEN
-                }`,
+                Authorization: `Bearer ${import.meta.env.VITE_HUGGINGFACE_TOKEN}`,
               },
             });
 
@@ -283,22 +234,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             const fileName = `nail-designs/${Date.now()}.webp`;
             console.log("Attempting upload to:", fileName);
 
-            const { data: uploadData, error: uploadError } =
-              await supabase.storage
-                .from("nail_designs")
-                .upload(fileName, imageBlob, {
-                  contentType: "image/webp",
-                  upsert: true,
-                });
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from("nail_designs")
+              .upload(fileName, imageBlob, {
+                contentType: "image/webp",
+                upsert: true,
+              });
 
             if (uploadError) {
               console.error("Upload error details:", uploadError);
               throw uploadError;
             }
 
-            const {
-              data: { publicUrl },
-            } = supabase.storage.from("nail_designs").getPublicUrl(fileName);
+            const { data: { publicUrl } } = supabase.storage
+              .from("nail_designs")
+              .getPublicUrl(fileName);
 
             console.log("Final URL:", publicUrl);
             setGeneratedDesign(publicUrl);
@@ -321,7 +271,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           toast.error(`Erreur: ${error.message || "Erreur inconnue"}`);
         }
       } else {
-        console.error("Unexpected data format:", result);
+        console.error("Unexpected data format:", data);
         throw new Error("Aucune donnée d'image reçue de l'API");
       }
     } catch (error) {
