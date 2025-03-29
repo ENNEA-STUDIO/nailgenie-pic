@@ -1,4 +1,3 @@
-
 import React, {
   createContext,
   useContext,
@@ -338,50 +337,113 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   const getColorName = (hexColor: string): string => {
     const colorMap: Record<string, string> = {
-      "#E6CCAF": "beige",
-      "#B8A99A": "taupe",
-      "#F8F0DD": "ivory",
-      "#FFF3D9": "cream",
-      "#A17249": "cappuccino",
-      "#D2B48C": "sand",
-
-      "#0A2463": "navy blue",
-      "#7EC8E3": "sky blue",
-      "#C8A2C8": "lavender",
-      "#C8A4D4": "lilac",
-      "#9CAF88": "sage green",
-      "#98D8C8": "mint",
-
-      "#D2042D": "cherry red",
-      "#A52A2A": "brick red",
-      "#FF7F50": "coral",
-      "#FFE5B4": "peach",
-      "#CC5500": "burnt orange",
-      "#E2725B": "terracotta",
-
-      "#D4AF37": "gold",
-      "#C0C0C0": "silver",
-      "#B87333": "copper",
-      "#E8E8E8": "chrome",
-      "#EAEAEA": "holographic",
-      "#F2F3F4": "pearl",
-
-      "#000000": "black",
-      "#800020": "burgundy",
-      "#673147": "plum",
-      "#7B3F00": "chocolate",
-      "#046307": "emerald",
-      "#191970": "midnight blue",
-
-      "#FF0000": "red",
-      "#FFA500": "orange",
-      "#FFFF00": "yellow",
-      "#00FF00": "green",
-      "#0000FF": "blue",
-      "#800080": "purple",
-      "#FFC0CB": "pink",
-      "#FFFFFF": "white",
-      "#FFD700": "gold",
+      // Nude & Minimalist
+      '#E6CCAF': 'soft beige',
+      '#FFFFFF': 'milky white',
+      '#FFC0CB': 'blush pink',
+      '#B8A99A': 'taupe',
+      '#FFF3D9': 'cream',
+      '#E8E8E8': 'icy grey',
+      '#F2F3F4': 'transparent gloss',
+      
+      // Glazed & Pearlcore
+      // '#E8E8E8': 'glazed donut', // Already defined above
+      // '#FFFFFF': 'iridescent white', // Already defined above
+      '#EAEAEA': 'holographic pearl',
+      '#C0C0C0': 'baby chrome',
+      // '#F2F3F4': 'soft opal', // Already defined above
+      
+      // Y2K / Pop Vibes
+      '#FF69B4': 'hot pink',
+      '#1E90FF': 'electric blue',
+      '#39FF14': 'neon green',
+      '#FFFF00': 'acid yellow',
+      '#FF7F50': 'candy orange',
+      // '#C0C0C0': 'silver chrome', // Already defined above
+      '#9370DB': 'bubblegum purple',
+      
+      // Dark & Mysterious
+      '#800020': 'deep burgundy',
+      '#191970': 'midnight blue',
+      '#3D0C02': 'black cherry',
+      '#014421': 'forest green',
+      '#2C3539': 'gunmetal',
+      '#000000': 'matte black',
+      '#551A8B': 'cosmic purple',
+      
+      // Luxury / Metallic
+      '#D4AF37': '24k gold',
+      '#B76E79': 'rose gold',
+      '#E5E4E2': 'platinum',
+      '#F7E7CE': 'champagne',
+      '#B87333': 'bronze',
+      '#8A9A5B': 'pewter',
+      '#046307': 'emerald green',
+      '#0F52BA': 'sapphire blue',
+      
+      // Romantic / Pastelcore
+      '#C8A4D4': 'pastel lilac',
+      '#B0E0E6': 'baby blue',
+      '#98D8C8': 'soft mint',
+      // '#FFC0CB': 'powder pink', // Already defined above
+      '#FFFACD': 'butter yellow',
+      '#C8A2C8': 'mauve',
+      '#FFE5B4': 'peachy nude',
+      
+      // Bold & Graphic
+      '#D2042D': 'primary red',
+      // '#000000': 'jet black', // Already defined above
+      // '#FFFFFF': 'whiteout', // Already defined above
+      '#0A2463': 'high contrast blue',
+      '#FF7F00': 'citrus orange',
+      
+      // Goth / Punk
+      // '#000000': 'matte black', // Already defined above
+      '#8B0000': 'blood red',
+      '#808080': 'ash grey',
+      '#7B3F00': 'rust brown',
+      '#673147': 'deep plum',
+      '#556B2F': 'olive green',
+      '#343434': 'dark chrome',
+      
+      // Frozen / Clean Girl
+      '#A5F2F3': 'ice blue',
+      '#E6E6FA': 'soft lavender',
+      '#F0FFFF': 'frosted white',
+      // '#C0C0C0': 'shimmering grey', // Already defined above
+      '#F5F5F5': 'translucent glaze',
+      
+      // Artistic / Painterly
+      // '#FF7F50': 'coral', // Already defined above
+      // '#556B2F': 'olive', // Already defined above
+      '#E2725B': 'terracotta',
+      // '#000000': 'ink black', // Already defined above
+      '#CC7722': 'ochre',
+      
+      // Nature-Inspired
+      '#9CAF88': 'sage green',
+      '#A17249': 'clay',
+      // '#E2725B': 'terracotta', // Already defined above
+      '#C08081': 'dusty rose',
+      '#0077BE': 'ocean blue',
+      '#D2B48C': 'sand',
+      // '#8A9A5B': 'moss', // Already defined above
+      
+      // Futuristic
+      // '#C0C0C0': 'silver', // Already defined above
+      '#4682B4': 'reflective blue',
+      // '#000000': 'oil-slick black', // Already defined above
+      '#8A2BE2': 'ultraviolet',
+      '#BFFF00': 'lime techno',
+      // '#EAEAEA': 'holo chrome', // Already defined above
+      
+      // Basic colors
+      '#FF0000': 'red',
+      '#FFA500': 'orange',
+      '#00FF00': 'green',
+      '#0000FF': 'blue',
+      '#800080': 'purple',
+      '#FFD700': 'gold',
     };
 
     return colorMap[hexColor] || `a custom ${hexColor} shade`;

@@ -83,8 +83,8 @@ const PromptPage: React.FC = () => {
             
             <div className="p-4 rounded-2xl backdrop-blur-sm bg-white/80">
               <NailShapeSelector />
-              <NailLengthSelector />
               <NailColorSelector />
+              <NailLengthSelector />
             </div>
           </motion.div>
         </div>

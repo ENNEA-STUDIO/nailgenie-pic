@@ -10,69 +10,152 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { useLanguage } from '@/context/LanguageContext';
 
 // Organized color palette with categories
 const colorCategories = [
   {
-    name: "Nude & Neutrals",
+    name: "Nude & Minimalist",
     colors: [
-      { hex: '#E6CCAF', name: 'Beige' },
+      { hex: '#E6CCAF', name: 'Soft Beige' },
+      { hex: '#FFFFFF', name: 'Milky White' },
+      { hex: '#FFC0CB', name: 'Blush Pink' },
       { hex: '#B8A99A', name: 'Taupe' },
-      { hex: '#F8F0DD', name: 'Ivory' },
       { hex: '#FFF3D9', name: 'Cream' },
-      { hex: '#A17249', name: 'Cappuccino' },
-      { hex: '#D2B48C', name: 'Sand' },
+      { hex: '#E8E8E8', name: 'Icy Grey' },
+      { hex: '#F2F3F4', name: 'Transparent Gloss', gradient: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8FF 50%, #F2F3F4 100%)' },
     ]
   },
   {
-    name: "Cool Tones",
+    name: "Glazed & Pearlcore",
     colors: [
-      { hex: '#0A2463', name: 'Navy blue' },
-      { hex: '#7EC8E3', name: 'Sky blue' },
-      { hex: '#C8A2C8', name: 'Lavender' },
-      { hex: '#C8A4D4', name: 'Lilac' },
-      { hex: '#9CAF88', name: 'Sage green' },
-      { hex: '#98D8C8', name: 'Mint' },
+      { hex: '#E8E8E8', name: 'Glazed Donut', gradient: 'linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%)' },
+      { hex: '#FFFFFF', name: 'Iridescent White', gradient: 'linear-gradient(135deg, #FFFFFF 0%, #F0F8FF 50%, #FFFFFF 100%)' },
+      { hex: '#EAEAEA', name: 'Holographic Pearl', gradient: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' },
+      { hex: '#C0C0C0', name: 'Baby Chrome' },
+      { hex: '#F2F3F4', name: 'Soft Opal', gradient: 'linear-gradient(135deg, #E6E6FA 0%, #F8F8FF 50%, #E6E6FA 100%)' },
     ]
   },
   {
-    name: "Warm Tones",
+    name: "Y2K / Pop Vibes",
     colors: [
-      { hex: '#D2042D', name: 'Cherry red' },
-      { hex: '#A52A2A', name: 'Brick red' },
+      { hex: '#FF69B4', name: 'Hot Pink' },
+      { hex: '#1E90FF', name: 'Electric Blue' },
+      { hex: '#39FF14', name: 'Neon Green' },
+      { hex: '#FFFF00', name: 'Acid Yellow' },
+      { hex: '#FF7F50', name: 'Candy Orange' },
+      { hex: '#C0C0C0', name: 'Silver Chrome', gradient: 'linear-gradient(135deg, #C0C0C0 0%, #DCDCDC 50%, #C0C0C0 100%)' },
+      { hex: '#9370DB', name: 'Bubblegum Purple' },
+    ]
+  },
+  {
+    name: "Dark & Mysterious",
+    colors: [
+      { hex: '#800020', name: 'Deep Burgundy' },
+      { hex: '#191970', name: 'Midnight Blue' },
+      { hex: '#3D0C02', name: 'Black Cherry' },
+      { hex: '#014421', name: 'Forest Green' },
+      { hex: '#2C3539', name: 'Gunmetal' },
+      { hex: '#000000', name: 'Matte Black' },
+      { hex: '#551A8B', name: 'Cosmic Purple' },
+    ]
+  },
+  {
+    name: "Luxury / Metallic",
+    colors: [
+      { hex: '#D4AF37', name: '24K Gold' },
+      { hex: '#B76E79', name: 'Rose Gold' },
+      { hex: '#E5E4E2', name: 'Platinum' },
+      { hex: '#F7E7CE', name: 'Champagne' },
+      { hex: '#B87333', name: 'Bronze' },
+      { hex: '#8A9A5B', name: 'Pewter' },
+      { hex: '#046307', name: 'Emerald Green' },
+      { hex: '#0F52BA', name: 'Sapphire Blue' },
+    ]
+  },
+  {
+    name: "Romantic / Pastelcore",
+    colors: [
+      { hex: '#C8A4D4', name: 'Pastel Lilac' },
+      { hex: '#B0E0E6', name: 'Baby Blue' },
+      { hex: '#98D8C8', name: 'Soft Mint' },
+      { hex: '#FFC0CB', name: 'Powder Pink' },
+      { hex: '#FFFACD', name: 'Butter Yellow' },
+      { hex: '#C8A2C8', name: 'Mauve' },
+      { hex: '#FFE5B4', name: 'Peachy Nude' },
+    ]
+  },
+  {
+    name: "Bold & Graphic",
+    colors: [
+      { hex: '#D2042D', name: 'Primary Red' },
+      { hex: '#000000', name: 'Jet Black' },
+      { hex: '#FFFFFF', name: 'Whiteout' },
+      { hex: '#0A2463', name: 'High Contrast Blue' },
+      { hex: '#FF7F00', name: 'Citrus Orange' },
+    ]
+  },
+  {
+    name: "Goth / Punk",
+    colors: [
+      { hex: '#000000', name: 'Matte Black' },
+      { hex: '#8B0000', name: 'Blood Red' },
+      { hex: '#808080', name: 'Ash Grey' },
+      { hex: '#7B3F00', name: 'Rust Brown' },
+      { hex: '#673147', name: 'Deep Plum' },
+      { hex: '#556B2F', name: 'Olive Green' },
+      { hex: '#343434', name: 'Dark Chrome' },
+    ]
+  },
+  {
+    name: "Frozen / Clean Girl",
+    colors: [
+      { hex: '#A5F2F3', name: 'Ice Blue' },
+      { hex: '#E6E6FA', name: 'Soft Lavender' },
+      { hex: '#F0FFFF', name: 'Frosted White' },
+      { hex: '#C0C0C0', name: 'Shimmering Grey' },
+      { hex: '#F5F5F5', name: 'Translucent Glaze', gradient: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)' },
+    ]
+  },
+  {
+    name: "Artistic / Painterly",
+    colors: [
       { hex: '#FF7F50', name: 'Coral' },
-      { hex: '#FFE5B4', name: 'Peach' },
-      { hex: '#CC5500', name: 'Burnt orange' },
+      { hex: '#556B2F', name: 'Olive' },
       { hex: '#E2725B', name: 'Terracotta' },
+      { hex: '#000000', name: 'Ink Black' },
+      { hex: '#CC7722', name: 'Ochre' },
     ]
   },
   {
-    name: "Metallic & Effects",
+    name: "Nature-Inspired",
     colors: [
-      { hex: '#D4AF37', name: 'Gold' },
+      { hex: '#9CAF88', name: 'Sage Green' },
+      { hex: '#A17249', name: 'Clay' },
+      { hex: '#E2725B', name: 'Terracotta' },
+      { hex: '#C08081', name: 'Dusty Rose' },
+      { hex: '#0077BE', name: 'Ocean Blue' },
+      { hex: '#D2B48C', name: 'Sand' },
+      { hex: '#8A9A5B', name: 'Moss' },
+    ]
+  },
+  {
+    name: "Futuristic",
+    colors: [
       { hex: '#C0C0C0', name: 'Silver' },
-      { hex: '#B87333', name: 'Copper' },
-      { hex: '#E8E8E8', name: 'Chrome' },
-      { hex: '#EAEAEA', name: 'Holographic', gradient: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' },
-      { hex: '#F2F3F4', name: 'Pearl', gradient: 'linear-gradient(135deg, #E6E6FA 0%, #F8F8FF 50%, #E6E6FA 100%)' },
+      { hex: '#4682B4', name: 'Reflective Blue' },
+      { hex: '#000000', name: 'Oil-Slick Black', gradient: 'linear-gradient(135deg, #000000 0%, #434343 50%, #000000 100%)' },
+      { hex: '#8A2BE2', name: 'Ultraviolet' },
+      { hex: '#BFFF00', name: 'Lime Techno' },
+      { hex: '#EAEAEA', name: 'Holo Chrome', gradient: 'linear-gradient(135deg, #C0C0C0 0%, #EAEAEA 50%, #C0C0C0 100%)' },
     ]
   },
-  {
-    name: "Dark & Deep",
-    colors: [
-      { hex: '#000000', name: 'Black' },
-      { hex: '#800020', name: 'Burgundy' },
-      { hex: '#673147', name: 'Plum' },
-      { hex: '#7B3F00', name: 'Chocolate' },
-      { hex: '#046307', name: 'Emerald' },
-      { hex: '#191970', name: 'Midnight blue' },
-    ]
-  }
 ];
 
 const NailColorSelector: React.FC = () => {
   const { nailColor, setNailColor } = useApp();
-  const [activeCategory, setActiveCategory] = useState<string>("Nude & Neutrals");
+  const [activeCategory, setActiveCategory] = useState<string>("Nude & Minimalist");
+  const { t } = useLanguage();
   
   const handleCategoryChange = (categoryName: string) => {
     setActiveCategory(categoryName);
@@ -128,7 +211,7 @@ const NailColorSelector: React.FC = () => {
                 const isSelected = nailColor === color.hex;
                 
                 return (
-                  <TooltipProvider key={color.hex} delayDuration={300}>
+                  <TooltipProvider key={color.hex + color.name} delayDuration={300}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="flex flex-col items-center space-y-2 w-16">
@@ -149,7 +232,7 @@ const NailColorSelector: React.FC = () => {
                               <Check 
                                 size={14} 
                                 className={
-                                  ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4'].includes(color.hex) 
+                                  ['#FFFFFF', '#F5F5F5', '#E0E0E0', '#F8F0DD', '#FFF3D9', '#FFE5B4', '#E8E8E8', '#EAEAEA', '#F2F3F4', '#F0FFFF', '#FFFACD'].includes(color.hex) 
                                     ? 'text-black' 
                                     : 'text-white'
                                 } 
