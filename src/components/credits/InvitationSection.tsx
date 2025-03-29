@@ -48,7 +48,7 @@ const InvitationSection: React.FC = () => {
       toast.success(t.credits.success);
     } catch (error) {
       console.error('Error generating invitation code:', error);
-      toast.error('Error generating invitation code');
+      toast.error('Error generating invitation link');
     } finally {
       setIsGenerating(false);
     }
@@ -56,7 +56,8 @@ const InvitationSection: React.FC = () => {
   
   const copyToClipboard = () => {
     if (inviteCode) {
-      navigator.clipboard.writeText(inviteCode);
+      const inviteUrl = `${window.location.origin}/onboarding?invite=${inviteCode}`;
+      navigator.clipboard.writeText(inviteUrl);
       setIsCopied(true);
       toast.success(t.credits.inviteCodeCopied);
       
@@ -68,13 +69,14 @@ const InvitationSection: React.FC = () => {
   
   const shareInvite = () => {
     if (inviteCode) {
-      const shareText = `Join me on NailGenie and get 5 free credits! Use my invitation code: ${inviteCode}`;
+      const inviteUrl = `${window.location.origin}/onboarding?invite=${inviteCode}`;
+      const shareText = `Join me on NailGenie and get 5 free credits! ${inviteUrl}`;
       
       if (navigator.share) {
         navigator.share({
           title: 'NailGenie Invitation',
           text: shareText,
-          url: window.location.origin,
+          url: inviteUrl,
         }).catch(err => {
           console.error('Error sharing:', err);
         });
@@ -96,7 +98,10 @@ const InvitationSection: React.FC = () => {
         {inviteCode ? (
           <>
             <div className="bg-white p-4 rounded-lg border border-primary/20 text-center mb-4">
-              <span className="text-xl font-mono font-bold text-primary">{inviteCode}</span>
+              <span className="text-sm font-medium text-muted-foreground">
+                {window.location.origin}/onboarding?invite=
+              </span>
+              <span className="text-base font-mono font-bold text-primary">{inviteCode}</span>
             </div>
             <div className="flex gap-2">
               <Button 

@@ -1,3 +1,4 @@
+
 export type Language = 'en' | 'fr';
 
 export interface CommonTranslations {
@@ -165,7 +166,5 @@ export interface CreditsTranslations {
   copyCode: string;
   shareInvite: string;
   inviteCodeCopied: string;
-  enterInviteCode: string;
-  invalidInviteCode: string;
-  successInviteCode: string;
+  invitationSuccess: string;
 }

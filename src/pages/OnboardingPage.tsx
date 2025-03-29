@@ -1,6 +1,6 @@
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
@@ -12,10 +12,10 @@ import SuccessStep from "@/components/onboarding/SuccessStep";
 import { useLanguage } from "@/context/LanguageContext";
 import LoginStep from "@/components/onboarding/LoginStep";
 import EmailVerificationStep from "@/components/onboarding/EmailVerificationStep";
-import InviteCodeStep from "@/components/onboarding/InviteCodeStep";
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const { t, language } = useLanguage();
   const [isLogin, setIsLogin] = useState(false);
@@ -26,6 +26,22 @@ const OnboardingPage: React.FC = () => {
     preferences: [] as string[],
     inviteCode: "",
   });
+
+  // Extract invite code from URL parameters if present
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const inviteCode = queryParams.get('invite');
+    if (inviteCode) {
+      setUserData(prev => ({ ...prev, inviteCode }));
+      // Show a toast to let the user know they're using an invitation
+      toast.success(
+        language === 'fr' 
+          ? 'Vous vous inscrivez avec une invitation!'
+          : 'You\'re signing up with an invitation!',
+        { duration: 4000 }
+      );
+    }
+  }, [location, language]);
 
   const handleProfileSubmit = (values: { fullName: string; email: string }) => {
     setUserData((prev) => ({ ...prev, ...values }));
@@ -42,13 +58,6 @@ const OnboardingPage: React.FC = () => {
 
   const handlePreferencesSubmit = (preferences: string[]) => {
     setUserData((prev) => ({ ...prev, preferences }));
-    handleNext();
-  };
-
-  const handleInviteCodeSubmit = (code?: string) => {
-    if (code) {
-      setUserData((prev) => ({ ...prev, inviteCode: code }));
-    }
     handleNext();
   };
 
@@ -117,8 +126,13 @@ const OnboardingPage: React.FC = () => {
           
           if (inviteError) {
             console.error("Error applying invitation code:", inviteError);
-          } else {
+          } else if (inviteResult) {
             console.log("Invitation applied successfully:", inviteResult);
+            toast.success(
+              language === "fr" 
+                ? t.credits.invitationSuccess
+                : t.credits.invitationSuccess
+            );
           }
         } catch (inviteErr) {
           console.error("Error with invitation process:", inviteErr);
@@ -212,13 +226,6 @@ const OnboardingPage: React.FC = () => {
           description:
             language === "fr" ? "Créez un mot de passe" : "Create a password",
           component: <PasswordForm onSubmitValues={handlePasswordSubmit} />,
-        },
-        {
-          id: "inviteCode",
-          title: language === "fr" ? "Invitation" : "Invitation",
-          description:
-            language === "fr" ? "Code d'invitation" : "Invitation code",
-          component: <InviteCodeStep onContinue={handleInviteCodeSubmit} />,
         },
         {
           id: "preferences",
