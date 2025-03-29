@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      invitations: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          used_at: string | null
+          used_by: string | null
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          used_by?: string | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          used_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       saved_designs: {
         Row: {
           created_at: string
@@ -111,8 +138,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      create_invitation: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_invitation_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       use_credit: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      use_invitation: {
+        Args: {
+          invitation_code: string
+          new_user_id: string
+        }
         Returns: boolean
       }
     }

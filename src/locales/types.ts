@@ -1,24 +1,20 @@
-
 export type Language = 'en' | 'fr';
 
 export interface CommonTranslations {
-  back: string;
-  next: string;
-  skip: string;
-  submit: string;
-  cancel: string;
-  save: string;
-  edit: string;
-  delete: string;
+  create: string;
+  gallery: string;
+  feed: string;
   loading: string;
+  continue: string;
+  back: string;
   error: string;
-  success: string;
-  tryAgain: string;
-  chooseOne: string;
-  optionRequired: string;
-  download: string;
+  save: string;
   share: string;
-  connectionRequired: string;
+  delete: string;
+  cancel: string;
+  confirm: string;
+  success: string;
+  skip: string;
 }
 
 export interface OnboardingTranslations {
@@ -157,4 +153,13 @@ export interface CreditsTranslations {
   mostPopular: string;
   fewMoreDrops: string;
   costOneCredit: string;
+  inviteFriends: string;
+  inviteExplainer: string;
+  generateInvite: string;
+  copyCode: string;
+  shareInvite: string;
+  inviteCodeCopied: string;
+  enterInviteCode: string;
+  invalidInviteCode: string;
+  successInviteCode: string;
 }

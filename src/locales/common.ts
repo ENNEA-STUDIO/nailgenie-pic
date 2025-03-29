@@ -1,51 +1,37 @@
 
-import { Language } from './types';
-
-export interface CommonTranslations {
-  tryAgain: string;
-  error: string;
-  loading: string;
-  download: string;
-  share: string;
-  save: string;
-  create: string;
-  gallery: string;
-  feed: string;
-  logout: string;
-  logoutSuccess: string;
-  errorMessage: string;
-  connectionRequired: string;
-}
+import { Language, CommonTranslations } from './types';
 
 export const commonTranslations: Record<Language, CommonTranslations> = {
   fr: {
-    tryAgain: 'Réessayer',
-    error: 'Erreur',
-    loading: 'Chargement',
-    download: 'Télécharger',
-    share: 'Partager',
-    save: 'Sauvegarder',
     create: 'Créer',
-    gallery: 'Gallerie',
-    feed: 'Feed',
-    logout: 'Déconnexion',
-    logoutSuccess: 'Vous avez été déconnecté avec succès',
-    errorMessage: "Une erreur s'est produite",
-    connectionRequired: 'Veuillez vous connecter pour accéder à cette page',
+    gallery: 'Galerie',
+    feed: 'Explorer',
+    loading: 'Chargement...',
+    continue: 'Continuer',
+    back: 'Retour',
+    error: 'Erreur',
+    save: 'Sauvegarder',
+    share: 'Partager',
+    delete: 'Supprimer',
+    cancel: 'Annuler',
+    confirm: 'Confirmer',
+    success: 'Succès',
+    skip: 'Passer',
   },
   en: {
-    tryAgain: 'Try Again',
-    error: 'Error',
-    loading: 'Loading',
-    download: 'Download',
-    share: 'Share',
-    save: 'Save',
     create: 'Create',
     gallery: 'Gallery',
-    feed: 'Feed',
-    logout: 'Logout',
-    logoutSuccess: 'You have been successfully logged out',
-    errorMessage: 'An error occurred',
-    connectionRequired: 'Please log in to access this page',
+    feed: 'Discover',
+    loading: 'Loading...',
+    continue: 'Continue',
+    back: 'Back',
+    error: 'Error',
+    save: 'Save',
+    share: 'Share',
+    delete: 'Delete',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    success: 'Success',
+    skip: 'Skip',
   }
 };

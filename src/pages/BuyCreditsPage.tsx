@@ -8,6 +8,7 @@ import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '@/components/navigation/BottomNav';
 import NailPolishIcon from '@/components/credits/NailPolishIcon';
+import InvitationSection from '@/components/credits/InvitationSection';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, addCredits } = useApp();
@@ -124,6 +125,8 @@ const BuyCreditsPage: React.FC = () => {
             </motion.div>
           ))}
         </div>
+        
+        <InvitationSection />
       </div>
       
       <BottomNav />
