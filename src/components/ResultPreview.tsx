@@ -6,7 +6,6 @@ import { Download, Save, RefreshCw, CheckCircle, XCircle, CreditCard, Share2 } f
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
-import { downloadDesignImage } from '@/hooks/gallery/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface ResultPreviewProps {
@@ -67,11 +66,14 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       const shareText = language === 'fr' 
         ? `Regarde ce design d'ongle que j'ai créé avec NailGenie: "${prompt}". Inscris-toi et obtiens 5 crédits gratuits: ${inviteUrl}`
         : `Check out this nail design I created with NailGenie: "${prompt}". Sign up and get 5 free credits: ${inviteUrl}`;
-        
+      
+      // Use the Web Share API to share the image directly
       if (navigator.share) {
+        // Create a share object with the image URL, title and text
         await navigator.share({
           title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
           text: shareText,
+          // Pass the image URL directly
           url: generatedDesign
         });
         
@@ -203,7 +205,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           </Tooltip>
         </TooltipProvider>
         
-        {/* Nouveau bouton de partage au milieu */}
+        {/* Bouton de partage amélioré */}
         <Button 
           onClick={handleShare}
           variant="outline" 

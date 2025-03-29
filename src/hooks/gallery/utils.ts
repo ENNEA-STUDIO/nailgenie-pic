@@ -43,16 +43,14 @@ export const shareImageExternally = async (imageUrl: string, prompt?: string) =>
 
     console.log("Sharing image:", imageUrl);
 
-    // Create share data with text instead of URL for public sharing
-    // This approach avoids the permissions issue as we're sharing text with the description
-    // Instead of directly sharing the URL which might have permission issues
+    // Create share data with the direct image URL
+    // This allows the image to be visible directly in the share
     const shareData = {
       title: 'My Nail Design',
       text: prompt 
         ? `Check out my nail design: "${prompt}"\n\nCreated with NailGenie!` 
         : 'Check out my nail design created with NailGenie!',
-      // For social media apps that can handle URLs, we still include it
-      // But the primary sharing mechanism is through text
+      // Pass the image URL directly to make it appear in the share preview
       url: imageUrl
     };
 
