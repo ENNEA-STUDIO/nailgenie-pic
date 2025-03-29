@@ -23,9 +23,9 @@ const BottomNav: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-6"
+      className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pointer-events-none"
     >
-      <div className="max-w-md mx-auto p-2 rounded-full backdrop-blur-xl bg-white/20 border border-white/30 shadow-lg">
+      <div className="max-w-md mx-auto p-2 rounded-full backdrop-blur-xl bg-white/20 border border-white/30 shadow-lg pointer-events-auto">
         <div className="flex items-center justify-around">
           <motion.button
             onClick={() => navigate('/camera')}

@@ -22,8 +22,8 @@ const CustomBottomNav: React.FC = () => {
   ];
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-2 pb-safe">
-      <Card className="bg-background/80 backdrop-blur-lg border-t border-muted rounded-2xl shadow-lg mx-auto max-w-md">
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-2 pb-safe pointer-events-none">
+      <Card className="bg-background/80 backdrop-blur-lg border-t border-muted rounded-2xl shadow-lg mx-auto max-w-md pointer-events-auto">
         <div className="flex items-center justify-between px-4 py-2">
           {navItems.map((item) => (
             <Link key={item.path} to={item.path} className="flex-1">
@@ -46,7 +46,7 @@ const CustomBottomNav: React.FC = () => {
             </Link>
           ))}
           
-          {/* Credits display amélioré */}
+          {/* Credits display */}
           <Link to="/buy-credits" className="flex-1">
             <div
               className={`flex flex-col items-center py-2 relative ${
