@@ -39,6 +39,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   const handleShare = async () => {
     try {
       setSharing(true);
+      console.log("Starting share process...");
       
       // Get an invitation code to include in the share
       const { data: inviteData, error: inviteError } = await supabase
@@ -47,21 +48,33 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         .order('created_at', { ascending: false })
         .limit(1);
         
+      if (inviteError) {
+        console.error("Error getting invitation code:", inviteError);
+      }
+      
       let inviteCode = '';
       
-      if (inviteError || !inviteData || inviteData.length === 0) {
+      if (!inviteData || inviteData.length === 0) {
         // Create a new invitation code if none exists
+        console.log("No invitation code found, creating a new one...");
         const { data: newInviteData, error: newInviteError } = await supabase.rpc('create_invitation');
         
-        if (!newInviteError && newInviteData) {
+        if (newInviteError) {
+          console.error("Error creating invitation:", newInviteError);
+        }
+        
+        if (newInviteData) {
           inviteCode = newInviteData;
+          console.log("Created new invitation code:", inviteCode);
         }
       } else {
         inviteCode = inviteData[0].code;
+        console.log("Using existing invitation code:", inviteCode);
       }
       
       // Create a shareable link to view the design
       // First, save this design to a temporary shared_view table
+      console.log("Saving design to shared_views table...");
       const { data: viewData, error: viewError } = await supabase
         .from('shared_views')
         .insert([
@@ -77,10 +90,16 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         .select('id')
         .single();
       
-      if (viewError) throw viewError;
+      if (viewError) {
+        console.error("Error creating shared view:", viewError);
+        throw viewError;
+      }
+      
+      console.log("Design saved with ID:", viewData.id);
       
       // Create view URL with the shared view ID
       const viewUrl = `${window.location.origin}/shared/${viewData.id}`;
+      console.log("Share URL created:", viewUrl);
       
       // Create share message
       const shareText = language === 'fr' 
@@ -89,6 +108,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       
       // Use the Web Share API to share the text with the link
       if (navigator.share) {
+        console.log("Using Web Share API...");
         await navigator.share({
           title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
           text: shareText,
@@ -97,11 +117,10 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         showFeedback('success', t.result.shareSuccess);
       } else {
         // Fallback for browsers that don't support Web Share API
+        console.log("Web Share API not supported, copying to clipboard...");
         await navigator.clipboard.writeText(shareText);
         
-        showFeedback('success', language === 'fr' 
-          ? 'Lien de partage copié!' 
-          : 'Share link copied!');
+        showFeedback('success', t.result.shareLinkCopied);
       }
     } catch (error) {
       console.error("Error sharing design:", error);
@@ -238,7 +257,8 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           
           {/* Share success indicator */}
           <AnimatePresence>
-            {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.shareSuccess && (
+            {feedback?.visible && feedback.type === 'success' && 
+             (feedback.message === t.result.shareSuccess || feedback.message === t.result.shareLinkCopied) && (
               <motion.div 
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}

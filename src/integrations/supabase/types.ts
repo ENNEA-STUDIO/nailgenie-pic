@@ -102,6 +102,39 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_views: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          invite_code: string
+          nail_color: string | null
+          nail_length: string | null
+          nail_shape: string | null
+          prompt: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          invite_code: string
+          nail_color?: string | null
+          nail_length?: string | null
+          nail_shape?: string | null
+          prompt?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          invite_code?: string
+          nail_color?: string | null
+          nail_length?: string | null
+          nail_shape?: string | null
+          prompt?: string | null
+        }
+        Relationships: []
+      }
       user_credits: {
         Row: {
           created_at: string

@@ -27,6 +27,7 @@ const SharedDesignPage: React.FC = () => {
   useEffect(() => {
     const fetchSharedDesign = async () => {
       try {
+        console.log("Fetching shared design with ID:", id);
         if (!id) {
           setError('Design ID is missing');
           setLoading(false);
@@ -39,7 +40,12 @@ const SharedDesignPage: React.FC = () => {
           .eq('id', id)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase error:", error);
+          throw error;
+        }
+        
+        console.log("Fetched design data:", data);
         
         if (!data) {
           setError('Design not found');
@@ -115,7 +121,7 @@ const SharedDesignPage: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            {language === 'fr' ? 'Design Partagé' : 'Shared Design'}
+            {t.result.sharedDesignTitle}
           </h1>
           <p className="text-gray-600 text-sm">
             {design.prompt}
@@ -148,7 +154,7 @@ const SharedDesignPage: React.FC = () => {
           
           <Link to={`/onboarding?invite=${design.invite_code}`}>
             <Button className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-              {language === 'fr' ? 'Essayer gratuitement' : 'Try it Free'}
+              {t.result.tryItFree}
               <ChevronRight size={16} />
             </Button>
           </Link>
