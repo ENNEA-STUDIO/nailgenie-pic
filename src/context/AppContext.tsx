@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Client } from "@gradio/client";
 
 // Types pour les options d'ongles
 export type NailShape =
@@ -37,7 +38,6 @@ interface AppContextType {
   nailLength: NailLength;
   nailColor: string;
   credits: number;
-  error: string | null;
   setHandImage: (image: string | null) => void;
   setGeneratedDesign: (design: string | null) => void;
   setPrompt: (prompt: string) => void;
@@ -52,6 +52,29 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+interface GradioImageData {
+  image: {
+    path: string;
+    url: string;
+    size: number | null;
+    orig_name: string | null;
+    mime_type: string | null;
+    is_stream: boolean;
+    meta: {
+      _type: string;
+    };
+  };
+  caption: string | null;
+}
+
+interface GradioResult {
+  type: string;
+  time: Date;
+  data: [GradioImageData[], string];
+  endpoint: string;
+  fn_index: number;
+}
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -63,7 +86,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [nailLength, setNailLength] = useState<NailLength>("medium");
   const [nailColor, setNailColor] = useState<string>("#E6CCAF"); // Beige as default
   const [credits, setCredits] = useState<number>(0);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     checkCredits();
@@ -155,6 +177,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [checkCredits]);
 
+  const urlToBlob = async (url: string): Promise<Blob> => {
+    const response = await fetch(url);
+    return await response.blob();
+  };
+
   const generateDesign = useCallback(async () => {
     if (!handImage) {
       toast.error("Veuillez prendre une photo de votre main d'abord");
@@ -173,7 +200,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     setIsLoading(true);
-    setError(null);
 
     try {
       console.log("Preparing to generate design with params:", {
@@ -184,69 +210,70 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         nailColor,
       });
 
-      // Call the Edge Function directly with all required information
-      const { data, error } = await supabase.functions.invoke("generate-nail-design", {
-        body: {
-          imageBase64: handImage,
-          prompt,
-          nailShape,
-          nailLength,
-          nailColor,
-        },
+      const base64Data = handImage.replace(/^data:image\/\w+;base64,/, "");
+      const byteString = atob(base64Data);
+      const buffer = new Uint8Array(byteString.length);
+
+      for (let i = 0; i < byteString.length; i++) {
+        buffer[i] = byteString.charCodeAt(i);
+      }
+
+      const imageBlob = new Blob([buffer], { type: "image/jpeg" });
+
+      const lengthText =
+        nailLength === "short"
+          ? "short"
+          : nailLength === "medium"
+          ? "medium"
+          : "long";
+      const colorName = getColorName(nailColor);
+
+      const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in ${colorName}. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
+
+      console.log("Full prompt:", fullPrompt);
+      console.log("Connecting to Gemini Image Edit model...");
+
+      const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", {
+        hf_token: import.meta.env.VITE_HUGGINGFACE_TOKEN,
       });
 
-      if (error) {
-        console.error("Edge function error:", error);
-        setError(`Erreur lors de la génération: ${error.message}`);
-        throw new Error(`Erreur lors de la génération: ${error.message}`);
-      }
+      console.log("Connected to client successfully");
+      console.log("Making prediction with prompt:", fullPrompt);
 
-      if (!data || !data.success) {
-        const errorMessage = data?.error || "Erreur inconnue";
-        console.error("API error:", errorMessage);
-        setError(`Erreur: ${errorMessage}`);
-        throw new Error(`Erreur: ${errorMessage}`);
-      }
+      const result = await client.predict("/process_image_and_prompt", {
+        composite_pil: imageBlob,
+        prompt: fullPrompt,
+        gemini_api_key: import.meta.env.VITE_GEMINI_API_KEY,
+      });
 
-      console.log("Design generated successfully", data);
+      console.log(
+        "Prediction result received:",
+        result ? "success" : "undefined"
+      );
+      console.log("Result data:", result.data ? "exists" : "missing");
+      console.log("Full result object:", JSON.stringify(result, null, 2));
 
-      if (data.data) {
+      if (result && "data" in result) {
         try {
-          // Handling the response from our edge function
-          const resultData = data.data;
-          const imageUrl = resultData[0]?.[0]?.image?.url;
+          const gradioResult = result as unknown as GradioResult;
+          const imageUrl = gradioResult.data[0]?.[0]?.image?.url;
 
           if (!imageUrl) {
-            setError("URL de l'image non trouvée");
             throw new Error("URL de l'image non trouvée");
           }
 
-          console.log("Image URL from API:", imageUrl);
+          console.log("Gradio URL:", imageUrl);
 
           try {
-            // For images directly returned as data URLs
-            if (imageUrl.startsWith('data:')) {
-              setGeneratedDesign(imageUrl);
-              toast.success("Design généré avec succès!");
-              
-              const { error: creditError } = await supabase.rpc('use_credit');
-              if (creditError) {
-                console.error("Error deducting credit:", creditError);
-              } else {
-                setCredits(prev => Math.max(0, prev - 1));
-              }
-              return;
-            }
-
-            // For images that need to be fetched from a URL
             const response = await fetch(imageUrl, {
               headers: {
-                Authorization: `Bearer ${import.meta.env.VITE_HUGGINGFACE_TOKEN}`,
+                Authorization: `Bearer ${
+                  import.meta.env.VITE_HUGGINGFACE_TOKEN
+                }`,
               },
             });
 
             if (!response.ok) {
-              setError(`Échec de récupération de l'image: ${response.status}`);
               throw new Error(`Failed to fetch image: ${response.status}`);
             }
 
@@ -256,22 +283,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             const fileName = `nail-designs/${Date.now()}.webp`;
             console.log("Attempting upload to:", fileName);
 
-            const { data: uploadData, error: uploadError } = await supabase.storage
-              .from("nail_designs")
-              .upload(fileName, imageBlob, {
-                contentType: "image/webp",
-                upsert: true,
-              });
+            const { data: uploadData, error: uploadError } =
+              await supabase.storage
+                .from("nail_designs")
+                .upload(fileName, imageBlob, {
+                  contentType: "image/webp",
+                  upsert: true,
+                });
 
             if (uploadError) {
               console.error("Upload error details:", uploadError);
-              setError(`Erreur d'upload: ${uploadError.message}`);
               throw uploadError;
             }
 
-            const { data: { publicUrl } } = supabase.storage
-              .from("nail_designs")
-              .getPublicUrl(fileName);
+            const {
+              data: { publicUrl },
+            } = supabase.storage.from("nail_designs").getPublicUrl(fileName);
 
             console.log("Final URL:", publicUrl);
             setGeneratedDesign(publicUrl);
@@ -285,24 +312,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             }
           } catch (fetchError) {
             console.error("Error fetching/processing image:", fetchError);
-            setError(`Erreur lors de la récupération de l'image: ${fetchError.message}`);
             throw new Error(
               `Erreur lors de la récupération de l'image: ${fetchError.message}`
             );
           }
         } catch (error) {
           console.error("Detailed error:", error);
-          setError(`Erreur: ${error.message || "Erreur inconnue"}`);
           toast.error(`Erreur: ${error.message || "Erreur inconnue"}`);
         }
       } else {
-        console.error("Unexpected data format:", data);
-        setError("Aucune donnée d'image reçue de l'API");
+        console.error("Unexpected data format:", result);
         throw new Error("Aucune donnée d'image reçue de l'API");
       }
     } catch (error) {
       console.error("Erreur lors de la génération du design:", error);
-      setError(error.message || "Veuillez réessayer.");
       toast.error(
         `Échec de la génération du design: ${
           error.message || "Veuillez réessayer."
@@ -371,7 +394,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     setNailShape("oval");
     setNailLength("medium");
     setNailColor("#E6CCAF");
-    setError(null);
   }, []);
 
   const value = {
@@ -383,7 +405,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     nailLength,
     nailColor,
     credits,
-    error,
     setHandImage,
     setGeneratedDesign,
     setPrompt,

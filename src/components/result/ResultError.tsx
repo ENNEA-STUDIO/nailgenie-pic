@@ -8,10 +8,9 @@ interface ResultErrorProps {
   onTryAgain: () => void;
   isSafari: boolean;
   isIOS: boolean;
-  errorMessage?: string;
 }
 
-const ResultError: React.FC<ResultErrorProps> = ({ onTryAgain, isSafari, isIOS, errorMessage }) => {
+const ResultError: React.FC<ResultErrorProps> = ({ onTryAgain, isSafari, isIOS }) => {
   const { t } = useLanguage();
   
   return (
@@ -23,7 +22,7 @@ const ResultError: React.FC<ResultErrorProps> = ({ onTryAgain, isSafari, isIOS, 
     >
       <h3 className="text-lg font-medium mb-2 text-destructive">{t.common.error}</h3>
       <p className="text-sm text-muted-foreground text-center max-w-xs mb-6">
-        {errorMessage || t.result.loadingError}
+        {t.result.loadingError}
         {(isSafari || isIOS) && (
           <span className="block mt-2 text-xs">
             {t.result.safariError}

@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { Client } from "https://esm.sh/@gradio/client@2.1.11";
 
 const HUGGINGFACE_TOKEN = Deno.env.get("HUGGINGFACE_TOKEN");
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
@@ -56,7 +57,7 @@ serve(async (req) => {
     console.log("HF Token available:", !!HUGGINGFACE_TOKEN);
     console.log("Gemini API Key available:", !!GEMINI_API_KEY);
 
-    if (!HUGGINGFACE_TOKEN) {
+    if (!HUGGINGFACE_TOKEN || !GEMINI_API_KEY) {
       throw new Error("Les clés d'API nécessaires ne sont pas configurées");
     }
 
@@ -80,57 +81,31 @@ serve(async (req) => {
       nailLength === 'medium' ? 'moyens' : 'longs'} de forme ${nailShape} de couleur ${colorName}`;
     
     console.log("Full prompt:", fullPrompt);
+    console.log("Connecting to Gemini Image Edit model...");
     
-    // Use Hugging Face API
+    // Connect to the Gemini Image Edit model
     try {
-      console.log("Preparing to send request to Huggingface API");
-      
-      const formData = new FormData();
-      formData.append("image", imageBlob, "image.jpg");
-      formData.append("prompt", fullPrompt);
-      
-      const response = await fetch("https://api-inference.huggingface.co/models/BenKCDQ/Gemini-Image-Edit-nails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${HUGGINGFACE_TOKEN}`
-        },
-        body: formData
+      const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", { 
+        hf_token: HUGGINGFACE_TOKEN 
       });
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API call failed:", response.status, errorText);
-        throw new Error(`API call failed with status ${response.status}: ${errorText}`);
-      }
+      console.log("Connected to client successfully");
+      console.log("Making prediction with prompt:", fullPrompt);
       
-      // Get the image data
-      const imageData = await response.blob();
-      console.log("Received response from Hugging Face API", { 
-        contentType: imageData.type, 
-        size: imageData.size 
+      // Make API call to generate the design
+      const result = await client.predict("/process_image_and_prompt", {
+        composite_pil: imageBlob,
+        prompt: fullPrompt,
+        gemini_api_key: GEMINI_API_KEY,
       });
       
-      // Convert the response blob to base64
-      const reader = new FileReader();
-      const base64Promise = new Promise((resolve, reject) => {
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(imageData);
-      });
-      
-      const base64Result = await base64Promise;
-      console.log("Converted result to base64");
-      
-      // Return the result with the generated image data
+      console.log("Prediction result received:", result ? "success" : "undefined");
+      console.log("Result data:", result.data ? "exists" : "missing");
+
+      // Return the result
       return new Response(JSON.stringify({ 
         success: true, 
-        data: [{
-          0: {
-            image: {
-              url: base64Result
-            }
-          }
-        }]
+        data: result.data
       }), { 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
@@ -154,7 +129,7 @@ serve(async (req) => {
 
 // Helper function to get a color name from hex code
 const getColorName = (hexColor: string): string => {
-  // French color mapping
+  // Expanded color mapping for more precise color names
   const colorMap: Record<string, string> = {
     // Nude & Neutrals
     '#E6CCAF': 'beige',
