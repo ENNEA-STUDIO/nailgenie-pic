@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -48,7 +47,12 @@ serve(async (req) => {
     // Get the referrer's user ID
     const referrerId = inviteData.user_id;
 
-    console.log("Processing invitation. Referrer:", referrerId, "New user:", newUserId);
+    console.log(
+      "Processing invitation. Referrer:",
+      referrerId,
+      "New user:",
+      newUserId
+    );
 
     // Mark the invitation as used
     const { error: updateError } = await supabaseClient
@@ -63,21 +67,24 @@ serve(async (req) => {
       throw new Error("Failed to update invitation status");
     }
 
-    // Add 5 bonus credits to the new user (they already have 5 from registration)
-    const { error: newUserCreditsError } = await supabaseClient.rpc("add_user_credits", {
-      user_id_param: newUserId,
-      credits_to_add: 5,
-    });
+    // Create initial credits for new user (10 credits total)
+    const { error: newUserCreditsError } = await supabaseClient
+      .from("user_credits")
+      .insert([{ user_id: newUserId, credits: 10 }])
+      .single();
 
     if (newUserCreditsError) {
       throw new Error("Failed to add credits to new user");
     }
 
     // Add 5 credits to the referrer
-    const { error: referrerCreditsError } = await supabaseClient.rpc("add_user_credits", {
-      user_id_param: referrerId,
-      credits_to_add: 5,
-    });
+    const { error: referrerCreditsError } = await supabaseClient.rpc(
+      "add_user_credits",
+      {
+        user_id_param: referrerId,
+        credits_to_add: 5,
+      }
+    );
 
     if (referrerCreditsError) {
       throw new Error("Failed to add credits to referrer");

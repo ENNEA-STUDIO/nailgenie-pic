@@ -1,4 +1,3 @@
-
 import React, {
   createContext,
   useContext,
@@ -89,7 +88,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     checkCredits();
-    
+
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event) => {
         if (event === "SIGNED_IN") {
@@ -114,9 +113,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       const { data, error } = await supabase
-        .from('user_credits')
-        .select('credits')
-        .eq('user_id', sessionData.session.user.id)
+        .from("user_credits")
+        .select("credits")
+        .eq("user_id", sessionData.session.user.id)
         .single();
 
       if (error) {
@@ -128,20 +127,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         setCredits(data.credits);
         return data.credits;
       } else {
-        // Each new user gets 5 credits by default
-        const { data: newData, error: insertError } = await supabase
-          .from('user_credits')
-          .insert([{ user_id: sessionData.session.user.id, credits: 5 }])
-          .select()
-          .single();
+        // Check if there's a pending invite code
+        const pendingInviteCode = localStorage.getItem("pendingInviteCode");
+        if (!pendingInviteCode) {
+          // No invite code, create initial credits
+          const { data: newData, error: insertError } = await supabase
+            .from("user_credits")
+            .insert([{ user_id: sessionData.session.user.id, credits: 5 }])
+            .select()
+            .single();
 
-        if (insertError) {
-          console.error("Error creating initial credits:", insertError);
-          return 0;
+          if (insertError) {
+            console.error("Error creating initial credits:", insertError);
+            return 0;
+          }
+
+          setCredits(newData?.credits || 0);
+          return newData?.credits || 0;
         }
-
-        setCredits(newData?.credits || 0);
-        return newData?.credits || 0;
+        // If there's a pending invite code, don't create initial credits
+        // They will be created by the use-invitation function
+        return 0;
       }
     } catch (error) {
       console.error("Error checking credits:", error);
@@ -149,33 +155,36 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
-  const addCredits = useCallback(async (amount: number): Promise<boolean> => {
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        toast.error("You must be logged in to add credits");
-        return false;
-      }
+  const addCredits = useCallback(
+    async (amount: number): Promise<boolean> => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) {
+          toast.error("You must be logged in to add credits");
+          return false;
+        }
 
-      const { data, error } = await supabase.rpc('add_user_credits', { 
-        user_id_param: sessionData.session.user.id,
-        credits_to_add: amount
-      });
+        const { data, error } = await supabase.rpc("add_user_credits", {
+          user_id_param: sessionData.session.user.id,
+          credits_to_add: amount,
+        });
 
-      if (error) {
+        if (error) {
+          console.error("Error adding credits:", error);
+          toast.error("Failed to add credits");
+          return false;
+        }
+
+        await checkCredits();
+        return true;
+      } catch (error) {
         console.error("Error adding credits:", error);
         toast.error("Failed to add credits");
         return false;
       }
-
-      await checkCredits();
-      return true;
-    } catch (error) {
-      console.error("Error adding credits:", error);
-      toast.error("Failed to add credits");
-      return false;
-    }
-  }, [checkCredits]);
+    },
+    [checkCredits]
+  );
 
   const urlToBlob = async (url: string): Promise<Blob> => {
     const response = await fetch(url);
@@ -195,7 +204,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
     const currentCredits = await checkCredits();
     if (currentCredits < 1) {
-      toast.error("Vous n'avez pas assez de crédits. Achetez-en plus pour continuer.");
+      toast.error(
+        "Vous n'avez pas assez de crédits. Achetez-en plus pour continuer."
+      );
       return;
     }
 
@@ -226,9 +237,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           : nailLength === "medium"
           ? "medium"
           : "long";
-      
+
       // Check if it's a gradient color (from bi-color category)
-      const isGradient = nailColor.includes('gradient');
+      const isGradient = nailColor.includes("gradient");
       // For gradient colors, we add a special suffix to use our mapping properly
       const colorKey = isGradient ? `${nailColor}_gradient` : nailColor;
       const colorName = getColorName(colorKey);
@@ -309,11 +320,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             setGeneratedDesign(publicUrl);
             toast.success("Design généré avec succès!");
 
-            const { error: creditError } = await supabase.rpc('use_credit');
+            const { error: creditError } = await supabase.rpc("use_credit");
             if (creditError) {
               console.error("Error deducting credit:", creditError);
             } else {
-              setCredits(prev => Math.max(0, prev - 1));
+              setCredits((prev) => Math.max(0, prev - 1));
             }
           } catch (fetchError) {
             console.error("Error fetching/processing image:", fetchError);
@@ -344,147 +355,147 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const getColorName = (hexColor: string): string => {
     const colorMap: Record<string, string> = {
       // Nude & Minimalist
-      '#E6CCAF': 'soft beige',
-      '#FFFFFF': 'milky white',
-      '#FFC0CB': 'blush pink',
-      '#B8A99A': 'taupe',
-      '#FFF3D9': 'cream',
-      '#E8E8E8': 'icy grey',
-      '#F2F3F4': 'transparent gloss',
-      
+      "#E6CCAF": "soft beige",
+      "#FFFFFF": "milky white",
+      "#FFC0CB": "blush pink",
+      "#B8A99A": "taupe",
+      "#FFF3D9": "cream",
+      "#E8E8E8": "icy grey",
+      "#F2F3F4": "transparent gloss",
+
       // Glazed & Pearlcore
       // '#E8E8E8': 'glazed donut', // Already defined above
       // '#FFFFFF': 'iridescent white', // Already defined above
-      '#EAEAEA': 'holographic pearl',
-      '#C0C0C0': 'baby chrome',
+      "#EAEAEA": "holographic pearl",
+      "#C0C0C0": "baby chrome",
       // '#F2F3F4': 'soft opal', // Already defined above
-      
+
       // Y2K / Pop Vibes
-      '#FF69B4': 'hot pink',
-      '#1E90FF': 'electric blue',
-      '#39FF14': 'neon green',
-      '#FFFF00': 'acid yellow',
-      '#FF7F50': 'candy orange',
+      "#FF69B4": "hot pink",
+      "#1E90FF": "electric blue",
+      "#39FF14": "neon green",
+      "#FFFF00": "acid yellow",
+      "#FF7F50": "candy orange",
       // '#C0C0C0': 'silver chrome', // Already defined above
-      '#9370DB': 'bubblegum purple',
-      
+      "#9370DB": "bubblegum purple",
+
       // Dark & Mysterious
-      '#800020': 'deep burgundy',
-      '#191970': 'midnight blue',
-      '#3D0C02': 'black cherry',
-      '#014421': 'forest green',
-      '#2C3539': 'gunmetal',
-      '#000000': 'matte black',
-      '#551A8B': 'cosmic purple',
-      
+      "#800020": "deep burgundy",
+      "#191970": "midnight blue",
+      "#3D0C02": "black cherry",
+      "#014421": "forest green",
+      "#2C3539": "gunmetal",
+      "#000000": "matte black",
+      "#551A8B": "cosmic purple",
+
       // Luxury / Metallic
-      '#D4AF37': '24k gold',
-      '#B76E79': 'rose gold',
-      '#E5E4E2': 'platinum',
-      '#F7E7CE': 'champagne',
-      '#B87333': 'bronze',
-      '#8A9A5B': 'pewter',
-      '#046307': 'emerald green',
-      '#0F52BA': 'sapphire blue',
-      
+      "#D4AF37": "24k gold",
+      "#B76E79": "rose gold",
+      "#E5E4E2": "platinum",
+      "#F7E7CE": "champagne",
+      "#B87333": "bronze",
+      "#8A9A5B": "pewter",
+      "#046307": "emerald green",
+      "#0F52BA": "sapphire blue",
+
       // Romantic / Pastelcore
-      '#C8A4D4': 'pastel lilac',
-      '#B0E0E6': 'baby blue',
-      '#98D8C8': 'soft mint',
+      "#C8A4D4": "pastel lilac",
+      "#B0E0E6": "baby blue",
+      "#98D8C8": "soft mint",
       // '#FFC0CB': 'powder pink', // Already defined above
-      '#FFFACD': 'butter yellow',
-      '#C8A2C8': 'mauve',
-      '#FFE5B4': 'peachy nude',
-      
+      "#FFFACD": "butter yellow",
+      "#C8A2C8": "mauve",
+      "#FFE5B4": "peachy nude",
+
       // Bold & Graphic
-      '#D2042D': 'primary red',
+      "#D2042D": "primary red",
       // '#000000': 'jet black', // Already defined above
       // '#FFFFFF': 'whiteout', // Already defined above
-      '#0A2463': 'high contrast blue',
-      '#FF7F00': 'citrus orange',
-      
+      "#0A2463": "high contrast blue",
+      "#FF7F00": "citrus orange",
+
       // Goth / Punk
       // '#000000': 'matte black', // Already defined above
-      '#8B0000': 'blood red',
-      '#808080': 'ash grey',
-      '#7B3F00': 'rust brown',
-      '#673147': 'deep plum',
-      '#556B2F': 'olive green',
-      '#343434': 'dark chrome',
-      
+      "#8B0000": "blood red",
+      "#808080": "ash grey",
+      "#7B3F00": "rust brown",
+      "#673147": "deep plum",
+      "#556B2F": "olive green",
+      "#343434": "dark chrome",
+
       // Frozen / Clean Girl
-      '#A5F2F3': 'ice blue',
-      '#E6E6FA': 'soft lavender',
-      '#F0FFFF': 'frosted white',
+      "#A5F2F3": "ice blue",
+      "#E6E6FA": "soft lavender",
+      "#F0FFFF": "frosted white",
       // '#C0C0C0': 'shimmering grey', // Already defined above
-      '#F5F5F5': 'translucent glaze',
-      
+      "#F5F5F5": "translucent glaze",
+
       // Artistic / Painterly
       // '#FF7F50': 'coral', // Already defined above
       // '#556B2F': 'olive', // Already defined above
-      '#E2725B': 'terracotta',
+      "#E2725B": "terracotta",
       // '#000000': 'ink black', // Already defined above
-      '#CC7722': 'ochre',
-      
+      "#CC7722": "ochre",
+
       // Nature-Inspired
-      '#9CAF88': 'sage green',
-      '#A17249': 'clay',
+      "#9CAF88": "sage green",
+      "#A17249": "clay",
       // '#E2725B': 'terracotta', // Already defined above
-      '#C08081': 'dusty rose',
-      '#0077BE': 'ocean blue',
-      '#D2B48C': 'sand',
+      "#C08081": "dusty rose",
+      "#0077BE": "ocean blue",
+      "#D2B48C": "sand",
       // '#8A9A5B': 'moss', // Already defined above
-      
+
       // Futuristic
       // '#C0C0C0': 'silver', // Already defined above
-      '#4682B4': 'reflective blue',
+      "#4682B4": "reflective blue",
       // '#000000': 'oil-slick black', // Already defined above
-      '#8A2BE2': 'ultraviolet',
-      '#BFFF00': 'lime techno',
+      "#8A2BE2": "ultraviolet",
+      "#BFFF00": "lime techno",
       // '#EAEAEA': 'holo chrome', // Already defined above
-      
+
       // New Bi-Color mappings
       // We add them with their gradient names so they'll be used properly in the prompt
-      '#FFC0CB_gradient': 'blush pink and burgundy gradient',
-      '#FFF3D9_gradient': 'cream and chocolate gradient',
-      '#B0E0E6_gradient': 'baby blue and navy gradient',
-      '#9CAF88_gradient': 'sage green and gold gradient',
-      '#C8A4D4_gradient': 'lilac and silver gradient',
-      '#FFE5B4_gradient': 'peach and coral gradient',
-      '#E2725B_gradient': 'terracotta and olive gradient',
-      '#FF69B4_gradient': 'pink and electric blue gradient',
-      '#000000_gradient1': 'black and nude gradient',
-      '#014421_gradient': 'forest green and champagne gradient',
-      '#E6E6FA_gradient1': 'lavender and mustard gradient',
-      '#7B3F00_gradient': 'rust and dusty pink gradient',
-      '#FFFFFF_gradient': 'white and emerald gradient',
-      '#A5F2F3_gradient': 'ice blue and pale grey gradient',
-      '#B76E79_gradient': 'rose gold and matte plum gradient',
-      '#98D8C8_gradient': 'soft mint and pearl gradient',
-      '#FFFACD_gradient1': 'pastel yellow and sky blue gradient',
-      '#000000_gradient2': 'jet black and hot pink gradient',
-      '#556B2F_gradient': 'olive green and bronze gradient',
-      '#C8A2C8_gradient': 'mauve and cream gradient',
-      '#E6E6FA_gradient2': 'soft lavender and frosted white gradient',
-      '#B0E0E6_gradient2': 'powder blue and citrus orange gradient',
-      '#F2F3F4_gradient': 'transparent gloss and chrome gradient',
-      '#FFFACD_gradient2': 'butter yellow and baby pink gradient',
-      '#191970_gradient': 'midnight blue and silver chrome gradient',
-      
+      "#FFC0CB_gradient": "blush pink and burgundy gradient",
+      "#FFF3D9_gradient": "cream and chocolate gradient",
+      "#B0E0E6_gradient": "baby blue and navy gradient",
+      "#9CAF88_gradient": "sage green and gold gradient",
+      "#C8A4D4_gradient": "lilac and silver gradient",
+      "#FFE5B4_gradient": "peach and coral gradient",
+      "#E2725B_gradient": "terracotta and olive gradient",
+      "#FF69B4_gradient": "pink and electric blue gradient",
+      "#000000_gradient1": "black and nude gradient",
+      "#014421_gradient": "forest green and champagne gradient",
+      "#E6E6FA_gradient1": "lavender and mustard gradient",
+      "#7B3F00_gradient": "rust and dusty pink gradient",
+      "#FFFFFF_gradient": "white and emerald gradient",
+      "#A5F2F3_gradient": "ice blue and pale grey gradient",
+      "#B76E79_gradient": "rose gold and matte plum gradient",
+      "#98D8C8_gradient": "soft mint and pearl gradient",
+      "#FFFACD_gradient1": "pastel yellow and sky blue gradient",
+      "#000000_gradient2": "jet black and hot pink gradient",
+      "#556B2F_gradient": "olive green and bronze gradient",
+      "#C8A2C8_gradient": "mauve and cream gradient",
+      "#E6E6FA_gradient2": "soft lavender and frosted white gradient",
+      "#B0E0E6_gradient2": "powder blue and citrus orange gradient",
+      "#F2F3F4_gradient": "transparent gloss and chrome gradient",
+      "#FFFACD_gradient2": "butter yellow and baby pink gradient",
+      "#191970_gradient": "midnight blue and silver chrome gradient",
+
       // Basic colors
-      '#FF0000': 'red',
-      '#FFA500': 'orange',
-      '#00FF00': 'green',
-      '#0000FF': 'blue',
-      '#800080': 'purple',
-      '#FFD700': 'gold',
+      "#FF0000": "red",
+      "#FFA500": "orange",
+      "#00FF00": "green",
+      "#0000FF": "blue",
+      "#800080": "purple",
+      "#FFD700": "gold",
     };
 
     // Check if it's a gradient color by seeing if the hex code has a _gradient suffix
-    if (hexColor.includes('_gradient')) {
+    if (hexColor.includes("_gradient")) {
       return colorMap[hexColor] || `a custom two-tone gradient`;
     }
-    
+
     return colorMap[hexColor] || `a custom ${hexColor} shade`;
   };
 
