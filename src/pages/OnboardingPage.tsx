@@ -115,7 +115,7 @@ const OnboardingPage: React.FC = () => {
       // If an invite code was provided, use it after signup
       if (userData.inviteCode && data.user) {
         try {
-          // Apply the invitation code
+          // Apply the invitation code - this should reward both users
           const { data: inviteResult, error: inviteError } = await supabase.rpc(
             'use_invitation', 
             {

@@ -101,16 +101,16 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       const viewUrl = `${window.location.origin}/shared/${viewData.id}`;
       console.log("Share URL created:", viewUrl);
       
-      // Create share message
+      // Create share message with GeNails instead of NailGenie
       const shareText = language === 'fr' 
-        ? `Regarde ce design d'ongle que j'ai créé avec NailGenie: "${prompt}". Clique ici pour le voir et essayer toi-même: ${viewUrl}`
-        : `Check out this nail design I created with NailGenie: "${prompt}". Click here to view it and try it yourself: ${viewUrl}`;
+        ? `Regarde ce design d'ongle que j'ai créé avec GeNails: "${prompt}". Clique ici pour le voir et essayer toi-même: ${viewUrl}`
+        : `Check out this nail design I created with GeNails: "${prompt}". Click here to view it and try it yourself: ${viewUrl}`;
       
       // Use the Web Share API to share the text with the link
       if (navigator.share) {
         console.log("Using Web Share API...");
         await navigator.share({
-          title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
+          title: language === 'fr' ? 'Mon design GeNails' : 'My GeNails design',
           text: shareText,
         });
         

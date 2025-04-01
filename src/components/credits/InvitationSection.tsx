@@ -70,11 +70,11 @@ const InvitationSection: React.FC = () => {
   const shareInvite = () => {
     if (inviteCode) {
       const inviteUrl = `${window.location.origin}/onboarding?invite=${inviteCode}`;
-      const shareText = `Join me on NailGenie and get 5 free credits! ${inviteUrl}`;
+      const shareText = `Join me on GeNails and get 5 free credits! ${inviteUrl}`;
       
       if (navigator.share) {
         navigator.share({
-          title: 'NailGenie Invitation',
+          title: 'GeNails Invitation',
           text: shareText,
           url: inviteUrl,
         }).catch(err => {

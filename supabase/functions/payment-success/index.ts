@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -51,9 +52,11 @@ serve(async (req) => {
 
     console.log("Session details:", session);
     console.log("Adding credits for user:", userId);
+    
+    // Update to add 10 credits instead of 5 for the credit pack
     const { error, data } = await supabaseClient.rpc("add_user_credits", {
       user_id_param: userId,
-      credits_to_add: 5,
+      credits_to_add: 10,
     });
     console.log("RPC response:", { error, data });
 

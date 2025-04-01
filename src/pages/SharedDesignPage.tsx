@@ -69,12 +69,12 @@ const SharedDesignPage: React.FC = () => {
     try {
       const shareUrl = window.location.href;
       const shareText = language === 'fr'
-        ? `Regarde ce design d'ongle créé avec NailGenie: "${design.prompt}". Tu peux essayer toi-même: ${shareUrl}`
-        : `Check out this nail design created with NailGenie: "${design.prompt}". You can try it yourself: ${shareUrl}`;
+        ? `Regarde ce design d'ongle créé avec GeNails: "${design.prompt}". Tu peux essayer toi-même: ${shareUrl}`
+        : `Check out this nail design created with GeNails: "${design.prompt}". You can try it yourself: ${shareUrl}`;
       
       if (navigator.share) {
         await navigator.share({
-          title: language === 'fr' ? 'Design d\'ongle NailGenie' : 'NailGenie Nail Design',
+          title: language === 'fr' ? 'Design d\'ongle GeNails' : 'GeNails Nail Design',
           text: shareText,
           url: shareUrl
         });
