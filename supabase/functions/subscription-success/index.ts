@@ -15,17 +15,6 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
-
   try {
     // Get session_id from the request body
     const { session_id } = await req.json();
@@ -56,6 +45,17 @@ serve(async (req) => {
     }
     
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
     
     // Store subscription in database
     const { error } = await supabaseClient.from('user_subscriptions').upsert({

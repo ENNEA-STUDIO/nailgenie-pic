@@ -1,182 +1,207 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useApp } from '@/context/AppContext';
-import { useLanguage } from '@/context/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle, CreditCard, Infinity, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import BottomNav from '@/components/navigation/BottomNav';
-import NailPolishIcon from '@/components/credits/NailPolishIcon';
-import InvitationSection from '@/components/credits/InvitationSection';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import CustomBottomNav from '@/components/navigation/CustomBottomNav';
 import StripeCheckout from '@/components/credits/StripeCheckout';
 import SubscriptionCheckout from '@/components/credits/SubscriptionCheckout';
+import InvitationSection from '@/components/credits/InvitationSection';
+import { ArrowLeft, Check, CreditCard, Infinity } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { useApp } from '@/context/AppContext';
+import { toast } from 'sonner';
 
-type OfferType = 'credits' | 'subscription';
-
-// Updated to use the actual Stripe price ID provided by the user
-const CREDITS_PRICE_ID = 'price_1R7z0D2cCjTevmPYrexpwwZT';
+const PRICE_ID_10_CREDITS = 'price_1R989h2cCjTevmPYt4YFzpHP';
 
 const BuyCreditsPage: React.FC = () => {
-  const { credits, hasSubscription, checkSubscription } = useApp();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const { credits, isSubscribed, checkSubscription } = useApp();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [successfulPayment, setSuccessfulPayment] = useState(false);
   
+  // Check for payment success from URL parameters
   useEffect(() => {
-    // Check subscription status when page loads
-    checkSubscription();
+    const checkForPayment = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      
+      if (sessionId) {
+        // Clear the URL parameters without page reload
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        setIsProcessing(true);
+        // Wait a moment to show the processing state
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setSuccessfulPayment(true);
+        // Wait another moment to show the success state
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Check subscription status after payment processing
+        await checkSubscription();
+        setIsProcessing(false);
+      }
+    };
+    
+    checkForPayment();
   }, [checkSubscription]);
+  
+  // When subscription status changes, update the UI
+  useEffect(() => {
+    if (isSubscribed) {
+      toast.success(language === 'fr' 
+        ? "Vous avez un abonnement actif avec crédits illimités" 
+        : "You have an active subscription with unlimited credits");
+    }
+  }, [isSubscribed, language]);
   
   return (
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-24"
+      transition={{ duration: 0.3 }}
+      className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20"
     >
-      <div className="flex items-center mb-6">
-        <Button 
-          variant="ghost" 
-          size="icon"
+      {/* Header */}
+      <div className="p-4 flex items-center">
+        <button 
           onClick={() => navigate(-1)}
-          className="rounded-full"
+          className="flex items-center justify-center w-8 h-8 rounded-full bg-background/80 backdrop-blur border border-input"
         >
           <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-xl font-medium ml-2">{t.credits.buyCredits}</h1>
+        </button>
+        <h1 className="text-xl font-bold ml-4">{t.credits.buyCredits}</h1>
       </div>
       
-      <div className="glass-card rounded-3xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <NailPolishIcon className="w-6 h-6 text-primary mr-2" />
-            <h2 className="text-lg font-medium">{t.credits.currentCredits}</h2>
-          </div>
-          <div className="flex items-center">
-            <span className="text-2xl font-bold">{hasSubscription ? '∞' : credits}</span>
-            {hasSubscription && (
-              <Badge variant="outline" className="ml-2 bg-primary/10 text-primary">
-                {language === 'fr' ? 'Abonné' : 'Subscribed'}
-              </Badge>
-            )}
-          </div>
+      {/* Content */}
+      <div className="flex-1 px-4 py-6 space-y-6 pb-24">
+        {/* Credits explanation */}
+        <div className="text-center mb-6">
+          <p className="text-muted-foreground">
+            {t.credits.currentCredits}: <span className="font-semibold text-foreground">{isSubscribed ? '∞' : credits}</span>
+          </p>
+          <h2 className="text-2xl font-bold mt-2">{t.credits.needMoreCredits}</h2>
+          <p className="text-sm text-muted-foreground mt-1">{t.credits.selectOption}</p>
         </div>
         
-        <p className="text-muted-foreground text-sm">
-          {hasSubscription 
-            ? (language === 'fr' 
-              ? 'Votre abonnement est actif. Vous avez des crédits illimités pour générer des designs.' 
-              : 'Your subscription is active. You have unlimited credits to generate designs.') 
-            : t.credits.creditsExplainer}
-        </p>
-      </div>
-      
-      <div className="flex-1 space-y-6">
-        {/* Pack de crédits */}
-        <Card className="border-2 overflow-hidden">
-          <CardHeader className="pb-2">
-            <Badge variant="outline" className="w-fit mb-2">
-              {t.credits.oneTimePurchase}
-            </Badge>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-primary" />
-              {t.credits.creditPack}
+        {/* Subscription option */}
+        <Card className="relative overflow-hidden border-primary/30">
+          {isSubscribed && (
+            <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-medium rounded-bl-lg">
+              {language === 'fr' ? "Actif" : "Active"}
+            </div>
+          )}
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center">
+              <Infinity className="mr-2 h-5 w-5 text-primary" />
+              {language === 'fr' ? "Abonnement Mensuel" : "Monthly Subscription"}
             </CardTitle>
             <CardDescription>
-              10 designs = 10 {language === 'fr' ? 'crédits' : 'credits'}
+              {language === 'fr' 
+                ? "Crédits illimités chaque mois"
+                : "Unlimited credits every month"}
             </CardDescription>
           </CardHeader>
-          
-          <CardContent className="pb-2">
-            <div className="flex items-center mb-3">
-              <span className="text-3xl font-bold text-primary">{t.credits.creditPackPrice}</span>
+          <CardContent>
+            <div className="flex justify-between items-baseline mb-4">
+              <div className="text-3xl font-bold">$9.99</div>
+              <div className="text-muted-foreground text-sm">
+                {language === 'fr' ? "par mois" : "per month"}
+              </div>
             </div>
-            
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm">
-                <Zap className="h-4 w-4 text-green-500" />
-                {t.credits.tenCreditsForDesigns}
+            <ul className="space-y-2 mb-6">
+              <li className="flex items-center">
+                <Check className="h-4 w-4 text-green-500 mr-2" />
+                <span className="text-sm">
+                  {language === 'fr' 
+                    ? "Crédits illimités pour créer des designs"
+                    : "Unlimited credits to create designs"}
+                </span>
+              </li>
+              <li className="flex items-center">
+                <Check className="h-4 w-4 text-green-500 mr-2" />
+                <span className="text-sm">
+                  {language === 'fr' 
+                    ? "Annulez à tout moment"
+                    : "Cancel anytime"}
+                </span>
               </li>
             </ul>
           </CardContent>
-          
           <CardFooter>
-            <StripeCheckout
-              priceId={CREDITS_PRICE_ID}
-              buttonText={t.credits.creditPackPrice}
-              isProcessing={isProcessing && processingOption === 'credits'}
-              showSuccess={showSuccess}
-            />
-          </CardFooter>
-        </Card>
-        
-        {/* Abonnement illimité */}
-        <Card className={`border-2 ${hasSubscription ? 'border-green-500' : 'border-primary'} overflow-hidden relative`}>
-          <div className="absolute top-0 right-0">
-            <Badge className="m-2 bg-primary">
-              {t.credits.mostPopular}
-            </Badge>
-          </div>
-          
-          <CardHeader className="pb-2">
-            <Badge variant="outline" className="w-fit mb-2">
-              {t.credits.subscriptionExplainer}
-            </Badge>
-            <CardTitle className="flex items-center gap-2">
-              <Infinity className="h-5 w-5 text-primary" />
-              {t.credits.unlimitedPlan}
-            </CardTitle>
-            <CardDescription>
-              {t.credits.unlimitedExplainer}
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="pb-2">
-            <div className="flex items-center mb-3">
-              <span className="text-3xl font-bold text-primary">{t.credits.unlimitedPlanPrice}</span>
-            </div>
-            
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm">
-                <Zap className="h-4 w-4 text-green-500" />
-                {t.credits.unlimitedDesigns}
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Zap className="h-4 w-4 text-green-500" />
-                {t.credits.cancelAnytime}
-              </li>
-            </ul>
-          </CardContent>
-          
-          <CardFooter>
-            {hasSubscription ? (
-              <Button 
-                className="w-full bg-green-500 hover:bg-green-600" 
-                size="lg"
+            {isSubscribed ? (
+              <button 
+                className="w-full py-3 text-center bg-green-100 text-green-700 rounded-lg font-medium"
                 disabled
               >
-                <CheckCircle className="w-5 h-5 mr-2" />
-                {language === 'fr' ? 'Déjà abonné' : 'Already Subscribed'}
-              </Button>
+                {language === 'fr' ? "Déjà abonné" : "Already subscribed"}
+              </button>
             ) : (
               <SubscriptionCheckout
-                buttonText={t.credits.subscribe}
+                buttonText={language === 'fr' ? "S'abonner" : "Subscribe"} 
                 isProcessing={isProcessing}
               />
             )}
           </CardFooter>
         </Card>
         
+        {/* One-time purchase option */}
+        <Card className="border-muted">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center">
+              <CreditCard className="mr-2 h-5 w-5" />
+              {language === 'fr' ? "Achat unique" : "One-time Purchase"}
+            </CardTitle>
+            <CardDescription>
+              {language === 'fr' 
+                ? "10 crédits pour créer des designs"
+                : "10 credits to create designs"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-baseline mb-4">
+              <div className="text-3xl font-bold">$4.99</div>
+              <div className="text-muted-foreground text-sm">
+                {language === 'fr' ? "paiement unique" : "one-time payment"}
+              </div>
+            </div>
+            <ul className="space-y-2 mb-6">
+              <li className="flex items-center">
+                <Check className="h-4 w-4 text-green-500 mr-2" />
+                <span className="text-sm">
+                  {language === 'fr' 
+                    ? "10 crédits ajoutés à votre compte"
+                    : "10 credits added to your account"}
+                </span>
+              </li>
+              <li className="flex items-center">
+                <Check className="h-4 w-4 text-green-500 mr-2" />
+                <span className="text-sm">
+                  {language === 'fr' 
+                    ? "Pas d'abonnement"
+                    : "No subscription"}
+                </span>
+              </li>
+            </ul>
+          </CardContent>
+          <CardFooter>
+            <StripeCheckout
+              priceId={PRICE_ID_10_CREDITS}
+              buttonText={language === 'fr' ? "Acheter 10 crédits" : "Buy 10 Credits"}
+              isProcessing={isProcessing}
+              showSuccess={successfulPayment}
+            />
+          </CardFooter>
+        </Card>
+        
+        {/* Invitation section */}
         <InvitationSection />
       </div>
       
-      <BottomNav />
+      {/* Bottom navigation */}
+      <CustomBottomNav />
     </motion.div>
   );
 };
