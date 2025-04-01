@@ -63,7 +63,7 @@ serve(async (req) => {
       throw new Error("Failed to update invitation status");
     }
 
-    // Add 5 credits to the new user
+    // Add 5 bonus credits to the new user (they already have 5 from registration)
     const { error: newUserCreditsError } = await supabaseClient.rpc("add_user_credits", {
       user_id_param: newUserId,
       credits_to_add: 5,

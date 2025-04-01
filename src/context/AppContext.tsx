@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useContext,
@@ -127,7 +128,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         setCredits(data.credits);
         return data.credits;
       } else {
-        // Changed from 3 to 5 credits for new users
+        // Each new user gets 5 credits by default
         const { data: newData, error: insertError } = await supabase
           .from('user_credits')
           .insert([{ user_id: sessionData.session.user.id, credits: 5 }])

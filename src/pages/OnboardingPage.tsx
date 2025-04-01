@@ -36,8 +36,8 @@ const OnboardingPage: React.FC = () => {
       // Show a toast to let the user know they're using an invitation
       toast.success(
         language === 'fr' 
-          ? 'Vous vous inscrivez avec une invitation!'
-          : 'You\'re signing up with an invitation!',
+          ? 'Vous vous inscrivez avec une invitation! Vous recevrez 5 crédits supplémentaires.'
+          : 'You\'re signing up with an invitation! You\'ll receive 5 additional credits.',
         { duration: 4000 }
       );
     }
@@ -130,8 +130,8 @@ const OnboardingPage: React.FC = () => {
             console.log("Invitation applied successfully:", inviteResult);
             toast.success(
               language === "fr" 
-                ? t.credits.invitationSuccess
-                : t.credits.invitationSuccess
+                ? 'Invitation acceptée! Vous recevrez 5 crédits supplémentaires après avoir confirmé votre compte.'
+                : 'Invitation accepted! You\'ll receive 5 additional credits after confirming your account.'
             );
           }
         } catch (inviteErr) {
@@ -145,7 +145,7 @@ const OnboardingPage: React.FC = () => {
           : "Account created! Please check your email."
       );
 
-      // Au lieu de rediriger vers /camera, on affiche un message de confirmation
+      // Show confirmation message instead of redirecting
       setCurrentStepIndex((prev) => prev + 1);
     } catch (error: any) {
       console.error("Erreur lors de la création du compte:", error);
