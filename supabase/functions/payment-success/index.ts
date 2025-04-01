@@ -53,7 +53,7 @@ serve(async (req) => {
     console.log("Adding credits for user:", userId);
     const { error, data } = await supabaseClient.rpc("add_user_credits", {
       user_id_param: userId,
-      credits_to_add: 10,
+      credits_to_add: 5,
     });
     console.log("RPC response:", { error, data });
 
