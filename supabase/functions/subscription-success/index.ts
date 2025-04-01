@@ -39,31 +39,46 @@ serve(async (req) => {
     });
 
     const session = await stripe.checkout.sessions.retrieve(session_id);
-
-    if (session.payment_status !== "paid") {
-      throw new Error("Payment not completed");
-    }
-
     const userId = session.metadata?.userId;
 
     if (!userId) {
       throw new Error("User ID not found in session metadata");
     }
 
-    console.log("Session details:", session);
-    console.log("Adding credits for user:", userId);
-    const { error, data } = await supabaseClient.rpc("add_user_credits", {
-      user_id_param: userId,
-      credits_to_add: 10,
+    if (session.mode !== 'subscription') {
+      throw new Error("Not a subscription session");
+    }
+
+    // Retrieve the subscription
+    const subscriptionId = session.subscription as string;
+    if (!subscriptionId) {
+      throw new Error("Subscription ID not found");
+    }
+    
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    
+    // Store subscription in database
+    const { error } = await supabaseClient.from('user_subscriptions').upsert({
+      user_id: userId,
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: subscription.customer as string,
+      status: subscription.status,
+      price_id: subscription.items.data[0].price.id,
+      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      cancel_at_period_end: subscription.cancel_at_period_end,
     });
-    console.log("RPC response:", { error, data });
+
+    if (error) {
+      console.error("Error storing subscription:", error);
+      throw new Error("Failed to store subscription");
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    console.error("Error processing payment success:", error);
+    console.error("Error processing subscription success:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

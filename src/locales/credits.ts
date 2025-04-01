@@ -39,7 +39,13 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     subscriptionExplainer: 'Abonnement mensuel',
     unlimitedDesigns: 'Designs illimités',
     cancelAnytime: 'Annulez à tout moment',
-    tenCreditsForDesigns: '10 crédits pour générer des designs d\'ongles'
+    tenCreditsForDesigns: '10 crédits pour générer des designs d\'ongles',
+    alreadySubscribed: 'Déjà abonné',
+    subscriptionActive: 'Votre abonnement est actif. Vous avez des crédits illimités pour générer des designs.',
+    subscriptionSuccess: 'Abonnement réussi!',
+    subscriptionActivated: 'Votre abonnement a été activé. Vous avez maintenant accès à des crédits illimités pour créer autant de designs que vous souhaitez.',
+    unlimitedCreditsActivated: 'Crédits illimités activés',
+    startCreating: 'Commencer à créer'
   },
   en: {
     buyCredits: 'Buy Credits',
@@ -78,6 +84,12 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     subscriptionExplainer: 'Monthly subscription',
     unlimitedDesigns: 'Unlimited designs',
     cancelAnytime: 'Cancel anytime',
-    tenCreditsForDesigns: '10 credits to generate nail designs'
+    tenCreditsForDesigns: '10 credits to generate nail designs',
+    alreadySubscribed: 'Already Subscribed',
+    subscriptionActive: 'Your subscription is active. You have unlimited credits to generate designs.',
+    subscriptionSuccess: 'Subscription Successful!',
+    subscriptionActivated: 'Your subscription has been activated. You now have access to unlimited credits to create as many designs as you want.',
+    unlimitedCreditsActivated: 'Unlimited Credits Activated',
+    startCreating: 'Start Creating'
   }
 };

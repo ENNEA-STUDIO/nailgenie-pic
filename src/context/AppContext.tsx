@@ -37,6 +37,7 @@ interface AppContextType {
   nailLength: NailLength;
   nailColor: string;
   credits: number;
+  hasSubscription: boolean;
   setHandImage: (image: string | null) => void;
   setGeneratedDesign: (design: string | null) => void;
   setPrompt: (prompt: string) => void;
@@ -47,6 +48,7 @@ interface AppContextType {
   resetState: () => void;
   checkCredits: () => Promise<number>;
   addCredits: (amount: number) => Promise<boolean>;
+  checkSubscription: () => Promise<boolean>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -85,16 +87,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [nailLength, setNailLength] = useState<NailLength>("medium");
   const [nailColor, setNailColor] = useState<string>("#E6CCAF"); // Beige as default
   const [credits, setCredits] = useState<number>(0);
+  const [hasSubscription, setHasSubscription] = useState<boolean>(false);
 
   useEffect(() => {
     checkCredits();
+    checkSubscription();
     
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event) => {
         if (event === "SIGNED_IN") {
           checkCredits();
+          checkSubscription();
         } else if (event === "SIGNED_OUT") {
           setCredits(0);
+          setHasSubscription(false);
         }
       }
     );
@@ -102,6 +108,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     return () => {
       authListener.subscription.unsubscribe();
     };
+  }, []);
+
+  const checkSubscription = useCallback(async (): Promise<boolean> => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setHasSubscription(false);
+        return false;
+      }
+
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+
+      if (error) {
+        console.error("Error checking subscription:", error);
+        return false;
+      }
+
+      setHasSubscription(data?.isSubscribed || false);
+      return data?.isSubscribed || false;
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+      return false;
+    }
   }, []);
 
   const checkCredits = useCallback(async (): Promise<number> => {
@@ -192,10 +221,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       return;
     }
 
-    const currentCredits = await checkCredits();
-    if (currentCredits < 1) {
-      toast.error("Vous n'avez pas assez de crédits. Achetez-en plus pour continuer.");
-      return;
+    // If the user has an active subscription, skip the credit check
+    if (!hasSubscription) {
+      const currentCredits = await checkCredits();
+      if (currentCredits < 1) {
+        toast.error("Vous n'avez pas assez de crédits. Achetez-en plus pour continuer.");
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -308,11 +340,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             setGeneratedDesign(publicUrl);
             toast.success("Design généré avec succès!");
 
-            const { error: creditError } = await supabase.rpc('use_credit');
-            if (creditError) {
-              console.error("Error deducting credit:", creditError);
-            } else {
-              setCredits(prev => Math.max(0, prev - 1));
+            // Only deduct credit if user doesn't have an active subscription
+            if (!hasSubscription) {
+              const { error: creditError } = await supabase.rpc('use_credit');
+              if (creditError) {
+                console.error("Error deducting credit:", creditError);
+              } else {
+                setCredits(prev => Math.max(0, prev - 1));
+              }
             }
           } catch (fetchError) {
             console.error("Error fetching/processing image:", fetchError);
@@ -338,7 +373,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [handImage, prompt, nailShape, nailLength, nailColor, checkCredits]);
+  }, [handImage, prompt, nailShape, nailLength, nailColor, checkCredits, hasSubscription]);
 
   const getColorName = (hexColor: string): string => {
     const colorMap: Record<string, string> = {
@@ -505,6 +540,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     nailLength,
     nailColor,
     credits,
+    hasSubscription,
     setHandImage,
     setGeneratedDesign,
     setPrompt,
@@ -515,6 +551,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     resetState,
     checkCredits,
     addCredits,
+    checkSubscription,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

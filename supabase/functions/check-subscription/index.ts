@@ -27,43 +27,40 @@ serve(async (req) => {
   );
 
   try {
-    // Get session_id from the request body
-    const { session_id } = await req.json();
-
-    if (!session_id) {
-      throw new Error("Session ID is required");
+    // Get user from auth header
+    const authHeader = req.headers.get('Authorization')!;
+    const token = authHeader.replace('Bearer ', '');
+    const { data: userData } = await supabaseClient.auth.getUser(token);
+    const user = userData.user;
+    
+    if (!user) {
+      throw new Error('User not authenticated');
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2023-10-16",
-    });
+    // Get user's subscription from database
+    const { data: subscription, error } = await supabaseClient
+      .from('user_subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single();
 
-    const session = await stripe.checkout.sessions.retrieve(session_id);
-
-    if (session.payment_status !== "paid") {
-      throw new Error("Payment not completed");
+    if (error && error.code !== 'PGRST116') { // PGRST116 is "No rows returned" error
+      console.error("Error checking subscription:", error);
+      throw new Error("Failed to check subscription status");
     }
 
-    const userId = session.metadata?.userId;
+    const hasActiveSubscription = !!subscription;
 
-    if (!userId) {
-      throw new Error("User ID not found in session metadata");
-    }
-
-    console.log("Session details:", session);
-    console.log("Adding credits for user:", userId);
-    const { error, data } = await supabaseClient.rpc("add_user_credits", {
-      user_id_param: userId,
-      credits_to_add: 10,
-    });
-    console.log("RPC response:", { error, data });
-
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ 
+      isSubscribed: hasActiveSubscription,
+      subscription: subscription || null
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    console.error("Error processing payment success:", error);
+    console.error("Error checking subscription:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

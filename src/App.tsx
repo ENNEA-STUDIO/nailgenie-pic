@@ -18,6 +18,7 @@ import FeedPage from "./pages/FeedPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import BuyCreditsPage from "./pages/BuyCreditsPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import SubscriptionSuccessPage from "./pages/SubscriptionSuccessPage";
 import SharedDesignPage from "./pages/SharedDesignPage";
 import NotFound from "./pages/NotFound";
 
@@ -179,6 +180,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <PaymentSuccessPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/subscription-success" 
+                    element={
+                      <ProtectedRoute>
+                        <SubscriptionSuccessPage />
                       </ProtectedRoute>
                     } 
                   />

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -10,8 +11,8 @@ import NailPolishIcon from '@/components/credits/NailPolishIcon';
 import InvitationSection from '@/components/credits/InvitationSection';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
 import StripeCheckout from '@/components/credits/StripeCheckout';
+import SubscriptionCheckout from '@/components/credits/SubscriptionCheckout';
 
 type OfferType = 'credits' | 'subscription';
 
@@ -19,46 +20,17 @@ type OfferType = 'credits' | 'subscription';
 const CREDITS_PRICE_ID = 'price_1R7z0D2cCjTevmPYrexpwwZT';
 
 const BuyCreditsPage: React.FC = () => {
-  const { credits, addCredits } = useApp();
+  const { credits, hasSubscription, checkSubscription } = useApp();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   
-  const handleBuyCredits = async () => {
-    setIsProcessing(true);
-    setProcessingOption('credits');
-    
-    // Simulate payment processing
-    setTimeout(async () => {
-      const success = await addCredits(10);
-      
-      if (success) {
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          setIsProcessing(false);
-          setProcessingOption(null);
-        }, 2000);
-      } else {
-        setIsProcessing(false);
-        setProcessingOption(null);
-      }
-    }, 1500);
-  };
-  
-  const handleSubscribe = async () => {
-    setIsProcessing(true);
-    setProcessingOption('subscription');
-    
-    // Simulate subscription processing
-    setTimeout(() => {
-      toast.success(language === 'fr' ? "Abonnement activé avec succès!" : "Subscription activated successfully!");
-      setIsProcessing(false);
-      setProcessingOption(null);
-    }, 1500);
-  };
+  useEffect(() => {
+    // Check subscription status when page loads
+    checkSubscription();
+  }, [checkSubscription]);
   
   return (
     <motion.div 
@@ -86,11 +58,22 @@ const BuyCreditsPage: React.FC = () => {
             <NailPolishIcon className="w-6 h-6 text-primary mr-2" />
             <h2 className="text-lg font-medium">{t.credits.currentCredits}</h2>
           </div>
-          <span className="text-2xl font-bold">{credits}</span>
+          <div className="flex items-center">
+            <span className="text-2xl font-bold">{hasSubscription ? '∞' : credits}</span>
+            {hasSubscription && (
+              <Badge variant="outline" className="ml-2 bg-primary/10 text-primary">
+                {language === 'fr' ? 'Abonné' : 'Subscribed'}
+              </Badge>
+            )}
+          </div>
         </div>
         
         <p className="text-muted-foreground text-sm">
-          {t.credits.creditsExplainer}
+          {hasSubscription 
+            ? (language === 'fr' 
+              ? 'Votre abonnement est actif. Vous avez des crédits illimités pour générer des designs.' 
+              : 'Your subscription is active. You have unlimited credits to generate designs.') 
+            : t.credits.creditsExplainer}
         </p>
       </div>
       
@@ -134,7 +117,7 @@ const BuyCreditsPage: React.FC = () => {
         </Card>
         
         {/* Abonnement illimité */}
-        <Card className="border-2 border-primary overflow-hidden relative">
+        <Card className={`border-2 ${hasSubscription ? 'border-green-500' : 'border-primary'} overflow-hidden relative`}>
           <div className="absolute top-0 right-0">
             <Badge className="m-2 bg-primary">
               {t.credits.mostPopular}
@@ -172,20 +155,21 @@ const BuyCreditsPage: React.FC = () => {
           </CardContent>
           
           <CardFooter>
-            <Button 
-              className="w-full" 
-              size="lg"
-              onClick={handleSubscribe}
-              disabled={isProcessing}
-            >
-              {isProcessing && processingOption === 'subscription' ? (
-                <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2" />
-              ) : null}
-              
-              {isProcessing && processingOption === 'subscription'
-                ? t.credits.processing
-                : t.credits.subscribe}
-            </Button>
+            {hasSubscription ? (
+              <Button 
+                className="w-full bg-green-500 hover:bg-green-600" 
+                size="lg"
+                disabled
+              >
+                <CheckCircle className="w-5 h-5 mr-2" />
+                {language === 'fr' ? 'Déjà abonné' : 'Already Subscribed'}
+              </Button>
+            ) : (
+              <SubscriptionCheckout
+                buttonText={t.credits.subscribe}
+                isProcessing={isProcessing}
+              />
+            )}
           </CardFooter>
         </Card>
         
