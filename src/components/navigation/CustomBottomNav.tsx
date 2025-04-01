@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
-import { Camera, Image, Home, CreditCard, Sparkles, Infinity } from 'lucide-react';
+import { Camera, Image, Home, CreditCard, Sparkles } from 'lucide-react';
 import CreditsDisplay from '../credits/CreditsDisplay';
 import { Card } from '../ui/card';
 import { useApp } from '@/context/AppContext';
@@ -11,8 +11,8 @@ import { useApp } from '@/context/AppContext';
 const CustomBottomNav: React.FC = () => {
   const location = useLocation();
   const { t } = useLanguage();
-  const { credits, isSubscribed } = useApp();
-  const hasLowCredits = !isSubscribed && credits <= 1; // Consider 1 or fewer credits as "low" if not subscribed
+  const { credits } = useApp();
+  const hasLowCredits = credits <= 1; // Consider 1 or fewer credits as "low"
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -49,7 +49,7 @@ const CustomBottomNav: React.FC = () => {
             </Link>
           ))}
           
-          {/* Credits display */}
+          {/* Credits display - with attention-grabbing animation when low */}
           <Link to="/buy-credits" className="flex-1">
             <div
               className={`flex flex-col items-center py-2 relative ${
@@ -65,11 +65,7 @@ const CustomBottomNav: React.FC = () => {
                 />
               )}
               
-              {isSubscribed ? (
-                <div className="relative mb-1">
-                  <Infinity className="w-6 h-6 text-primary" />
-                </div>
-              ) : hasLowCredits ? (
+              {hasLowCredits ? (
                 <motion.div 
                   initial={{ scale: 1 }}
                   animate={{ scale: [1, 1.1, 1] }}
@@ -90,7 +86,7 @@ const CustomBottomNav: React.FC = () => {
               )}
               
               <span className={`text-xs ${hasLowCredits ? 'font-medium' : ''}`}>
-                {isSubscribed ? t.credits.unlimited : hasLowCredits ? t.credits.buyCredits : t.nav.credits}
+                {hasLowCredits ? t.credits.buyCredits : t.nav.credits}
               </span>
             </div>
           </Link>

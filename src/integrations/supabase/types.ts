@@ -159,45 +159,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_subscriptions: {
-        Row: {
-          cancel_at_period_end: boolean
-          created_at: string
-          current_period_end: string
-          id: string
-          price_id: string
-          status: string
-          stripe_customer_id: string
-          stripe_subscription_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          cancel_at_period_end?: boolean
-          created_at?: string
-          current_period_end: string
-          id?: string
-          price_id: string
-          status: string
-          stripe_customer_id: string
-          stripe_subscription_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          cancel_at_period_end?: boolean
-          created_at?: string
-          current_period_end?: string
-          id?: string
-          price_id?: string
-          status?: string
-          stripe_customer_id?: string
-          stripe_subscription_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -214,17 +175,9 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
-      create_subscription_table: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
       generate_invitation_code: {
         Args: Record<PropertyKey, never>
         Returns: string
-      }
-      has_active_subscription: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
       }
       use_credit: {
         Args: Record<PropertyKey, never>
