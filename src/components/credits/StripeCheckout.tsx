@@ -29,7 +29,7 @@ const StripeCheckout = ({
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: { 
           priceId,
-          publicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY
+          publicKey: "pk_live_51R6wCKGpMCOJlOLHMslPH6XKTxEfUwtlXi1mcg0LOUE4O3rocfRrk2UjYIpwzQNC4FFBzi9g2AVUhsbwaC738Ign00NtCtFx55"
         },
       });
       
