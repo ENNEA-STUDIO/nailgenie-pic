@@ -14,7 +14,7 @@ const InvitationSection: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
-  // Fetch existing invitation codes on component mount
+  // Fetch existing invitation code on component mount
   useEffect(() => {
     const fetchInviteCode = async () => {
       try {

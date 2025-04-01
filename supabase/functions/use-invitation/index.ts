@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -32,20 +33,24 @@ serve(async (req) => {
       throw new Error("Invitation code and new user ID are required");
     }
 
-    // First validate the invitation code exists and is unused
+    // First validate the invitation code exists
     const { data: inviteData, error: inviteError } = await supabaseClient
       .from("invitations")
-      .select("user_id, used_at")
+      .select("user_id")
       .eq("code", invitationCode)
-      .is("used_at", null)
       .single();
 
     if (inviteError || !inviteData) {
-      throw new Error("Invalid or already used invitation code");
+      throw new Error("Invalid invitation code");
     }
 
     // Get the referrer's user ID
     const referrerId = inviteData.user_id;
+
+    // Prevent users from using their own invitation link
+    if (referrerId === newUserId) {
+      throw new Error("You cannot use your own invitation link");
+    }
 
     console.log(
       "Processing invitation. Referrer:",
@@ -54,20 +59,35 @@ serve(async (req) => {
       newUserId
     );
 
-    // Mark the invitation as used
-    const { error: updateError } = await supabaseClient
+    // Check if this user has already used an invitation code
+    const { data: usedInviteData, error: usedInviteError } = await supabaseClient
       .from("invitations")
-      .update({
-        used_at: new Date().toISOString(),
-        used_by: newUserId,
-      })
-      .eq("code", invitationCode);
-
-    if (updateError) {
-      throw new Error("Failed to update invitation status");
+      .select("used_by")
+      .eq("used_by", newUserId);
+      
+    if (usedInviteError) {
+      throw new Error("Failed to check invitation history");
+    }
+    
+    // If the user has already used an invitation, prevent them from using another one
+    if (usedInviteData && usedInviteData.length > 0) {
+      throw new Error("You have already used an invitation code");
     }
 
-    // Create initial credits for new user (10 credits total)
+    // Record this usage - we now store an entry for each use instead of marking the invitation as used
+    const { error: usageError } = await supabaseClient
+      .from("invitation_uses")
+      .insert({
+        invitation_code: invitationCode,
+        used_by: newUserId,
+        referrer_id: referrerId
+      });
+
+    if (usageError) {
+      throw new Error("Failed to record invitation usage");
+    }
+
+    // Create initial credits for new user (10 credits total: 5 base + 5 from invitation)
     const { error: newUserCreditsError } = await supabaseClient
       .from("user_credits")
       .insert([{ user_id: newUserId, credits: 10 }])
@@ -93,7 +113,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Invitation used successfully. Both users received 5 credits.",
+        message: "Invitation used successfully. Both users received credits.",
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
