@@ -12,6 +12,7 @@ import SuccessStep from "@/components/onboarding/SuccessStep";
 import { useLanguage } from "@/context/LanguageContext";
 import LoginStep from "@/components/onboarding/LoginStep";
 import EmailVerificationStep from "@/components/onboarding/EmailVerificationStep";
+import InviteCodeStep from "@/components/onboarding/InviteCodeStep";
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -91,6 +92,13 @@ const OnboardingPage: React.FC = () => {
     }
   };
 
+  const handleInviteCode = (code?: string) => {
+    if (code) {
+      setUserData(prev => ({ ...prev, inviteCode: code }));
+    }
+    handleNext();
+  };
+
   const handleComplete = async () => {
     try {
       console.log("Creating account with data:", {
@@ -112,15 +120,34 @@ const OnboardingPage: React.FC = () => {
 
       if (error) throw error;
 
-      // If an invite code was provided, use it after signup
+      // First create basic credits for the user (5 credits)
+      if (data.user) {
+        try {
+          const { error: creditsError } = await supabase
+            .from("user_credits")
+            .insert([{ user_id: data.user.id, credits: 5 }]);
+          
+          if (creditsError) {
+            console.error("Error adding base credits:", creditsError);
+          } else {
+            console.log("Successfully added 5 base credits to new user");
+          }
+        } catch (creditsErr) {
+          console.error("Error with base credits process:", creditsErr);
+        }
+      }
+
+      // If an invite code was provided, use it after signup to add bonus credits
       if (userData.inviteCode && data.user) {
         try {
           // Apply the invitation code - this should reward both users
-          const { data: inviteResult, error: inviteError } = await supabase.rpc(
-            'use_invitation', 
+          const { data: inviteResult, error: inviteError } = await supabase.functions.invoke(
+            'use-invitation', 
             {
-              invitation_code: userData.inviteCode,
-              new_user_id: data.user.id
+              body: {
+                invitationCode: userData.inviteCode,
+                newUserId: data.user.id
+              }
             }
           );
           
@@ -226,6 +253,15 @@ const OnboardingPage: React.FC = () => {
           description:
             language === "fr" ? "Créez un mot de passe" : "Create a password",
           component: <PasswordForm onSubmitValues={handlePasswordSubmit} />,
+        },
+        {
+          id: "invite",
+          title: language === "fr" ? "Invitation" : "Invitation",
+          description:
+            language === "fr"
+              ? "Avez-vous un code d'invitation?"
+              : "Do you have an invitation code?",
+          component: <InviteCodeStep onContinue={handleInviteCode} />,
         },
         {
           id: "preferences",

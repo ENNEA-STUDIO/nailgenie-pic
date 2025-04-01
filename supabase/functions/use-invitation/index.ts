@@ -87,14 +87,36 @@ serve(async (req) => {
       throw new Error("Failed to record invitation usage");
     }
 
-    // Create initial credits for new user (10 credits total: 5 base + 5 from invitation)
-    const { error: newUserCreditsError } = await supabaseClient
+    // Check if the user already has credits
+    const { data: existingCredits, error: existingCreditsError } = await supabaseClient
       .from("user_credits")
-      .insert([{ user_id: newUserId, credits: 10 }])
-      .single();
+      .select("credits")
+      .eq("user_id", newUserId)
+      .maybeSingle();
 
-    if (newUserCreditsError) {
-      throw new Error("Failed to add credits to new user");
+    if (existingCreditsError) {
+      console.error("Error checking existing credits:", existingCreditsError);
+    }
+
+    if (existingCredits) {
+      // User already has credits, update them
+      const { error: updateCreditsError } = await supabaseClient
+        .from("user_credits")
+        .update({ credits: existingCredits.credits + 5 })
+        .eq("user_id", newUserId);
+
+      if (updateCreditsError) {
+        throw new Error("Failed to update credits for new user");
+      }
+    } else {
+      // Create initial credits for new user (10 credits total: 5 base + 5 from invitation)
+      const { error: newUserCreditsError } = await supabaseClient
+        .from("user_credits")
+        .insert([{ user_id: newUserId, credits: 10 }]);
+
+      if (newUserCreditsError) {
+        throw new Error("Failed to add credits to new user");
+      }
     }
 
     // Add 5 credits to the referrer
