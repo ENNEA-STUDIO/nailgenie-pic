@@ -92,13 +92,6 @@ const OnboardingPage: React.FC = () => {
     }
   };
 
-  const handleInviteCode = (code?: string) => {
-    if (code) {
-      setUserData(prev => ({ ...prev, inviteCode: code }));
-    }
-    handleNext();
-  };
-
   const handleComplete = async () => {
     try {
       console.log("Creating account with data:", {
@@ -224,7 +217,7 @@ const OnboardingPage: React.FC = () => {
         },
       ];
     } else {
-      // Signup flow
+      // Signup flow - removing the manual invite code step
       return [
         {
           id: "welcome",
@@ -253,15 +246,6 @@ const OnboardingPage: React.FC = () => {
           description:
             language === "fr" ? "Créez un mot de passe" : "Create a password",
           component: <PasswordForm onSubmitValues={handlePasswordSubmit} />,
-        },
-        {
-          id: "invite",
-          title: language === "fr" ? "Invitation" : "Invitation",
-          description:
-            language === "fr"
-              ? "Avez-vous un code d'invitation?"
-              : "Do you have an invitation code?",
-          component: <InviteCodeStep onContinue={handleInviteCode} />,
         },
         {
           id: "preferences",
