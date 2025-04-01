@@ -16,7 +16,7 @@ import StripeCheckout from '@/components/credits/StripeCheckout';
 type OfferType = 'credits' | 'subscription';
 
 // Updated to use the actual Stripe price ID provided by the user
-const CREDITS_PRICE_ID = 'price_1R7z0D2cCjTevmPYrexpwwZT';
+const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, addCredits } = useApp();
