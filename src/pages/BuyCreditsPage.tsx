@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -133,11 +134,11 @@ const BuyCreditsPage: React.FC = () => {
           </CardFooter>
         </Card>
         
-        {/* Abonnement illimité */}
-        <Card className="border-2 border-primary overflow-hidden relative">
+        {/* Abonnement illimité - maintenant marqué comme "Bientôt disponible" */}
+        <Card className="border-2 border-muted overflow-hidden relative opacity-75">
           <div className="absolute top-0 right-0">
-            <Badge className="m-2 bg-primary">
-              {t.credits.mostPopular}
+            <Badge className="m-2 bg-amber-500">
+              {language === 'fr' ? 'Bientôt disponible' : 'Coming soon'}
             </Badge>
           </div>
           
@@ -175,16 +176,9 @@ const BuyCreditsPage: React.FC = () => {
             <Button 
               className="w-full" 
               size="lg"
-              onClick={handleSubscribe}
-              disabled={isProcessing}
+              disabled={true}
             >
-              {isProcessing && processingOption === 'subscription' ? (
-                <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2" />
-              ) : null}
-              
-              {isProcessing && processingOption === 'subscription'
-                ? t.credits.processing
-                : t.credits.subscribe}
+              {language === 'fr' ? 'Bientôt disponible' : 'Coming soon'}
             </Button>
           </CardFooter>
         </Card>
