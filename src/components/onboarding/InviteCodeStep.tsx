@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowRight, AlertCircle, CheckCircle, Gift } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface InviteCodeStepProps {
   onContinue: (code?: string) => void;

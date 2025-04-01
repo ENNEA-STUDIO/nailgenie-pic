@@ -9,29 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      invitation_uses: {
+        Row: {
+          created_at: string
+          id: string
+          invitation_code: string
+          referrer_id: string
+          used_by: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invitation_code: string
+          referrer_id: string
+          used_by: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invitation_code?: string
+          referrer_id?: string
+          used_by?: string
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           code: string
           created_at: string
           id: string
-          used_at: string | null
-          used_by: string | null
           user_id: string
         }
         Insert: {
           code: string
           created_at?: string
           id?: string
-          used_at?: string | null
-          used_by?: string | null
           user_id: string
         }
         Update: {
           code?: string
           created_at?: string
           id?: string
-          used_at?: string | null
-          used_by?: string | null
           user_id?: string
         }
         Relationships: []

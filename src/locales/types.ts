@@ -1,4 +1,3 @@
-
 export type Language = 'en' | 'fr';
 
 export interface CommonTranslations {
@@ -188,4 +187,5 @@ export interface CreditsTranslations {
   cancelAnytime: string;
   tenCreditsForDesigns: string;
   comingSoon: string;
+  shareText: string;
 }

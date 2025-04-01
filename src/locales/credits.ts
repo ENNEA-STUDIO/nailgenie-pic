@@ -40,7 +40,8 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     unlimitedDesigns: 'Designs illimités',
     cancelAnytime: 'Annulez à tout moment',
     tenCreditsForDesigns: '10 crédits pour générer des designs d\'ongles',
-    comingSoon: 'Bientôt disponible'
+    comingSoon: 'Bientôt disponible',
+    shareText: 'Rejoignez-moi sur GeNails et obtenez 5 crédits gratuits!'
   },
   en: {
     buyCredits: 'Buy Credits',
@@ -80,6 +81,7 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     unlimitedDesigns: 'Unlimited designs',
     cancelAnytime: 'Cancel anytime',
     tenCreditsForDesigns: '10 credits to generate nail designs',
-    comingSoon: 'Coming soon'
+    comingSoon: 'Coming soon',
+    shareText: 'Join me on GeNails and get 5 free credits!'
   }
 };

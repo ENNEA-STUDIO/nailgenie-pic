@@ -16,26 +16,26 @@ const InvitationSection: React.FC = () => {
   
   // Fetch existing invitation code on component mount
   useEffect(() => {
-    const fetchInviteCode = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('invitations')
-          .select('code')
-          .order('created_at', { ascending: false })
-          .limit(1);
-          
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          setInviteCode(data[0].code);
-        }
-      } catch (error) {
-        console.error('Error fetching invitation code:', error);
-      }
-    };
-    
     fetchInviteCode();
   }, []);
+  
+  const fetchInviteCode = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('invitations')
+        .select('code')
+        .order('created_at', { ascending: false })
+        .limit(1);
+        
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        setInviteCode(data[0].code);
+      }
+    } catch (error) {
+      console.error('Error fetching invitation code:', error);
+    }
+  };
   
   const generateInviteCode = async () => {
     setIsGenerating(true);
@@ -70,7 +70,7 @@ const InvitationSection: React.FC = () => {
   const shareInvite = () => {
     if (inviteCode) {
       const inviteUrl = `${window.location.origin}/onboarding?invite=${inviteCode}`;
-      const shareText = `Join me on GeNails and get 5 free credits! ${inviteUrl}`;
+      const shareText = `${t.credits.shareText} ${inviteUrl}`;
       
       if (navigator.share) {
         navigator.share({

@@ -61,7 +61,7 @@ serve(async (req) => {
 
     // Check if this user has already used an invitation code
     const { data: usedInviteData, error: usedInviteError } = await supabaseClient
-      .from("invitations")
+      .from("invitation_uses")
       .select("used_by")
       .eq("used_by", newUserId);
       
