@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeNails - Visualisez votre manucure parfaite avec l'IA</title>
+    
+    <!-- Dynamic metadata based on browser language -->
+    <script>
+      // Detect browser language
+      const userLang = navigator.language || navigator.userLanguage;
+      const isFrench = userLang.substring(0, 2) === 'fr';
+      
+      // Set meta descriptions based on language
+      document.documentElement.lang = isFrench ? 'fr' : 'en';
+      
+      // Create and set description meta tag
+      const descContent = isFrench
+        ? "GeNails utilise l'IA pour vous montrer à quoi ressembleraient différents designs sur vos propres ongles, avant même de vous rendre en salon."
+        : "GeNails uses AI to show you what different designs would look like on your own nails, before you even go to the salon.";
+      
+      // Set Open Graph and Twitter metadata dynamically
+      document.addEventListener('DOMContentLoaded', () => {
+        // Title tags
+        const titleContent = isFrench
+          ? "GeNails - Visualisez votre manucure parfaite avec l'IA"
+          : "GeNails - Visualize your perfect manicure with AI";
+        
+        document.title = titleContent;
+        
+        // Update Open Graph tags
+        document.querySelector('meta[property="og:title"]').setAttribute('content', titleContent);
+        document.querySelector('meta[property="og:description"]').setAttribute('content', descContent);
+        
+        // Update Twitter tags
+        document.querySelector('meta[property="twitter:title"]').setAttribute('content', titleContent);
+        document.querySelector('meta[property="twitter:description"]').setAttribute('content', descContent);
+      });
+    </script>
+    
+    <meta name="description" content="GeNails utilise l'IA pour vous montrer à quoi ressembleraient différents designs sur vos propres ongles, avant même de vous rendre en salon." />
+    <meta name="author" content="GeNails" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://genails.app/" />
+    <meta property="og:title" content="GeNails - Visualisez votre manucure parfaite avec l'IA" />
+    <meta property="og:description" content="GeNails utilise l'IA pour vous montrer à quoi ressembleraient différents designs sur vos propres ongles, avant même de vous rendre en salon." />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://genails.app/" />
+    <meta property="twitter:title" content="GeNails - Visualisez votre manucure parfaite avec l'IA" />
+    <meta property="twitter:description" content="GeNails utilise l'IA pour vous montrer à quoi ressembleraient différents designs sur vos propres ongles, avant même de vous rendre en salon." />
+    <meta property="twitter:image" content="/og-image.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#D946EF" />
+    <script type="module" crossorigin src="/assets/index-D6S-Jli9.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BYSXnIDj.css">
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  </body>
+</html>
