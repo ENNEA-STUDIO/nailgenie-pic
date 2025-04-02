@@ -45,10 +45,32 @@ const SharedDesignPage: React.FC = () => {
         if (!data) {
           setError('Design not found');
         } else {
-          // Add a default sharer name if not available
+          // Fetch the user's display name if user_id is available
+          let sharerName = language === 'fr' ? 'Quelqu\'un' : 'Someone';
+          
+          if (data.user_id) {
+            const { data: userData, error: userError } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', data.user_id)
+              .single();
+              
+            if (!userError && userData && userData.full_name) {
+              sharerName = userData.full_name;
+            } else {
+              // If profile not found, try to get name from auth.users metadata
+              const { data: authData, error: authError } = await supabase.auth.admin.getUserById(data.user_id);
+              
+              if (!authError && authData?.user?.user_metadata?.full_name) {
+                sharerName = authData.user.user_metadata.full_name;
+              }
+            }
+          }
+          
+          // Add the sharer name to the design data
           const designWithSharerName = {
             ...data as SharedDesign,
-            sharer_name: data.sharer_name || (language === 'fr' ? 'Quelqu\'un' : 'Someone')
+            sharer_name: data.sharer_name || sharerName
           };
           setDesign(designWithSharerName);
           

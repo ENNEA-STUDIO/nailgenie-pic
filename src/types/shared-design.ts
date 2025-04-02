@@ -8,5 +8,6 @@ export interface SharedDesign {
   nail_length: string;
   invite_code: string;
   sharer_name?: string;
+  user_id?: string;
   created_at?: string;
 }
