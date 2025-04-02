@@ -28,14 +28,19 @@ const InvitationSection: React.FC = () => {
         return;
       }
       
-      const { data, error } = await supabase
+      // Using explicit type annotation for the query result
+      type InvitationRecord = { code: string };
+      
+      // Breaking the query chain into separate steps to avoid deep type instantiation
+      const query = supabase
         .from('invitations')
         .select('code')
         .eq('user_id', sessionData.session.user.id)
         .eq('used_by', null)
         .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(1);
+        
+      const { data, error } = await query.maybeSingle<InvitationRecord>();
         
       if (error) throw error;
       
