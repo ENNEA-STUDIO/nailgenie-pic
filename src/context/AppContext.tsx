@@ -143,10 +143,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           }
 
           setCredits(newData?.credits || 0);
+          localStorage.removeItem("pendingInviteCode"); // Clean up
           return newData?.credits || 0;
         }
-        // If there's a pending invite code, don't create initial credits
-        // They will be created by the use-invitation function
+        // If there's a pending invite code, return 0 and wait for use-invitation to handle it
+        localStorage.removeItem("pendingInviteCode"); // Clean up
         return 0;
       }
     } catch (error) {

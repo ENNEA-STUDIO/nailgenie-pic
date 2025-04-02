@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -31,14 +30,14 @@ const OnboardingPage: React.FC = () => {
   // Extract invite code from URL parameters if present
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const inviteCode = queryParams.get('invite');
+    const inviteCode = queryParams.get("invite");
     if (inviteCode) {
-      setUserData(prev => ({ ...prev, inviteCode }));
+      setUserData((prev) => ({ ...prev, inviteCode }));
       // Show a toast to let the user know they're using an invitation
       toast.success(
-        language === 'fr' 
-          ? 'Vous vous inscrivez avec une invitation! Vous recevrez 5 crédits supplémentaires.'
-          : 'You\'re signing up with an invitation! You\'ll receive 5 additional credits.',
+        language === "fr"
+          ? "Vous vous inscrivez avec une invitation! Vous recevrez 5 crédits supplémentaires."
+          : "You're signing up with an invitation! You'll receive 5 additional credits.",
         { duration: 4000 }
       );
     }
@@ -113,49 +112,42 @@ const OnboardingPage: React.FC = () => {
 
       if (error) throw error;
 
-      // First create basic credits for the user (5 credits)
-      if (data.user) {
-        try {
-          const { error: creditsError } = await supabase
-            .from("user_credits")
-            .insert([{ user_id: data.user.id, credits: 5 }]);
-          
-          if (creditsError) {
-            console.error("Error adding base credits:", creditsError);
-          } else {
-            console.log("Successfully added 5 base credits to new user");
-          }
-        } catch (creditsErr) {
-          console.error("Error with base credits process:", creditsErr);
-        }
-      }
-
       // If an invite code was provided, use it after signup to add bonus credits
       if (userData.inviteCode && data.user) {
         try {
-          // Apply the invitation code - this should reward both users
-          const { data: inviteResult, error: inviteError } = await supabase.functions.invoke(
-            'use-invitation', 
-            {
+          const { data: inviteResult, error: inviteError } =
+            await supabase.functions.invoke("use-invitation", {
               body: {
                 invitationCode: userData.inviteCode,
-                newUserId: data.user.id
-              }
-            }
-          );
-          
+                newUserId: data.user.id,
+              },
+            });
+
           if (inviteError) {
             console.error("Error applying invitation code:", inviteError);
           } else if (inviteResult) {
             console.log("Invitation applied successfully:", inviteResult);
             toast.success(
-              language === "fr" 
-                ? 'Invitation acceptée! Vous recevrez 5 crédits supplémentaires après avoir confirmé votre compte.'
-                : 'Invitation accepted! You\'ll receive 5 additional credits after confirming your account.'
+              language === "fr"
+                ? "Invitation acceptée! Vous recevrez 5 crédits supplémentaires après avoir confirmé votre compte."
+                : "Invitation accepted! You'll receive 5 additional credits after confirming your account."
             );
           }
         } catch (inviteErr) {
           console.error("Error with invitation process:", inviteErr);
+        }
+      } else if (data.user) {
+        // No invite code, just create basic credits
+        try {
+          const { error: creditsError } = await supabase
+            .from("user_credits")
+            .insert([{ user_id: data.user.id, credits: 5 }]);
+
+          if (creditsError) {
+            console.error("Error adding base credits:", creditsError);
+          }
+        } catch (creditsErr) {
+          console.error("Error with base credits process:", creditsErr);
         }
       }
 

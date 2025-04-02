@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -60,15 +59,16 @@ serve(async (req) => {
     );
 
     // Check if this user has already used an invitation code
-    const { data: usedInviteData, error: usedInviteError } = await supabaseClient
-      .from("invitation_uses")
-      .select("used_by")
-      .eq("used_by", newUserId);
-      
+    const { data: usedInviteData, error: usedInviteError } =
+      await supabaseClient
+        .from("invitation_uses")
+        .select("used_by")
+        .eq("used_by", newUserId);
+
     if (usedInviteError) {
       throw new Error("Failed to check invitation history");
     }
-    
+
     // If the user has already used an invitation, prevent them from using another one
     if (usedInviteData && usedInviteData.length > 0) {
       throw new Error("You have already used an invitation code");
@@ -80,7 +80,7 @@ serve(async (req) => {
       .insert({
         invitation_code: invitationCode,
         used_by: newUserId,
-        referrer_id: referrerId
+        referrer_id: referrerId,
       });
 
     if (usageError) {
@@ -88,35 +88,27 @@ serve(async (req) => {
     }
 
     // Check if the user already has credits
-    const { data: existingCredits, error: existingCreditsError } = await supabaseClient
-      .from("user_credits")
-      .select("credits")
-      .eq("user_id", newUserId)
-      .maybeSingle();
+    const { data: existingCredits, error: existingCreditsError } =
+      await supabaseClient
+        .from("user_credits")
+        .select("credits")
+        .eq("user_id", newUserId)
+        .maybeSingle();
 
     if (existingCreditsError) {
       console.error("Error checking existing credits:", existingCreditsError);
     }
 
-    if (existingCredits) {
-      // User already has credits, update them
-      const { error: updateCreditsError } = await supabaseClient
-        .from("user_credits")
-        .update({ credits: existingCredits.credits + 5 })
-        .eq("user_id", newUserId);
+    // Always create or update with 10 credits for new invited user
+    const { error: creditsError } = await supabaseClient
+      .from("user_credits")
+      .upsert({
+        user_id: newUserId,
+        credits: 10,
+      });
 
-      if (updateCreditsError) {
-        throw new Error("Failed to update credits for new user");
-      }
-    } else {
-      // Create initial credits for new user (10 credits total: 5 base + 5 from invitation)
-      const { error: newUserCreditsError } = await supabaseClient
-        .from("user_credits")
-        .insert([{ user_id: newUserId, credits: 10 }]);
-
-      if (newUserCreditsError) {
-        throw new Error("Failed to add credits to new user");
-      }
+    if (creditsError) {
+      throw new Error("Failed to set credits for new user");
     }
 
     // Add 5 credits to the referrer
