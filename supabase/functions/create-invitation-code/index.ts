@@ -43,8 +43,10 @@ serve(async (req) => {
 
     console.log("Creating invitation code for user:", user.id);
 
-    // Call the RPC function to create an invitation
-    const { data: inviteCode, error: rpcError } = await supabaseClient.rpc("create_invitation");
+    // Generate a unique invitation code
+    const { data: inviteCode, error: rpcError } = await supabaseClient.rpc(
+      "create_invitation"
+    );
 
     if (rpcError) {
       console.error("Error calling create_invitation RPC:", rpcError);

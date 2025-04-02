@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ const InviteCodeStep: React.FC<InviteCodeStepProps> = ({ onContinue }) => {
   const [verified, setVerified] = useState(false);
   
   // Use invite code from URL if available
-  React.useEffect(() => {
+  useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const codeFromUrl = searchParams.get('invite');
     if (codeFromUrl) {
@@ -45,7 +45,7 @@ const InviteCodeStep: React.FC<InviteCodeStepProps> = ({ onContinue }) => {
     setError(null);
     
     try {
-      // For now, just validate that the code has the right format (e.g., XXXX-XXXX)
+      // Validate that the code has the right format (e.g., XXXX-XXXX)
       const isValidFormat = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(inviteCode.trim());
       
       if (!isValidFormat) {

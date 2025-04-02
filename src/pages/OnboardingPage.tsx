@@ -27,6 +27,7 @@ const OnboardingPage: React.FC = () => {
     preferences: [] as string[],
     inviteCode: "",
   });
+  const [processingInvitation, setProcessingInvitation] = useState(false);
 
   // Check if there's a just-verified session
   useEffect(() => {
@@ -37,8 +38,9 @@ const OnboardingPage: React.FC = () => {
         // User just verified their email, process any pending invite code
         const pendingInviteCode = localStorage.getItem("pendingInviteCode");
         
-        if (pendingInviteCode) {
+        if (pendingInviteCode && !processingInvitation) {
           console.log("Found pending invite code to process:", pendingInviteCode);
+          setProcessingInvitation(true);
           
           try {
             // Call the edge function to process the invitation
@@ -59,29 +61,45 @@ const OnboardingPage: React.FC = () => {
                   ? "Erreur lors du traitement du code d'invitation"
                   : "Error processing invitation code"
               );
-            } else {
+            } else if (inviteResult?.success) {
               console.log("Successfully processed invitation:", inviteResult);
               toast.success(
                 language === "fr"
-                  ? "Code d'invitation appliqué avec succès ! Vous avez reçu 5 crédits supplémentaires."
-                  : "Invitation code successfully applied! You received 5 additional credits."
+                  ? "Code d'invitation appliqué avec succès ! Vous avez reçu 10 crédits (5 de base + 5 bonus)."
+                  : "Invitation code successfully applied! You received 10 credits (5 base + 5 bonus)."
+              );
+            } else {
+              console.error("Invitation processing failed:", inviteResult);
+              toast.error(
+                language === "fr"
+                  ? `Échec du traitement du code d'invitation: ${inviteResult?.error || "Erreur inconnue"}`
+                  : `Failed to process invitation code: ${inviteResult?.error || "Unknown error"}`
               );
             }
           } catch (error) {
             console.error("Error calling use-invitation function:", error);
+            toast.error(
+              language === "fr"
+                ? "Erreur lors de l'appel de la fonction d'invitation"
+                : "Error calling invitation function"
+            );
           } finally {
             // Clear the pending invite code
             localStorage.removeItem("pendingInviteCode");
+            setProcessingInvitation(false);
+            
+            // Redirect to camera page
+            navigate("/camera", { replace: true });
           }
-          
-          // Redirect to camera page
+        } else if (!pendingInviteCode) {
+          // No pending invite code, just redirect to camera page
           navigate("/camera", { replace: true });
         }
       }
     };
     
     checkSession();
-  }, [location, navigate, language]);
+  }, [location, navigate, language, processingInvitation]);
 
   // Extract invite code from URL parameters if present
   useEffect(() => {
@@ -92,8 +110,8 @@ const OnboardingPage: React.FC = () => {
       // Show a toast to let the user know they're using an invitation
       toast.success(
         language === "fr"
-          ? "Vous vous inscrivez avec une invitation! Vous recevrez 5 crédits supplémentaires."
-          : "You're signing up with an invitation! You'll receive 5 additional credits.",
+          ? "Vous vous inscrivez avec une invitation! Vous recevrez 10 crédits (5 de base + 5 bonus)."
+          : "You're signing up with an invitation! You'll receive 10 credits (5 base + 5 bonus).",
         { duration: 4000 }
       );
     }
@@ -232,7 +250,7 @@ const OnboardingPage: React.FC = () => {
         },
       ];
     } else {
-      // Signup flow - removing the manual invite code step
+      // Signup flow
       return [
         {
           id: "welcome",

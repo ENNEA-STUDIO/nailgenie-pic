@@ -105,27 +105,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             
             try {
               // Process the invitation
-              const response = await supabase.functions.invoke("use-invitation", {
-                body: {
-                  invitationCode: pendingInviteCode,
-                  newUserId: session.user.id,
-                },
-              });
+              const { data: response, error } = await supabase.functions.invoke(
+                "use-invitation", 
+                {
+                  body: {
+                    invitationCode: pendingInviteCode,
+                    newUserId: session.user.id,
+                  },
+                }
+              );
               
-              if (response.error) {
-                console.error("Error applying invitation code:", response.error);
+              if (error) {
+                console.error("Error applying invitation code:", error);
                 toast.error(
                   "Impossible d'appliquer votre code d'invitation. Mais ne vous inquiétez pas, vous avez toujours vos crédits de base."
                 );
-              } else if (response.data && response.data.success) {
-                console.log("Invitation applied successfully:", response.data);
+              } else if (response?.success) {
+                console.log("Invitation applied successfully:", response);
                 toast.success(
-                  "Invitation appliquée avec succès! Vous avez reçu des crédits bonus."
+                  "Invitation appliquée avec succès! Vous avez reçu 10 crédits (5 de base + 5 bonus)."
                 );
-              } else if (response.data && !response.data.success) {
-                console.error("Invitation error:", response.data.error);
+              } else if (response && !response.success) {
+                console.error("Invitation error:", response.error);
                 toast.error(
-                  `Impossible d'appliquer l'invitation: ${response.data.error}`
+                  `Impossible d'appliquer l'invitation: ${response.error}`
                 );
               }
               
