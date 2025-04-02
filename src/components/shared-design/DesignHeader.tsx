@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import { shapesTranslations } from '@/locales/shapes';
+import { getColorNameFromHex } from '@/utils/colorUtils';
 
 interface DesignHeaderProps {
   sharerName: string;
@@ -39,6 +39,9 @@ const DesignHeader: React.FC<DesignHeaderProps> = ({
     </>
   );
 
+  // Get color name from hex code
+  const colorName = nailColor ? getColorNameFromHex(nailColor) : '';
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: -20 }}
@@ -74,7 +77,7 @@ const DesignHeader: React.FC<DesignHeaderProps> = ({
           {nailColor && (
             <span className="text-xs bg-pink-100 text-pink-700 px-3 py-1 rounded-full">
               {language === 'fr' ? 'Couleur: ' : 'Color: '}
-              {nailColor}
+              {colorName}
             </span>
           )}
           {nailLength && (
