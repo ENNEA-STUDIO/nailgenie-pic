@@ -48,17 +48,23 @@ const InvitationSection: React.FC = () => {
       } else {
         // User doesn't have an invitation code yet, create one
         console.log("No existing code found, creating new permanent invitation code...");
-        const { data: newInviteCode, error: createError } = await supabase.rpc('create_invitation');
+        const { data: newInviteData, error: createError } = await supabase.functions.invoke("create-invitation-code");
         
         if (createError) throw createError;
         
+        const newInviteCode = newInviteData?.code;
         console.log("Generated new permanent invitation code:", newInviteCode);
+        
+        if (!newInviteCode) {
+          throw new Error("No invitation code was returned from the server");
+        }
+        
         setInviteCode(newInviteCode);
         toast.success(t.credits.success);
       }
     } catch (error) {
       console.error('Error fetching/creating invitation code:', error);
-      toast.error('Error setting up your invitation link');
+      toast.error(t.credits.errorGeneratingCode);
     } finally {
       setIsLoading(false);
     }

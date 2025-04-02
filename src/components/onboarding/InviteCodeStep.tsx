@@ -64,7 +64,7 @@ const InviteCodeStep: React.FC<InviteCodeStepProps> = ({ onContinue }) => {
       }, 1500);
     } catch (error) {
       console.error('Error verifying invite code:', error);
-      setError(t.credits.invalidInviteCode);
+      setError(error instanceof Error ? error.message : String(error));
     } finally {
       setIsVerifying(false);
     }

@@ -105,28 +105,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             
             try {
               // Process the invitation
-              const { data: inviteResult, error: inviteError } = 
-                await supabase.functions.invoke("use-invitation", {
-                  body: {
-                    invitationCode: pendingInviteCode,
-                    newUserId: session.user.id,
-                  },
-                });
+              const response = await supabase.functions.invoke("use-invitation", {
+                body: {
+                  invitationCode: pendingInviteCode,
+                  newUserId: session.user.id,
+                },
+              });
               
-              if (inviteError) {
-                console.error("Error applying invitation code:", inviteError);
+              if (response.error) {
+                console.error("Error applying invitation code:", response.error);
                 toast.error(
-                  "Couldn't apply your invitation code. But don't worry, you still get base credits."
+                  "Impossible d'appliquer votre code d'invitation. Mais ne vous inquiétez pas, vous avez toujours vos crédits de base."
                 );
-              } else if (inviteResult && inviteResult.success) {
-                console.log("Invitation applied successfully:", inviteResult);
+              } else if (response.data && response.data.success) {
+                console.log("Invitation applied successfully:", response.data);
                 toast.success(
-                  "Invitation applied successfully! You've received bonus credits."
+                  "Invitation appliquée avec succès! Vous avez reçu des crédits bonus."
                 );
-              } else if (inviteResult && !inviteResult.success) {
-                console.error("Invitation error:", inviteResult.error);
+              } else if (response.data && !response.data.success) {
+                console.error("Invitation error:", response.data.error);
                 toast.error(
-                  `Couldn't apply invitation: ${inviteResult.error}`
+                  `Impossible d'appliquer l'invitation: ${response.data.error}`
                 );
               }
               
@@ -134,7 +133,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
               localStorage.removeItem("pendingInviteCode");
             } catch (err) {
               console.error("Error processing invitation:", err);
-              toast.error("Error processing invitation. Please try again later.");
+              toast.error("Erreur lors du traitement de l'invitation. Veuillez réessayer plus tard.");
             } finally {
               // Always check credits after processing the invitation
               await checkCredits();
@@ -205,7 +204,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       try {
         const { data: sessionData } = await supabase.auth.getSession();
         if (!sessionData.session) {
-          toast.error("You must be logged in to add credits");
+          toast.error("Vous devez être connecté pour ajouter des crédits");
           return false;
         }
 
@@ -216,7 +215,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
         if (error) {
           console.error("Error adding credits:", error);
-          toast.error("Failed to add credits");
+          toast.error("Échec de l'ajout de crédits");
           return false;
         }
 
@@ -224,7 +223,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         return true;
       } catch (error) {
         console.error("Error adding credits:", error);
-        toast.error("Failed to add credits");
+        toast.error("Échec de l'ajout de crédits");
         return false;
       }
     },

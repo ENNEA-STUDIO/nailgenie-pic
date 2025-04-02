@@ -38,24 +38,22 @@ serve(async (req) => {
     // First check if the invitation code exists
     const { data: inviteData, error: inviteQueryError } = await supabaseClient
       .from("invitations")
-      .select("user_id, code, used_by")
-      .eq("code", invitationCode);
+      .select("user_id, code")
+      .eq("code", invitationCode)
+      .single();
 
     if (inviteQueryError) {
       console.error("Error querying invitation:", inviteQueryError);
       throw new Error(`Invalid invitation code: ${inviteQueryError.message}`);
     }
 
-    if (!inviteData || inviteData.length === 0) {
+    if (!inviteData) {
       console.error("No invitation found with code:", invitationCode);
       throw new Error("Invalid invitation code: not found");
     }
 
-    const invitation = inviteData[0];
-    console.log("Found invitation:", invitation);
-
     // Get the referrer's user ID
-    const referrerId = invitation.user_id;
+    const referrerId = inviteData.user_id;
     console.log("Referrer ID:", referrerId);
 
     // Prevent users from using their own invitation link
@@ -63,13 +61,6 @@ serve(async (req) => {
       console.error("User attempting to use their own invite code");
       throw new Error("You cannot use your own invitation link");
     }
-
-    console.log(
-      "Processing invitation. Referrer:",
-      referrerId,
-      "New user:",
-      newUserId
-    );
 
     // Check if this user has already used an invitation code
     const { data: usedInviteData, error: usedInviteError } =
@@ -117,11 +108,12 @@ serve(async (req) => {
       throw new Error("Failed to check user credits");
     }
     
-    // Add 5 credits for the new user (invitee)
+    // Add 5 BONUS credits for the new user (invitee)
+    // If they already have the initial 5 credits, add 5 more for a total of 10
     if (existingCredits) {
-      console.log("User already has a credits record, adding 5 bonus credits");
-      // User already has credits (likely the initial 5), add 5 more for the invitation
-      const { error: addCreditsError } = await supabaseClient.rpc(
+      console.log("User already has a credits record with", existingCredits.credits, "credits, adding 5 bonus credits");
+      
+      const { data: updatedCredits, error: addCreditsError } = await supabaseClient.rpc(
         "add_user_credits",
         {
           user_id_param: newUserId,
@@ -133,25 +125,30 @@ serve(async (req) => {
         console.error("Error adding bonus credits to existing user:", addCreditsError);
         throw new Error("Failed to add bonus credits to new user");
       }
+      
+      console.log("Successfully added 5 bonus credits to user, new total:", existingCredits.credits + 5);
     } else {
       console.log("Creating new credits record with 10 credits for user (5 base + 5 bonus)");
       // Create new credits record with 10 credits (5 base + 5 bonus)
-      const { error: insertCreditsError } = await supabaseClient
+      const { data: newCredits, error: insertCreditsError } = await supabaseClient
         .from("user_credits")
         .insert([
           { user_id: newUserId, credits: 10 }
-        ]);
+        ])
+        .select();
         
       if (insertCreditsError) {
         console.error("Error creating credits for new user:", insertCreditsError);
         throw new Error("Failed to create credits for new user");
       }
+      
+      console.log("Successfully created user credits record with 10 credits:", newCredits);
     }
 
     // Add 5 credits to the referrer
     console.log("Adding 5 credits to referrer:", referrerId);
     
-    // First verify that the referrer exists in user_credits table
+    // Check if the referrer exists in user_credits table
     const { data: referrerData, error: referrerCheckError } = await supabaseClient
       .from("user_credits")
       .select("credits")
@@ -166,20 +163,23 @@ serve(async (req) => {
     if (!referrerData) {
       // Create new record for referrer if it doesn't exist
       console.log("Creating new credits record for referrer with 5 credits");
-      const { error: createReferrerError } = await supabaseClient
+      const { data: newReferrerCredits, error: createReferrerError } = await supabaseClient
         .from("user_credits")
         .insert([
           { user_id: referrerId, credits: 5 }
-        ]);
+        ])
+        .select();
       
       if (createReferrerError) {
         console.error("Error creating referrer credits:", createReferrerError);
         throw new Error("Failed to create credits for referrer");
       }
+      
+      console.log("Successfully created referrer credits record with 5 credits:", newReferrerCredits);
     } else {
       // Update existing record for referrer
       console.log("Updating referrer credits from", referrerData.credits, "to", referrerData.credits + 5);
-      const { error: referrerCreditsError } = await supabaseClient.rpc(
+      const { data: updatedReferrerCredits, error: referrerCreditsError } = await supabaseClient.rpc(
         "add_user_credits",
         {
           user_id_param: referrerId,
@@ -191,6 +191,8 @@ serve(async (req) => {
         console.error("Error adding credits to referrer:", referrerCreditsError);
         throw new Error("Failed to add credits to referrer");
       }
+      
+      console.log("Successfully added 5 credits to referrer");
     }
 
     console.log("Successfully processed invitation and added credits to both users");
