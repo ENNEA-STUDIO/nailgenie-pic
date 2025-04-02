@@ -41,7 +41,8 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     cancelAnytime: 'Annulez à tout moment',
     tenCreditsForDesigns: '10 crédits pour générer des designs d\'ongles',
     comingSoon: 'Bientôt disponible',
-    shareText: 'Rejoignez-moi sur GeNails et obtenez 5 crédits gratuits!'
+    shareText: 'Rejoignez-moi sur GeNails et obtenez 5 crédits gratuits!',
+    errorGeneratingCode: 'Erreur lors de la génération du code d\'invitation'
   },
   en: {
     buyCredits: 'Buy Credits',
@@ -82,6 +83,7 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     cancelAnytime: 'Cancel anytime',
     tenCreditsForDesigns: '10 credits to generate nail designs',
     comingSoon: 'Coming soon',
-    shareText: 'Join me on GeNails and get 5 free credits!'
+    shareText: 'Join me on GeNails and get 5 free credits!',
+    errorGeneratingCode: 'Error generating invitation code'
   }
 };
