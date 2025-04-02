@@ -26,29 +26,66 @@ serve(async (req) => {
 
   try {
     const { invitationCode, newUserId } = await req.json();
-    console.log("Processing invitation:", { invitationCode, newUserId });
+    console.log("1. Input validation:", {
+      invitationCode,
+      invitationCodeType: typeof invitationCode,
+      invitationCodeLength: invitationCode?.length,
+      newUserId,
+    });
 
-    if (!invitationCode || !newUserId) {
-      throw new Error("Invitation code and user ID are required");
-    }
+    // Vérifions d'abord que la table est accessible
+    const { data: tableCheck, error: tableError } = await supabaseClient
+      .from("invitations")
+      .select("count");
 
-    // Vérifier si le code existe dans la table invitations
+    console.log("Table accessibility check:", {
+      data: tableCheck,
+      error: tableError,
+    });
+
+    // Faisons une requête simple pour voir tous les codes
+    const { data: allInvites, error: listError } = await supabaseClient
+      .from("invitations")
+      .select("code");
+
+    console.log("All invitations in DB:", {
+      invites: allInvites,
+      error: listError,
+    });
+
+    // Maintenant notre requête principale
     const { data: invites, error: inviteError } = await supabaseClient
       .from("invitations")
-      .select("user_id, code")
+      .select("*")
       .eq("code", invitationCode);
 
-    console.log("Invitation lookup result:", { invites, inviteError });
+    console.log("2. Database query:", {
+      searchedCode: invitationCode,
+      query: "exact match",
+      result: invites,
+      resultCount: invites?.length,
+      error: inviteError,
+    });
 
     if (inviteError) {
       throw new Error(`Error checking invitation code: ${inviteError.message}`);
     }
 
     if (!invites || invites.length === 0) {
+      // Faisons une recherche de tous les codes pour debug
+      const { data: allCodes } = await supabaseClient
+        .from("invitations")
+        .select("code");
+
+      console.log("3. All available codes:", {
+        searchedCode: invitationCode,
+        availableCodes: allCodes?.map((i) => i.code),
+      });
+
       throw new Error("Invalid invitation code: not found");
     }
 
-    const invite = invites[0]; // On prend le premier résultat
+    const invite = invites[0];
 
     // Vérifier si l'invitation n'a pas déjà été utilisée
     const { data: existingUses, error: existingError } = await supabaseClient
@@ -79,15 +116,48 @@ serve(async (req) => {
       );
     }
 
-    // Add credits to new user
-    const { error: newUserError } = await supabaseClient
-      .from("user_credits")
-      .insert({ user_id: newUserId, credits: 10 });
+    // Vérifier si l'utilisateur a déjà des crédits
+    const { data: existingCredits, error: checkCreditsError } =
+      await supabaseClient
+        .from("user_credits")
+        .select("credits")
+        .eq("user_id", newUserId)
+        .single();
 
-    if (newUserError) {
+    if (checkCreditsError && checkCreditsError.code !== "PGRST116") {
+      // PGRST116 = not found
       throw new Error(
-        `Failed to add credits to new user: ${newUserError.message}`
+        `Failed to check user credits: ${checkCreditsError.message}`
       );
+    }
+
+    // Add or update credits
+    if (existingCredits) {
+      // Update existing credits - ajout de seulement 5 crédits bonus
+      const { error: updateError } = await supabaseClient.rpc(
+        "add_user_credits",
+        {
+          user_id_param: newUserId,
+          credits_to_add: 5,
+        }
+      );
+
+      if (updateError) {
+        throw new Error(
+          `Failed to update user credits: ${updateError.message}`
+        );
+      }
+    } else {
+      // Create new credits entry - 10 crédits au total (5 base + 5 bonus)
+      const { error: newUserError } = await supabaseClient
+        .from("user_credits")
+        .insert({ user_id: newUserId, credits: 10 });
+
+      if (newUserError) {
+        throw new Error(
+          `Failed to add credits to new user: ${newUserError.message}`
+        );
+      }
     }
 
     // Add credits to referrer
