@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,21 +48,17 @@ const SharedDesignPage: React.FC = () => {
           let sharerName = language === 'fr' ? 'Quelqu\'un' : 'Someone';
           
           if (data.user_id) {
-            const { data: userData, error: userError } = await supabase
+            // Try to get name from profiles table
+            const { data: profileData, error: profileError } = await supabase
               .from('profiles')
               .select('full_name')
               .eq('id', data.user_id)
-              .single();
+              .maybeSingle();
               
-            if (!userError && userData && userData.full_name) {
-              sharerName = userData.full_name;
+            if (!profileError && profileData && profileData.full_name) {
+              sharerName = profileData.full_name;
             } else {
-              // If profile not found, try to get name from auth.users metadata
-              const { data: authData, error: authError } = await supabase.auth.admin.getUserById(data.user_id);
-              
-              if (!authError && authData?.user?.user_metadata?.full_name) {
-                sharerName = authData.user.user_metadata.full_name;
-              }
+              console.log("Could not find profile, falling back to default name");
             }
           }
           

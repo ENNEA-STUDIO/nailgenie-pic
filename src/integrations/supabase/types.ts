@@ -54,6 +54,24 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       saved_designs: {
         Row: {
           created_at: string
@@ -130,6 +148,7 @@ export type Database = {
           nail_length: string | null
           nail_shape: string | null
           prompt: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -140,6 +159,7 @@ export type Database = {
           nail_length?: string | null
           nail_shape?: string | null
           prompt?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -150,6 +170,7 @@ export type Database = {
           nail_length?: string | null
           nail_shape?: string | null
           prompt?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
