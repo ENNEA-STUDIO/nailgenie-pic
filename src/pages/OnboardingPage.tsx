@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -112,44 +113,14 @@ const OnboardingPage: React.FC = () => {
 
       if (error) throw error;
 
-      // If an invite code was provided, use it after signup to add bonus credits
-      if (userData.inviteCode && data.user) {
-        try {
-          const { data: inviteResult, error: inviteError } =
-            await supabase.functions.invoke("use-invitation", {
-              body: {
-                invitationCode: userData.inviteCode,
-                newUserId: data.user.id,
-              },
-            });
-
-          if (inviteError) {
-            console.error("Error applying invitation code:", inviteError);
-          } else if (inviteResult) {
-            console.log("Invitation applied successfully:", inviteResult);
-            toast.success(
-              language === "fr"
-                ? "Invitation acceptée! Vous recevrez 5 crédits supplémentaires après avoir confirmé votre compte."
-                : "Invitation accepted! You'll receive 5 additional credits after confirming your account."
-            );
-          }
-        } catch (inviteErr) {
-          console.error("Error with invitation process:", inviteErr);
-        }
-      } else if (data.user) {
-        // No invite code, just create basic credits
-        try {
-          const { error: creditsError } = await supabase
-            .from("user_credits")
-            .insert([{ user_id: data.user.id, credits: 5 }]);
-
-          if (creditsError) {
-            console.error("Error adding base credits:", creditsError);
-          }
-        } catch (creditsErr) {
-          console.error("Error with base credits process:", creditsErr);
-        }
+      // Store the invite code in localStorage for use after email verification
+      if (userData.inviteCode) {
+        localStorage.setItem("pendingInviteCode", userData.inviteCode);
+        console.log("Stored pending invite code:", userData.inviteCode);
       }
+      
+      // No need to call use-invitation here as we'll do it after email verification
+      // Base credits will also be handled after verification
 
       toast.success(
         language === "fr"

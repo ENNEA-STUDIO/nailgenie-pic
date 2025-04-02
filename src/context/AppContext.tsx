@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useContext,
@@ -90,9 +91,50 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     checkCredits();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event) => {
+      async (event, session) => {
+        console.log("Auth state change:", event, session?.user?.id);
+        
         if (event === "SIGNED_IN") {
-          checkCredits();
+          // When a user signs in (including after email verification)
+          // Check if there's a pending invite code
+          const pendingInviteCode = localStorage.getItem("pendingInviteCode");
+          
+          if (pendingInviteCode && session?.user) {
+            console.log("Found pending invite code:", pendingInviteCode);
+            try {
+              // Process the invitation
+              const { data: inviteResult, error: inviteError } = 
+                await supabase.functions.invoke("use-invitation", {
+                  body: {
+                    invitationCode: pendingInviteCode,
+                    newUserId: session.user.id,
+                  },
+                });
+              
+              if (inviteError) {
+                console.error("Error applying invitation code:", inviteError);
+                toast.error(
+                  "Couldn't apply your invitation code. But don't worry, you still get base credits."
+                );
+              } else {
+                console.log("Invitation applied successfully:", inviteResult);
+                toast.success(
+                  "Invitation applied successfully! You've received 10 credits."
+                );
+              }
+              
+              // Clear the pending invite code
+              localStorage.removeItem("pendingInviteCode");
+            } catch (err) {
+              console.error("Error processing invitation:", err);
+            } finally {
+              // Always check credits after processing the invitation
+              checkCredits();
+            }
+          } else {
+            // No invite code, just check credits
+            checkCredits();
+          }
         } else if (event === "SIGNED_OUT") {
           setCredits(0);
         }
@@ -116,7 +158,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         .from("user_credits")
         .select("credits")
         .eq("user_id", sessionData.session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching credits:", error);
@@ -127,28 +169,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         setCredits(data.credits);
         return data.credits;
       } else {
-        // Check if there's a pending invite code
-        const pendingInviteCode = localStorage.getItem("pendingInviteCode");
-        if (!pendingInviteCode) {
-          // No invite code, create initial credits
-          const { data: newData, error: insertError } = await supabase
-            .from("user_credits")
-            .insert([{ user_id: sessionData.session.user.id, credits: 5 }])
-            .select()
-            .single();
+        console.log("No credits found for user, creating initial credits (5)");
+        // Create initial credits (5) for user
+        const { data: newData, error: insertError } = await supabase
+          .from("user_credits")
+          .insert([{ user_id: sessionData.session.user.id, credits: 5 }])
+          .select()
+          .single();
 
-          if (insertError) {
-            console.error("Error creating initial credits:", insertError);
-            return 0;
-          }
-
-          setCredits(newData?.credits || 0);
-          localStorage.removeItem("pendingInviteCode"); // Clean up
-          return newData?.credits || 0;
+        if (insertError) {
+          console.error("Error creating initial credits:", insertError);
+          return 0;
         }
-        // If there's a pending invite code, return 0 and wait for use-invitation to handle it
-        localStorage.removeItem("pendingInviteCode"); // Clean up
-        return 0;
+
+        setCredits(newData?.credits || 0);
+        return newData?.credits || 0;
       }
     } catch (error) {
       console.error("Error checking credits:", error);
