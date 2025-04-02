@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -33,73 +32,54 @@ const OnboardingPage: React.FC = () => {
   useEffect(() => {
     const checkSession = async () => {
       const { data, error } = await supabase.auth.getSession();
-      
-      if (data?.session && location.hash.includes("type=recovery")) {
-        // User just verified their email, process any pending invite code
+
+      if (data?.session) {
         const pendingInviteCode = localStorage.getItem("pendingInviteCode");
-        
+
         if (pendingInviteCode && !processingInvitation) {
-          console.log("Found pending invite code to process:", pendingInviteCode);
+          console.log("Processing stored invite code:", pendingInviteCode);
           setProcessingInvitation(true);
-          
+
           try {
-            // Call the edge function to process the invitation
-            const { data: inviteResult, error: inviteError } = await supabase.functions.invoke(
-              "use-invitation",
-              {
-                body: {
+            const { data: inviteResult, error: inviteError } =
+              await supabase.functions.invoke("use-invitation", {
+                body: JSON.stringify({
+                  // Assurez-vous que le body est stringifié
                   invitationCode: pendingInviteCode,
                   newUserId: data.session.user.id,
-                },
-              }
+                }),
+              });
+
+            console.log("Invitation processing result:", inviteResult);
+
+            if (inviteError) throw inviteError;
+            if (!inviteResult.success) throw new Error(inviteResult.error);
+
+            toast.success(
+              language === "fr"
+                ? "Code d'invitation appliqué avec succès!"
+                : "Invitation code successfully applied!"
             );
-            
-            if (inviteError) {
-              console.error("Error processing invitation:", inviteError);
-              toast.error(
-                language === "fr"
-                  ? "Erreur lors du traitement du code d'invitation"
-                  : "Error processing invitation code"
-              );
-            } else if (inviteResult?.success) {
-              console.log("Successfully processed invitation:", inviteResult);
-              toast.success(
-                language === "fr"
-                  ? "Code d'invitation appliqué avec succès ! Vous avez reçu 10 crédits (5 de base + 5 bonus)."
-                  : "Invitation code successfully applied! You received 10 credits (5 base + 5 bonus)."
-              );
-            } else {
-              console.error("Invitation processing failed:", inviteResult);
-              toast.error(
-                language === "fr"
-                  ? `Échec du traitement du code d'invitation: ${inviteResult?.error || "Erreur inconnue"}`
-                  : `Failed to process invitation code: ${inviteResult?.error || "Unknown error"}`
-              );
-            }
           } catch (error) {
-            console.error("Error calling use-invitation function:", error);
+            console.error("Invitation error:", error);
             toast.error(
               language === "fr"
-                ? "Erreur lors de l'appel de la fonction d'invitation"
-                : "Error calling invitation function"
+                ? "Erreur lors du traitement du code d'invitation"
+                : "Error processing invitation code"
             );
           } finally {
-            // Clear the pending invite code
             localStorage.removeItem("pendingInviteCode");
             setProcessingInvitation(false);
-            
-            // Redirect to camera page
             navigate("/camera", { replace: true });
           }
-        } else if (!pendingInviteCode) {
-          // No pending invite code, just redirect to camera page
+        } else {
           navigate("/camera", { replace: true });
         }
       }
     };
-    
+
     checkSession();
-  }, [location, navigate, language, processingInvitation]);
+  }, [navigate, language, processingInvitation]);
 
   // Extract invite code from URL parameters if present
   useEffect(() => {

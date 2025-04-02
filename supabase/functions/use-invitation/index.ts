@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -26,155 +25,99 @@ serve(async (req) => {
   );
 
   try {
-    // Get invitation code and new user ID from request body
     const { invitationCode, newUserId } = await req.json();
+    console.log("Processing invitation:", { invitationCode, newUserId });
 
     if (!invitationCode || !newUserId) {
-      throw new Error("Invitation code and new user ID are required");
+      throw new Error("Invitation code and user ID are required");
     }
 
-    console.log("Processing invitation with code:", invitationCode, "for user:", newUserId);
-
-    // First check if the invitation code exists
-    const { data: inviteData, error: inviteQueryError } = await supabaseClient
+    // Vérifier si le code existe dans la table invitations
+    const { data: invites, error: inviteError } = await supabaseClient
       .from("invitations")
       .select("user_id, code")
-      .eq("code", invitationCode)
-      .single();
+      .eq("code", invitationCode);
 
-    if (inviteQueryError) {
-      console.error("Error querying invitation:", inviteQueryError);
-      throw new Error(`Invalid invitation code: ${inviteQueryError.message}`);
+    console.log("Invitation lookup result:", { invites, inviteError });
+
+    if (inviteError) {
+      throw new Error(`Error checking invitation code: ${inviteError.message}`);
     }
 
-    if (!inviteData) {
-      console.error("No invitation found with code:", invitationCode);
+    if (!invites || invites.length === 0) {
       throw new Error("Invalid invitation code: not found");
     }
 
-    // Get the referrer's user ID
-    const referrerId = inviteData.user_id;
-    console.log("Referrer ID:", referrerId);
+    const invite = invites[0]; // On prend le premier résultat
 
-    // Prevent users from using their own invitation link
-    if (referrerId === newUserId) {
-      console.error("User attempting to use their own invite code");
-      throw new Error("You cannot use your own invitation link");
+    // Vérifier si l'invitation n'a pas déjà été utilisée
+    const { data: existingUses, error: existingError } = await supabaseClient
+      .from("invitation_uses")
+      .select()
+      .eq("invitation_code", invitationCode);
+
+    if (existingError) {
+      throw new Error(`Error checking existing uses: ${existingError.message}`);
     }
 
-    // Check if this user has already used an invitation code
-    const { data: usedInviteData, error: usedInviteError } =
-      await supabaseClient
-        .from("invitation_uses")
-        .select("id")
-        .eq("used_by", newUserId);
-
-    if (usedInviteError) {
-      console.error("Error checking invitation history:", usedInviteError);
-      throw new Error("Failed to check invitation history");
+    if (existingUses && existingUses.length > 0) {
+      throw new Error("This invitation code has already been used");
     }
 
-    // If the user has already used an invitation, prevent them from using another one
-    if (usedInviteData && usedInviteData.length > 0) {
-      console.error("User has already used an invitation code");
-      throw new Error("You have already used an invitation code");
-    }
-
-    // Record this usage in invitation_uses table
-    console.log("Recording invitation usage");
+    // Record usage
     const { error: usageError } = await supabaseClient
       .from("invitation_uses")
       .insert({
         invitation_code: invitationCode,
         used_by: newUserId,
-        referrer_id: referrerId,
+        referrer_id: invite.user_id,
       });
 
     if (usageError) {
-      console.error("Error recording invitation usage:", usageError);
-      throw new Error("Failed to record invitation usage");
-    }
-
-    // Give the new user 10 credits (5 base + 5 bonus)
-    console.log("Adding credits to new user");
-    
-    // First check if they already have a credits record
-    const { data: existingUserCredits, error: checkUserCreditsError } = 
-      await supabaseClient
-        .from("user_credits")
-        .select("id")
-        .eq("user_id", newUserId)
-        .maybeSingle();
-        
-    if (checkUserCreditsError) {
-      console.error("Error checking user credits:", checkUserCreditsError);
-      throw new Error("Failed to check user credits");
-    }
-    
-    if (existingUserCredits) {
-      // User already has a credits record, add 5 bonus credits
-      console.log("User already has credits, adding 5 bonus credits");
-      
-      const { error: addBonusError } = await supabaseClient.rpc(
-        "add_user_credits",
-        {
-          user_id_param: newUserId,
-          credits_to_add: 5,
-        }
+      throw new Error(
+        `Failed to record invitation usage: ${usageError.message}`
       );
-      
-      if (addBonusError) {
-        console.error("Error adding bonus credits:", addBonusError);
-        throw new Error("Failed to add bonus credits to user");
-      }
-    } else {
-      // Create new record with 10 credits (5 base + 5 bonus)
-      console.log("Creating new credits record with 10 credits");
-      
-      const { error: createCreditsError } = await supabaseClient
-        .from("user_credits")
-        .insert({ user_id: newUserId, credits: 10 });
-        
-      if (createCreditsError) {
-        console.error("Error creating user credits:", createCreditsError);
-        throw new Error("Failed to create credits for user");
-      }
     }
 
-    // Give the referrer 5 credits
-    console.log("Adding 5 credits to referrer");
-    
-    const { error: addReferrerCreditsError } = await supabaseClient.rpc(
+    // Add credits to new user
+    const { error: newUserError } = await supabaseClient
+      .from("user_credits")
+      .insert({ user_id: newUserId, credits: 10 });
+
+    if (newUserError) {
+      throw new Error(
+        `Failed to add credits to new user: ${newUserError.message}`
+      );
+    }
+
+    // Add credits to referrer
+    const { error: referrerError } = await supabaseClient.rpc(
       "add_user_credits",
       {
-        user_id_param: referrerId,
+        user_id_param: invite.user_id,
         credits_to_add: 5,
       }
     );
-    
-    if (addReferrerCreditsError) {
-      console.error("Error adding credits to referrer:", addReferrerCreditsError);
-      throw new Error("Failed to add credits to referrer");
+
+    if (referrerError) {
+      throw new Error(
+        `Failed to add credits to referrer: ${referrerError.message}`
+      );
     }
 
-    console.log("Successfully processed invitation and added credits to both users");
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Invitation used successfully. You received 10 credits and the referrer received 5 credits.",
+        message: "Invitation processed successfully",
       }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error processing invitation:", error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
+        status: 200,
       }
     );
   }
