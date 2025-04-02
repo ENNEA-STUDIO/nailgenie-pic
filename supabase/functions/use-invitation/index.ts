@@ -126,13 +126,15 @@ serve(async (req) => {
       .from("user_credits")
       .select("*")
       .eq("user_id", newUserId)
-      .maybeSingle();
+      .single();
       
-    if (checkCreditsError) {
+    if (checkCreditsError && checkCreditsError.code !== 'PGRST116') {
+      // PGRST116 is the error when no rows found, which is expected if user is new
       console.error("Error checking if user has credits:", checkCreditsError);
       throw new Error("Failed to check user credits");
     }
     
+    // Add 5 credits for the new user (invitee)
     if (existingCredits) {
       console.log("User already has a credits record, adding 5 bonus credits");
       // User already has credits (likely the initial 5), add 5 more for the invitation
@@ -163,19 +165,49 @@ serve(async (req) => {
       }
     }
 
-    // Add 5 credits to the referrer (the one who shared the invitation)
+    // Add 5 credits to the referrer - THIS IS THE CRITICAL PART TO FIX
     console.log("Adding 5 credits to referrer:", referrerId);
-    const { error: referrerCreditsError } = await supabaseClient.rpc(
-      "add_user_credits",
-      {
-        user_id_param: referrerId,
-        credits_to_add: 5,
+    
+    // First verify that the referrer exists in user_credits table
+    const { data: referrerData, error: referrerCheckError } = await supabaseClient
+      .from("user_credits")
+      .select("credits")
+      .eq("user_id", referrerId)
+      .single();
+    
+    if (referrerCheckError && referrerCheckError.code !== 'PGRST116') {
+      console.error("Error checking referrer credits:", referrerCheckError);
+      throw new Error("Failed to check referrer credits");
+    }
+    
+    if (!referrerData) {
+      // Create new record for referrer if it doesn't exist
+      console.log("Creating new credits record for referrer with 5 credits");
+      const { error: createReferrerError } = await supabaseClient
+        .from("user_credits")
+        .insert([
+          { user_id: referrerId, credits: 5 }
+        ]);
+      
+      if (createReferrerError) {
+        console.error("Error creating referrer credits:", createReferrerError);
+        throw new Error("Failed to create credits for referrer");
       }
-    );
+    } else {
+      // Update existing record for referrer
+      console.log("Updating referrer credits from", referrerData.credits, "to", referrerData.credits + 5);
+      const { error: referrerCreditsError } = await supabaseClient.rpc(
+        "add_user_credits",
+        {
+          user_id_param: referrerId,
+          credits_to_add: 5,
+        }
+      );
 
-    if (referrerCreditsError) {
-      console.error("Error adding credits to referrer:", referrerCreditsError);
-      throw new Error("Failed to add credits to referrer");
+      if (referrerCreditsError) {
+        console.error("Error adding credits to referrer:", referrerCreditsError);
+        throw new Error("Failed to add credits to referrer");
+      }
     }
 
     console.log("Successfully processed invitation and added credits to both users");
