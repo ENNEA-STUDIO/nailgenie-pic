@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
@@ -14,7 +13,6 @@ const InvitationSection: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
-  // Fetch existing invitation code on component mount
   useEffect(() => {
     fetchInviteCode();
   }, []);
@@ -28,25 +26,21 @@ const InvitationSection: React.FC = () => {
         return;
       }
       
-      // Using explicit type annotation for the query result
-      type InvitationRecord = { code: string };
+      const userId = sessionData.session.user.id;
       
-      // Breaking the query chain into separate steps to avoid deep type instantiation
-      const query = supabase
+      const { data, error } = await supabase
         .from('invitations')
         .select('code')
-        .eq('user_id', sessionData.session.user.id)
-        .eq('used_by', null)
+        .eq('user_id', userId)
+        .is('used_by', null)
         .order('created_at', { ascending: false })
         .limit(1);
         
-      const { data, error } = await query.maybeSingle<InvitationRecord>();
-        
       if (error) throw error;
       
-      if (data) {
-        setInviteCode(data.code);
-        console.log("Loaded existing invitation code:", data.code);
+      if (data && data.length > 0) {
+        setInviteCode(data[0].code);
+        console.log("Loaded existing invitation code:", data[0].code);
       }
     } catch (error) {
       console.error('Error fetching invitation code:', error);
@@ -98,7 +92,6 @@ const InvitationSection: React.FC = () => {
           console.error('Error sharing:', err);
         });
       } else {
-        // Fallback to copying to clipboard
         navigator.clipboard.writeText(shareText);
         toast.success(t.credits.inviteCodeCopied);
       }
