@@ -18,6 +18,15 @@ const InviteCodeStep: React.FC<InviteCodeStepProps> = ({ onContinue }) => {
   const [error, setError] = useState<string | null>(null);
   const [verified, setVerified] = useState(false);
   
+  // Use invite code from URL if available
+  React.useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const codeFromUrl = searchParams.get('invite');
+    if (codeFromUrl) {
+      setInviteCode(codeFromUrl);
+    }
+  }, []);
+  
   const handleSkip = () => {
     onContinue();
   };
@@ -34,8 +43,9 @@ const InviteCodeStep: React.FC<InviteCodeStepProps> = ({ onContinue }) => {
     setError(null);
     
     try {
-      // Store the invite code in localStorage to use after signup
+      // Store the invite code in localStorage to use after signup and email verification
       localStorage.setItem('pendingInviteCode', inviteCode.trim());
+      console.log('Saved invitation code for later use:', inviteCode.trim());
       setVerified(true);
       
       // Continue to next step after a brief delay to show success message

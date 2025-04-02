@@ -102,9 +102,6 @@ serve(async (req) => {
       throw new Error("Failed to record invitation usage");
     }
 
-    // First, ensure the new user has an entry in user_credits
-    console.log("Setting up credits for new user");
-    
     // Check if the user already has a credits record
     const { data: existingCredits, error: checkCreditsError } = await supabaseClient
       .from("user_credits")
@@ -114,25 +111,26 @@ serve(async (req) => {
       
     if (checkCreditsError) {
       console.error("Error checking if user has credits:", checkCreditsError);
+      throw new Error("Failed to check user credits");
     }
     
     if (existingCredits) {
-      console.log("User already has a credits record, adding 10 credits");
-      // User already has credits, add 10 more (5 base + 5 bonus)
+      console.log("User already has a credits record, adding 5 bonus credits");
+      // User already has credits (likely the initial 5), add 5 more for the invitation
       const { error: addCreditsError } = await supabaseClient.rpc(
         "add_user_credits",
         {
           user_id_param: newUserId,
-          credits_to_add: 10,
+          credits_to_add: 5,
         }
       );
       
       if (addCreditsError) {
-        console.error("Error adding credits to existing user:", addCreditsError);
-        throw new Error("Failed to add credits to new user");
+        console.error("Error adding bonus credits to existing user:", addCreditsError);
+        throw new Error("Failed to add bonus credits to new user");
       }
     } else {
-      console.log("Creating new credits record with 10 credits for user");
+      console.log("Creating new credits record with 10 credits for user (5 base + 5 bonus)");
       // Create new credits record with 10 credits (5 base + 5 bonus)
       const { error: insertCreditsError } = await supabaseClient
         .from("user_credits")
@@ -146,8 +144,8 @@ serve(async (req) => {
       }
     }
 
-    // Add 5 credits to the referrer
-    console.log("Adding 5 credits to referrer");
+    // Add 5 credits to the referrer (the one who shared the invitation)
+    console.log("Adding 5 credits to referrer:", referrerId);
     const { error: referrerCreditsError } = await supabaseClient.rpc(
       "add_user_credits",
       {
