@@ -54,12 +54,6 @@ serve(async (req) => {
     const invitation = inviteData[0];
     console.log("Found invitation:", invitation);
 
-    // Check if invitation is already used
-    if (invitation.used_by) {
-      console.error("Invitation already used:", invitation);
-      throw new Error("This invitation code has already been used");
-    }
-
     // Get the referrer's user ID
     const referrerId = invitation.user_id;
     console.log("Referrer ID:", referrerId);
@@ -93,17 +87,6 @@ serve(async (req) => {
     if (usedInviteData && usedInviteData.length > 0) {
       console.error("User has already used an invitation code");
       throw new Error("You have already used an invitation code");
-    }
-
-    // Mark the invitation as used
-    const { error: updateInviteError } = await supabaseClient
-      .from("invitations")
-      .update({ used_by: newUserId, used_at: new Date().toISOString() })
-      .eq("code", invitationCode);
-
-    if (updateInviteError) {
-      console.error("Error updating invitation:", updateInviteError);
-      throw new Error("Failed to update invitation status");
     }
 
     // Record this usage in invitation_uses table
@@ -165,7 +148,7 @@ serve(async (req) => {
       }
     }
 
-    // Add 5 credits to the referrer - THIS IS THE CRITICAL PART TO FIX
+    // Add 5 credits to the referrer
     console.log("Adding 5 credits to referrer:", referrerId);
     
     // First verify that the referrer exists in user_credits table

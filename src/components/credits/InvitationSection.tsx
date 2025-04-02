@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
@@ -10,58 +11,56 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const InvitationSection: React.FC = () => {
   const { t } = useLanguage();
   const [inviteCode, setInviteCode] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
   
   useEffect(() => {
-    fetchInviteCode();
+    fetchOrCreateInviteCode();
   }, []);
   
-  const fetchInviteCode = async () => {
+  const fetchOrCreateInviteCode = async () => {
     try {
+      setIsLoading(true);
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) throw sessionError;
       
       if (!sessionData.session) {
+        setIsLoading(false);
         return;
       }
       
       const userId = sessionData.session.user.id;
       
+      // First try to fetch an existing invitation code for this user
       const { data, error } = await supabase
         .from('invitations')
         .select('code')
         .eq('user_id', userId)
-        .is('used_by', null)
         .order('created_at', { ascending: false })
         .limit(1);
         
       if (error) throw error;
       
       if (data && data.length > 0) {
+        // User already has an invitation code, use it
         setInviteCode(data[0].code);
-        console.log("Loaded existing invitation code:", data[0].code);
+        console.log("Using existing invitation code:", data[0].code);
+      } else {
+        // User doesn't have an invitation code yet, create one
+        console.log("No existing code found, creating new permanent invitation code...");
+        const { data: newInviteCode, error: createError } = await supabase.rpc('create_invitation');
+        
+        if (createError) throw createError;
+        
+        console.log("Generated new permanent invitation code:", newInviteCode);
+        setInviteCode(newInviteCode);
+        toast.success(t.credits.success);
       }
     } catch (error) {
-      console.error('Error fetching invitation code:', error);
-    }
-  };
-  
-  const generateInviteCode = async () => {
-    setIsGenerating(true);
-    try {
-      const { data, error } = await supabase.rpc('create_invitation');
-      
-      if (error) throw error;
-      
-      console.log("Generated new invitation code:", data);
-      setInviteCode(data);
-      toast.success(t.credits.success);
-    } catch (error) {
-      console.error('Error generating invitation code:', error);
-      toast.error('Error generating invitation link');
+      console.error('Error fetching/creating invitation code:', error);
+      toast.error('Error setting up your invitation link');
     } finally {
-      setIsGenerating(false);
+      setIsLoading(false);
     }
   };
   
@@ -119,7 +118,11 @@ const InvitationSection: React.FC = () => {
             <h3 className="font-medium text-primary mb-2">{t.credits.shareAndEarn}</h3>
             <p className="text-sm text-muted-foreground mb-3">{t.credits.inviteExplainer}</p>
             
-            {inviteCode ? (
+            {isLoading ? (
+              <div className="flex justify-center py-6">
+                <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin border-primary"></div>
+              </div>
+            ) : inviteCode ? (
               <div className="space-y-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -149,29 +152,9 @@ const InvitationSection: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  variant="default"
-                  className="w-full"
-                  onClick={generateInviteCode}
-                  disabled={isGenerating}
-                >
-                  {isGenerating ? (
-                    <span className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" />
-                      {t.credits.processing}
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <Gift className="h-5 w-5" />
-                      {t.credits.generateInvite}
-                    </span>
-                  )}
-                </Button>
-              </motion.div>
+              <div className="text-center text-red-500">
+                {t.credits.errorGeneratingCode}
+              </div>
             )}
           </div>
         </div>
