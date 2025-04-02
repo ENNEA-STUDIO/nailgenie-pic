@@ -108,8 +108,7 @@ serve(async (req) => {
       throw new Error("Failed to check user credits");
     }
     
-    // Add 5 BONUS credits for the new user (invitee)
-    // If they already have the initial 5 credits, add 5 more for a total of 10
+    // Add credits for the new user (invitee) - total of 10 (5 base + 5 bonus)
     if (existingCredits) {
       console.log("User already has a credits record with", existingCredits.credits, "credits, adding 5 bonus credits");
       

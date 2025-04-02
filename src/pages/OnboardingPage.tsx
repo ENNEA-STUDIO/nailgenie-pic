@@ -28,6 +28,61 @@ const OnboardingPage: React.FC = () => {
     inviteCode: "",
   });
 
+  // Check if there's a just-verified session
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (data?.session && location.hash.includes("type=recovery")) {
+        // User just verified their email, process any pending invite code
+        const pendingInviteCode = localStorage.getItem("pendingInviteCode");
+        
+        if (pendingInviteCode) {
+          console.log("Found pending invite code to process:", pendingInviteCode);
+          
+          try {
+            // Call the edge function to process the invitation
+            const { data: inviteResult, error: inviteError } = await supabase.functions.invoke(
+              "use-invitation",
+              {
+                body: {
+                  invitationCode: pendingInviteCode,
+                  newUserId: data.session.user.id,
+                },
+              }
+            );
+            
+            if (inviteError) {
+              console.error("Error processing invitation:", inviteError);
+              toast.error(
+                language === "fr"
+                  ? "Erreur lors du traitement du code d'invitation"
+                  : "Error processing invitation code"
+              );
+            } else {
+              console.log("Successfully processed invitation:", inviteResult);
+              toast.success(
+                language === "fr"
+                  ? "Code d'invitation appliqué avec succès ! Vous avez reçu 5 crédits supplémentaires."
+                  : "Invitation code successfully applied! You received 5 additional credits."
+              );
+            }
+          } catch (error) {
+            console.error("Error calling use-invitation function:", error);
+          } finally {
+            // Clear the pending invite code
+            localStorage.removeItem("pendingInviteCode");
+          }
+          
+          // Redirect to camera page
+          navigate("/camera", { replace: true });
+        }
+      }
+    };
+    
+    checkSession();
+  }, [location, navigate, language]);
+
   // Extract invite code from URL parameters if present
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -118,9 +173,6 @@ const OnboardingPage: React.FC = () => {
         localStorage.setItem("pendingInviteCode", userData.inviteCode);
         console.log("Stored pending invite code:", userData.inviteCode);
       }
-      
-      // No need to call use-invitation here as we'll do it after email verification
-      // Base credits will also be handled after verification
 
       toast.success(
         language === "fr"
