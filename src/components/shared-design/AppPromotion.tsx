@@ -17,19 +17,19 @@ const AppPromotion: React.FC<AppPromotionProps> = ({ inviteCode }) => {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4, duration: 0.6 }}
-      className="bg-white rounded-2xl p-6 shadow-lg border border-purple-100"
+      transition={{ delay: 0.2, duration: 0.6 }}
+      className="bg-white rounded-2xl p-6 shadow-lg border border-purple-100 mt-6"
     >
-      <h2 className="text-xl font-bold flex items-center gap-2 text-gray-800 mb-4">
-        <Sparkles className="text-purple-500" size={20} />
+      <h2 className="text-2xl font-bold flex items-center gap-2 text-gray-800 mb-4">
+        <Sparkles className="text-purple-500" size={24} />
         {language === 'fr' ? 'Créez votre propre design d\'ongles' : 'Create Your Own Nail Design'}
       </h2>
       
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 flex items-center justify-center flex-shrink-0">
-          <CameraIcon className="text-purple-500" size={24} />
+        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 flex items-center justify-center flex-shrink-0">
+          <CameraIcon className="text-purple-500" size={32} />
         </div>
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-600">
           {language === 'fr' 
             ? 'Prenez une photo de vos ongles et voyez instantanément à quoi ressembleraient différents designs grâce à l\'IA.' 
             : 'Take a photo of your nails and instantly see what different designs would look like using AI.'}
@@ -37,7 +37,7 @@ const AppPromotion: React.FC<AppPromotionProps> = ({ inviteCode }) => {
       </div>
       
       <Link to={`/onboarding?invite=${inviteCode}`}>
-        <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+        <Button className="w-full py-6 text-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-md">
           {language === 'fr' ? 'Commencer avec 5 crédits gratuits' : 'Get Started with 5 Free Credits'}
         </Button>
       </Link>
