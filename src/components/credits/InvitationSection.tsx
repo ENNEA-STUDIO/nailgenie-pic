@@ -21,9 +21,16 @@ const InvitationSection: React.FC = () => {
   
   const fetchInviteCode = async () => {
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('invitations')
         .select('code')
+        .eq('user_id', sessionData.session.user.id)
+        .eq('used_by', null)
         .order('created_at', { ascending: false })
         .limit(1);
         
@@ -31,6 +38,7 @@ const InvitationSection: React.FC = () => {
       
       if (data && data.length > 0) {
         setInviteCode(data[0].code);
+        console.log("Loaded existing invitation code:", data[0].code);
       }
     } catch (error) {
       console.error('Error fetching invitation code:', error);
@@ -44,6 +52,7 @@ const InvitationSection: React.FC = () => {
       
       if (error) throw error;
       
+      console.log("Generated new invitation code:", data);
       setInviteCode(data);
       toast.success(t.credits.success);
     } catch (error) {
@@ -132,6 +141,11 @@ const InvitationSection: React.FC = () => {
                   {isCopied ? <CheckCircle className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                   {isCopied ? t.credits.success : t.credits.copyCode}
                 </button>
+                
+                <div className="mt-2 p-2 bg-gray-50 rounded-md">
+                  <div className="text-xs text-gray-500 mb-1">Code d'invitation:</div>
+                  <div className="font-mono text-sm font-medium">{inviteCode}</div>
+                </div>
               </div>
             ) : (
               <motion.div

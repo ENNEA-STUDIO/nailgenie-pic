@@ -35,25 +35,33 @@ serve(async (req) => {
 
     console.log("Processing invitation with code:", invitationCode, "for user:", newUserId);
 
-    // First validate the invitation code exists
-    const { data: inviteData, error: inviteError } = await supabaseClient
+    // First check if the invitation code exists
+    const { data: inviteData, error: inviteQueryError } = await supabaseClient
       .from("invitations")
-      .select("user_id, code")
-      .eq("code", invitationCode)
-      .single();
+      .select("user_id, code, used_by")
+      .eq("code", invitationCode);
 
-    if (inviteError) {
-      console.error("Error validating invitation:", inviteError);
-      throw new Error("Invalid invitation code");
+    if (inviteQueryError) {
+      console.error("Error querying invitation:", inviteQueryError);
+      throw new Error(`Invalid invitation code: ${inviteQueryError.message}`);
     }
 
-    if (!inviteData) {
+    if (!inviteData || inviteData.length === 0) {
       console.error("No invitation found with code:", invitationCode);
-      throw new Error("Invalid invitation code");
+      throw new Error("Invalid invitation code: not found");
+    }
+
+    const invitation = inviteData[0];
+    console.log("Found invitation:", invitation);
+
+    // Check if invitation is already used
+    if (invitation.used_by) {
+      console.error("Invitation already used:", invitation);
+      throw new Error("This invitation code has already been used");
     }
 
     // Get the referrer's user ID
-    const referrerId = inviteData.user_id;
+    const referrerId = invitation.user_id;
     console.log("Referrer ID:", referrerId);
 
     // Prevent users from using their own invitation link
@@ -87,7 +95,18 @@ serve(async (req) => {
       throw new Error("You have already used an invitation code");
     }
 
-    // Record this usage - we now store an entry for each use instead of marking the invitation as used
+    // Mark the invitation as used
+    const { error: updateInviteError } = await supabaseClient
+      .from("invitations")
+      .update({ used_by: newUserId, used_at: new Date().toISOString() })
+      .eq("code", invitationCode);
+
+    if (updateInviteError) {
+      console.error("Error updating invitation:", updateInviteError);
+      throw new Error("Failed to update invitation status");
+    }
+
+    // Record this usage in invitation_uses table
     console.log("Recording invitation usage");
     const { error: usageError } = await supabaseClient
       .from("invitation_uses")

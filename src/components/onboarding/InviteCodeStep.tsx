@@ -24,10 +24,12 @@ const InviteCodeStep: React.FC<InviteCodeStepProps> = ({ onContinue }) => {
     const codeFromUrl = searchParams.get('invite');
     if (codeFromUrl) {
       setInviteCode(codeFromUrl);
+      console.log("Detected invite code from URL:", codeFromUrl);
     }
   }, []);
   
   const handleSkip = () => {
+    localStorage.removeItem('pendingInviteCode'); // Clear any previous invite code
     onContinue();
   };
   
@@ -43,14 +45,22 @@ const InviteCodeStep: React.FC<InviteCodeStepProps> = ({ onContinue }) => {
     setError(null);
     
     try {
+      // For now, just validate that the code has the right format (e.g., XXXX-XXXX)
+      const isValidFormat = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(inviteCode.trim());
+      
+      if (!isValidFormat) {
+        throw new Error(t.credits.invalidInviteCode);
+      }
+      
       // Store the invite code in localStorage to use after signup and email verification
-      localStorage.setItem('pendingInviteCode', inviteCode.trim());
-      console.log('Saved invitation code for later use:', inviteCode.trim());
+      const cleanCode = inviteCode.trim().toUpperCase();
+      localStorage.setItem('pendingInviteCode', cleanCode);
+      console.log('Saved invitation code for later use:', cleanCode);
       setVerified(true);
       
       // Continue to next step after a brief delay to show success message
       setTimeout(() => {
-        onContinue(inviteCode.trim());
+        onContinue(cleanCode);
       }, 1500);
     } catch (error) {
       console.error('Error verifying invite code:', error);

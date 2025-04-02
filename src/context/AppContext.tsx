@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useContext,
@@ -85,6 +86,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [nailLength, setNailLength] = useState<NailLength>("medium");
   const [nailColor, setNailColor] = useState<string>("#E6CCAF"); // Beige as default
   const [credits, setCredits] = useState<number>(0);
+  const [isProcessingInvitation, setIsProcessingInvitation] = useState<boolean>(false);
 
   useEffect(() => {
     checkCredits();
@@ -93,13 +95,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       async (event, session) => {
         console.log("Auth state change:", event, session?.user?.id);
         
-        if (event === "SIGNED_IN") {
+        if (event === "SIGNED_IN" && session?.user) {
           // When a user signs in (including after email verification)
           // Check if there's a pending invite code
           const pendingInviteCode = localStorage.getItem("pendingInviteCode");
           
-          if (pendingInviteCode && session?.user) {
+          if (pendingInviteCode && session?.user && !isProcessingInvitation) {
             console.log("Found pending invite code:", pendingInviteCode);
+            setIsProcessingInvitation(true);
+            
             try {
               // Process the invitation
               const { data: inviteResult, error: inviteError } = 
@@ -115,10 +119,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
                 toast.error(
                   "Couldn't apply your invitation code. But don't worry, you still get base credits."
                 );
-              } else {
+              } else if (inviteResult && inviteResult.success) {
                 console.log("Invitation applied successfully:", inviteResult);
                 toast.success(
-                  "Invitation applied successfully! You've received 10 credits."
+                  "Invitation applied successfully! You've received bonus credits."
+                );
+              } else if (inviteResult && !inviteResult.success) {
+                console.error("Invitation error:", inviteResult.error);
+                toast.error(
+                  `Couldn't apply invitation: ${inviteResult.error}`
                 );
               }
               
@@ -126,9 +135,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
               localStorage.removeItem("pendingInviteCode");
             } catch (err) {
               console.error("Error processing invitation:", err);
+              toast.error("Error processing invitation. Please try again later.");
             } finally {
               // Always check credits after processing the invitation
-              checkCredits();
+              await checkCredits();
+              setIsProcessingInvitation(false);
             }
           } else {
             // No invite code, just check credits
