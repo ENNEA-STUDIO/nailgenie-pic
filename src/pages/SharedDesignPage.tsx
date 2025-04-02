@@ -50,17 +50,21 @@ const SharedDesignPage: React.FC = () => {
           
           if (data.user_id) {
             try {
+              console.log("Trying to fetch profile for user_id:", data.user_id);
               // Try to get name from profiles table
-              const { data: profileData } = await supabase
+              const { data: profileData, error: profileError } = await supabase
                 .from('profiles')
                 .select('full_name')
                 .eq('id', data.user_id)
                 .maybeSingle();
+              
+              console.log("Profile fetch result:", { profileData, profileError });
                 
               if (profileData && profileData.full_name) {
                 sharerName = profileData.full_name;
+                console.log("Using profile name:", sharerName);
               } else {
-                console.log("Could not find profile, falling back to default name");
+                console.log("Could not find profile or no full_name, falling back to default name");
               }
             } catch (profileError) {
               console.error("Error fetching profile:", profileError);
@@ -72,6 +76,8 @@ const SharedDesignPage: React.FC = () => {
             ...data as SharedDesign,
             sharer_name: data.sharer_name || sharerName
           };
+          
+          console.log("Final design data with sharer name:", designWithSharerName);
           setDesign(designWithSharerName);
           
           // Update meta tags for this specific shared design
@@ -202,6 +208,9 @@ const SharedDesignPage: React.FC = () => {
         <DesignHeader 
           sharerName={design.sharer_name || (language === 'fr' ? 'Quelqu\'un' : 'Someone')}
           prompt={design.prompt}
+          nailShape={design.nail_shape}
+          nailColor={design.nail_color}
+          nailLength={design.nail_length}
         />
         
         <DesignImage imageUrl={design.image_url} prompt={design.prompt} />

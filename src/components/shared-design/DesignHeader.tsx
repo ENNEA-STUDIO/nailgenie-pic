@@ -2,13 +2,23 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
+import { shapesTranslations } from '@/locales/shapes';
 
 interface DesignHeaderProps {
   sharerName: string;
   prompt: string;
+  nailShape?: string;
+  nailColor?: string;
+  nailLength?: string;
 }
 
-const DesignHeader: React.FC<DesignHeaderProps> = ({ sharerName, prompt }) => {
+const DesignHeader: React.FC<DesignHeaderProps> = ({ 
+  sharerName, 
+  prompt, 
+  nailShape, 
+  nailColor, 
+  nailLength 
+}) => {
   const { language } = useLanguage();
 
   const getFrenchHeaderMessage = () => (
@@ -47,6 +57,34 @@ const DesignHeader: React.FC<DesignHeaderProps> = ({ sharerName, prompt }) => {
       >
         "{prompt}"
       </motion.p>
+      
+      {(nailShape || nailColor || nailLength) && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="flex flex-wrap justify-center gap-2 mt-3"
+        >
+          {nailShape && (
+            <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
+              {language === 'fr' ? 'Forme: ' : 'Shape: '}
+              {shapesTranslations[language][nailShape as keyof typeof shapesTranslations.en] || nailShape}
+            </span>
+          )}
+          {nailColor && (
+            <span className="text-xs bg-pink-100 text-pink-700 px-3 py-1 rounded-full">
+              {language === 'fr' ? 'Couleur: ' : 'Color: '}
+              {nailColor}
+            </span>
+          )}
+          {nailLength && (
+            <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+              {language === 'fr' ? 'Longueur: ' : 'Length: '}
+              {nailLength}
+            </span>
+          )}
+        </motion.div>
+      )}
     </motion.div>
   );
 };
