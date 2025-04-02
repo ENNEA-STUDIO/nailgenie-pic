@@ -21,7 +21,9 @@ const InvitationSection: React.FC = () => {
   
   const fetchInviteCode = async () => {
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      
       if (!sessionData.session) {
         return;
       }
@@ -32,13 +34,14 @@ const InvitationSection: React.FC = () => {
         .eq('user_id', sessionData.session.user.id)
         .eq('used_by', null)
         .order('created_at', { ascending: false })
-        .limit(1);
+        .limit(1)
+        .maybeSingle();
         
       if (error) throw error;
       
-      if (data && data.length > 0) {
-        setInviteCode(data[0].code);
-        console.log("Loaded existing invitation code:", data[0].code);
+      if (data) {
+        setInviteCode(data.code);
+        console.log("Loaded existing invitation code:", data.code);
       }
     } catch (error) {
       console.error('Error fetching invitation code:', error);
