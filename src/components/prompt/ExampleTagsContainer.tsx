@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ExamplePromptTag from './ExamplePromptTag';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ExampleTagsContainerProps {
   exampleTags: string[];
@@ -16,6 +17,10 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
   handleExampleClick
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Split tags into two rows for staggered effect
+  const firstRowTags = exampleTags.filter((_, i) => i % 2 === 0);
+  const secondRowTags = exampleTags.filter((_, i) => i % 2 !== 0);
 
   return (
     <motion.div 
@@ -23,29 +28,41 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="relative mt-6 px-1"
+      className="relative mt-6"
     >
-      <Carousel
-        opts={{
-          align: "start",
-          loop: true,
-          dragFree: true,
-        }}
-        className="w-full"
-      >
-        <CarouselContent className="-ml-2">
-          {exampleTags.map((example, index) => (
-            <CarouselItem key={index} className="pl-2 basis-auto">
-              <ExamplePromptTag
-                example={example}
-                index={index}
-                style={tagStyles[index] || { color: getRandomColor(), size: getRandomSize() }}
-                onClick={handleExampleClick}
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+      <div className="space-y-3">
+        {/* First row - slower scroll to the right */}
+        <ScrollArea className="w-full overflow-hidden">
+          <div className="flex animate-scroll-right py-2">
+            {firstRowTags.concat(firstRowTags).map((example, index) => (
+              <div key={`first-${index}`} className="pl-3 first:pl-0">
+                <ExamplePromptTag
+                  example={example}
+                  index={index}
+                  style={tagStyles[index % tagStyles.length] || { color: getRandomColor(), size: getRandomSize() }}
+                  onClick={handleExampleClick}
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+        
+        {/* Second row - faster scroll to the left */}
+        <ScrollArea className="w-full overflow-hidden">
+          <div className="flex animate-scroll-left py-2">
+            {secondRowTags.concat(secondRowTags).map((example, index) => (
+              <div key={`second-${index}`} className="pl-3 first:pl-0">
+                <ExamplePromptTag
+                  example={example}
+                  index={index}
+                  style={tagStyles[(index + firstRowTags.length) % tagStyles.length] || { color: getRandomColor(), size: getRandomSize() }}
+                  onClick={handleExampleClick}
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
     </motion.div>
   );
 };

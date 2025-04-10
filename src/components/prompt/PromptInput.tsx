@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
@@ -26,14 +25,14 @@ const PromptInput: React.FC = () => {
     })));
   }, [exampleTags]);
 
-  // Refresh examples periodically
+  // Refresh examples periodically (reduced frequency because we're showing more examples at once)
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isFocused && !prompt) {
-        const newExamples = getRandomExamples();
+        const newExamples = getRandomExamples(12); // Get more examples for the two rows
         setExampleTags(newExamples);
       }
-    }, 20000);
+    }, 30000); // Slightly longer interval since we have more examples
 
     return () => clearInterval(interval);
   }, [isFocused, prompt]);
