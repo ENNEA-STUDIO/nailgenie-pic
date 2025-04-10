@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useContext,
@@ -73,6 +74,10 @@ interface GradioResult {
   endpoint: string;
   fn_index: number;
 }
+
+// Configuration du mécanisme de relance
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 1500;
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -258,145 +263,169 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     setIsLoading(true);
+    let retryCount = 0;
+    let success = false;
 
-    try {
-      console.log("Preparing to generate design with params:", {
-        promptLength: prompt.length,
-        imageLength: handImage.length,
-        nailShape,
-        nailLength,
-        nailColor,
-      });
-
-      const base64Data = handImage.replace(/^data:image\/\w+;base64,/, "");
-      const byteString = atob(base64Data);
-      const buffer = new Uint8Array(byteString.length);
-
-      for (let i = 0; i < byteString.length; i++) {
-        buffer[i] = byteString.charCodeAt(i);
-      }
-
-      const imageBlob = new Blob([buffer], { type: "image/jpeg" });
-
-      const lengthText =
-        nailLength === "short"
-          ? "short"
-          : nailLength === "medium"
-          ? "medium"
-          : "long";
-
-      // Check if it's a gradient color (from bi-color category)
-      const isGradient = nailColor.includes("gradient");
-      // For gradient colors, we add a special suffix to use our mapping properly
-      const colorKey = isGradient ? `${nailColor}_gradient` : nailColor;
-      const colorName = getColorName(colorKey);
-
-      const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in ${colorName}. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
-
-      console.log("Full prompt:", fullPrompt);
-      console.log("Connecting to Gemini Image Edit model...");
-
-      const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", {
-        hf_token: import.meta.env.VITE_HUGGINGFACE_TOKEN,
-      });
-
-      console.log("Connected to client successfully");
-      console.log("Making prediction with prompt:", fullPrompt);
-
-      const result = await client.predict("/process_image_and_prompt", {
-        composite_pil: imageBlob,
-        prompt: fullPrompt,
-        gemini_api_key: import.meta.env.VITE_GEMINI_API_KEY,
-      });
-
-      console.log(
-        "Prediction result received:",
-        result ? "success" : "undefined"
-      );
-      console.log("Result data:", result.data ? "exists" : "missing");
-      console.log("Full result object:", JSON.stringify(result, null, 2));
-
-      if (result && "data" in result) {
-        try {
-          const gradioResult = result as unknown as GradioResult;
-          const imageUrl = gradioResult.data[0]?.[0]?.image?.url;
-
-          if (!imageUrl) {
-            throw new Error("URL de l'image non trouvée");
-          }
-
-          console.log("Gradio URL:", imageUrl);
-
-          try {
-            const response = await fetch(imageUrl, {
-              headers: {
-                Authorization: `Bearer ${
-                  import.meta.env.VITE_HUGGINGFACE_TOKEN
-                }`,
-              },
-            });
-
-            if (!response.ok) {
-              throw new Error(`Failed to fetch image: ${response.status}`);
-            }
-
-            const imageBlob = await response.blob();
-            console.log("Blob size:", imageBlob.size);
-
-            const fileName = `nail-designs/${Date.now()}.webp`;
-            console.log("Attempting upload to:", fileName);
-
-            const { data: uploadData, error: uploadError } =
-              await supabase.storage
-                .from("nail_designs")
-                .upload(fileName, imageBlob, {
-                  contentType: "image/webp",
-                  upsert: true,
-                });
-
-            if (uploadError) {
-              console.error("Upload error details:", uploadError);
-              throw uploadError;
-            }
-
-            const {
-              data: { publicUrl },
-            } = supabase.storage.from("nail_designs").getPublicUrl(fileName);
-
-            console.log("Final URL:", publicUrl);
-            setGeneratedDesign(publicUrl);
-            toast.success("Design généré avec succès!");
-
-            const { error: creditError } = await supabase.rpc("use_credit");
-            if (creditError) {
-              console.error("Error deducting credit:", creditError);
-            } else {
-              setCredits((prev) => Math.max(0, prev - 1));
-            }
-          } catch (fetchError) {
-            console.error("Error fetching/processing image:", fetchError);
-            throw new Error(
-              `Erreur lors de la récupération de l'image: ${fetchError.message}`
-            );
-          }
-        } catch (error) {
-          console.error("Detailed error:", error);
-          toast.error(`Erreur: ${error.message || "Erreur inconnue"}`);
+    while (retryCount <= MAX_RETRIES && !success) {
+      try {
+        if (retryCount > 0) {
+          console.log(`Tentative de génération #${retryCount + 1}/${MAX_RETRIES + 1}`);
+          // Afficher un toast uniquement après la première tentative
+          toast.info(`Relance de la génération (essai ${retryCount + 1}/${MAX_RETRIES + 1})...`);
+          
+          // Attendre un délai exponentiel avant de réessayer (1.5s, puis 3s, puis 4.5s)
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * retryCount));
         }
-      } else {
-        console.error("Unexpected data format:", result);
-        throw new Error("Aucune donnée d'image reçue de l'API");
+
+        console.log("Preparing to generate design with params:", {
+          promptLength: prompt.length,
+          imageLength: handImage.length,
+          nailShape,
+          nailLength,
+          nailColor,
+        });
+
+        const base64Data = handImage.replace(/^data:image\/\w+;base64,/, "");
+        const byteString = atob(base64Data);
+        const buffer = new Uint8Array(byteString.length);
+
+        for (let i = 0; i < byteString.length; i++) {
+          buffer[i] = byteString.charCodeAt(i);
+        }
+
+        const imageBlob = new Blob([buffer], { type: "image/jpeg" });
+
+        const lengthText =
+          nailLength === "short"
+            ? "short"
+            : nailLength === "medium"
+            ? "medium"
+            : "long";
+
+        // Check if it's a gradient color (from bi-color category)
+        const isGradient = nailColor.includes("gradient");
+        // For gradient colors, we add a special suffix to use our mapping properly
+        const colorKey = isGradient ? `${nailColor}_gradient` : nailColor;
+        const colorName = getColorName(colorKey);
+
+        const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in ${colorName}. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
+
+        console.log("Full prompt:", fullPrompt);
+        console.log("Connecting to Gemini Image Edit model...");
+
+        const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", {
+          hf_token: import.meta.env.VITE_HUGGINGFACE_TOKEN,
+        });
+
+        console.log("Connected to client successfully");
+        console.log("Making prediction with prompt:", fullPrompt);
+
+        const result = await client.predict("/process_image_and_prompt", {
+          composite_pil: imageBlob,
+          prompt: fullPrompt,
+          gemini_api_key: import.meta.env.VITE_GEMINI_API_KEY,
+        });
+
+        console.log(
+          "Prediction result received:",
+          result ? "success" : "undefined"
+        );
+        console.log("Result data:", result.data ? "exists" : "missing");
+        console.log("Full result object:", JSON.stringify(result, null, 2));
+
+        if (result && "data" in result) {
+          try {
+            const gradioResult = result as unknown as GradioResult;
+            const imageUrl = gradioResult.data[0]?.[0]?.image?.url;
+
+            if (!imageUrl) {
+              throw new Error("URL de l'image non trouvée");
+            }
+
+            console.log("Gradio URL:", imageUrl);
+
+            try {
+              const response = await fetch(imageUrl, {
+                headers: {
+                  Authorization: `Bearer ${
+                    import.meta.env.VITE_HUGGINGFACE_TOKEN
+                  }`,
+                },
+              });
+
+              if (!response.ok) {
+                throw new Error(`Failed to fetch image: ${response.status}`);
+              }
+
+              const imageBlob = await response.blob();
+              console.log("Blob size:", imageBlob.size);
+
+              const fileName = `nail-designs/${Date.now()}.webp`;
+              console.log("Attempting upload to:", fileName);
+
+              const { data: uploadData, error: uploadError } =
+                await supabase.storage
+                  .from("nail_designs")
+                  .upload(fileName, imageBlob, {
+                    contentType: "image/webp",
+                    upsert: true,
+                  });
+
+              if (uploadError) {
+                console.error("Upload error details:", uploadError);
+                throw uploadError;
+              }
+
+              const {
+                data: { publicUrl },
+              } = supabase.storage.from("nail_designs").getPublicUrl(fileName);
+
+              console.log("Final URL:", publicUrl);
+              setGeneratedDesign(publicUrl);
+              toast.success("Design généré avec succès!");
+
+              const { error: creditError } = await supabase.rpc("use_credit");
+              if (creditError) {
+                console.error("Error deducting credit:", creditError);
+              } else {
+                setCredits((prev) => Math.max(0, prev - 1));
+              }
+              
+              // Marquer comme réussi pour sortir de la boucle
+              success = true;
+            } catch (fetchError) {
+              console.error("Error fetching/processing image:", fetchError);
+              throw new Error(
+                `Erreur lors de la récupération de l'image: ${fetchError.message}`
+              );
+            }
+          } catch (error) {
+            console.error("Detailed error:", error);
+            throw new Error(`Erreur: ${error.message || "Erreur inconnue"}`);
+          }
+        } else {
+          console.error("Unexpected data format:", result);
+          throw new Error("Aucune donnée d'image reçue de l'API");
+        }
+      } catch (error) {
+        console.error(`Erreur lors de la génération (essai ${retryCount + 1}/${MAX_RETRIES + 1}):`, error);
+        
+        // Si nous avons atteint le nombre maximum de tentatives, afficher l'erreur à l'utilisateur
+        if (retryCount === MAX_RETRIES) {
+          toast.error(
+            `Échec de la génération après ${MAX_RETRIES + 1} tentatives: ${
+              error.message || "Veuillez réessayer."
+            }`
+          );
+        }
+        
+        // Incrémenter le compteur de tentatives
+        retryCount++;
       }
-    } catch (error) {
-      console.error("Erreur lors de la génération du design:", error);
-      toast.error(
-        `Échec de la génération du design: ${
-          error.message || "Veuillez réessayer."
-        }`
-      );
-    } finally {
-      setIsLoading(false);
     }
+
+    // Désactiver l'indicateur de chargement
+    setIsLoading(false);
   }, [handImage, prompt, nailShape, nailLength, nailColor, checkCredits]);
 
   const getColorName = (hexColor: string): string => {

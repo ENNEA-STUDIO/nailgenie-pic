@@ -7,6 +7,7 @@ import ExampleTagsContainer from './ExampleTagsContainer';
 import PromptInputField from './PromptInputField';
 import { getRandomExamples, extractMainConcept } from '../../utils/promptUtils';
 import useTextAnimation from '../../hooks/useTextAnimation';
+import { toast } from 'sonner';
 
 const PromptInput: React.FC = () => {
   const { prompt, setPrompt, generateDesign, isLoading } = useApp();
@@ -37,9 +38,15 @@ const PromptInput: React.FC = () => {
     return () => clearInterval(interval);
   }, [isFocused, prompt]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    generateDesign();
+    
+    try {
+      await generateDesign();
+    } catch (error) {
+      console.error("Error during design generation:", error);
+      toast.error("Erreur de génération, nous réessayons automatiquement...");
+    }
   };
 
   const handleExampleClick = (example: string) => {

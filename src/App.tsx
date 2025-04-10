@@ -7,6 +7,7 @@ import { AppProvider } from "./context/AppContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
+import { Toaster } from "sonner";
 
 import LandingPage from "./pages/LandingPage";
 import CameraPage from "./pages/CameraPage";
@@ -106,6 +107,7 @@ const App = () => {
       <TooltipProvider>
         <LanguageProvider>
           <AppProvider>
+            <Toaster position="top-center" richColors />
             <BrowserRouter>
               <AnimatePresence mode="wait">
                 <Routes>
