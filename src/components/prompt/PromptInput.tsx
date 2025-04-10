@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
@@ -11,7 +12,7 @@ import { toast } from 'sonner';
 const PromptInput: React.FC = () => {
   const { prompt, setPrompt, generateDesign, isLoading } = useApp();
   const [isFocused, setIsFocused] = useState(false);
-  const [exampleTags, setExampleTags] = useState(getRandomExamples());
+  const [exampleTags, setExampleTags] = useState(getRandomExamples(18));
   const [tagStyles, setTagStyles] = useState<Array<{color: string, size: string}>>([]);
   
   // Use the animation hook
@@ -25,14 +26,14 @@ const PromptInput: React.FC = () => {
     })));
   }, [exampleTags]);
 
-  // Refresh examples periodically (reduced frequency because we're showing more examples at once)
+  // Refresh base examples periodically
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isFocused && !prompt) {
-        const newExamples = getRandomExamples(12); // Get more examples for the two rows
+        const newExamples = getRandomExamples(18); // Increased number for more variety
         setExampleTags(newExamples);
       }
-    }, 30000); // Slightly longer interval since we have more examples
+    }, 60000); // Longer interval since we have dynamic additions
 
     return () => clearInterval(interval);
   }, [isFocused, prompt]);
