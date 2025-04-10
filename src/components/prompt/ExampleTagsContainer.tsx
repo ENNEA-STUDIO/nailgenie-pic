@@ -1,7 +1,8 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ExamplePromptTag from './ExamplePromptTag';
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
 interface ExampleTagsContainerProps {
   exampleTags: string[];
@@ -24,17 +25,27 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
       transition={{ delay: 0.3 }}
       className="relative mt-6 px-1"
     >
-      <div className="flex flex-wrap justify-center gap-2.5 py-2 px-1">
-        {exampleTags.map((example, index) => (
-          <ExamplePromptTag
-            key={index}
-            example={example}
-            index={index}
-            style={tagStyles[index] || { color: getRandomColor(), size: getRandomSize() }}
-            onClick={handleExampleClick}
-          />
-        ))}
-      </div>
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+          dragFree: true,
+        }}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-2">
+          {exampleTags.map((example, index) => (
+            <CarouselItem key={index} className="pl-2 basis-auto">
+              <ExamplePromptTag
+                example={example}
+                index={index}
+                style={tagStyles[index] || { color: getRandomColor(), size: getRandomSize() }}
+                onClick={handleExampleClick}
+              />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
     </motion.div>
   );
 };
