@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 const PromptInput: React.FC = () => {
   const { prompt, setPrompt, generateDesign, isLoading } = useApp();
   const [isFocused, setIsFocused] = useState(false);
-  const [exampleTags, setExampleTags] = useState(getRandomExamples(18));
+  const [exampleTags, setExampleTags] = useState(getRandomExamples(20)); // Increase to 20 examples
   const [tagStyles, setTagStyles] = useState<Array<{color: string, size: string}>>([]);
   
   // Use the animation hook
@@ -30,7 +30,7 @@ const PromptInput: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isFocused && !prompt) {
-        const newExamples = getRandomExamples(18); // Increased number for more variety
+        const newExamples = getRandomExamples(20); // Increased number for more variety
         setExampleTags(newExamples);
       }
     }, 60000); // Longer interval since we have dynamic additions

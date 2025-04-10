@@ -44,14 +44,26 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
   const [dynamicFirstRowTags, setDynamicFirstRowTags] = useState<string[]>([]);
   const [dynamicSecondRowTags, setDynamicSecondRowTags] = useState<string[]>([]);
   
-  // Initial split of tags into two rows
-  const firstRowTags = exampleTags.filter((_, i) => i % 2 === 0);
-  const secondRowTags = exampleTags.filter((_, i) => i % 2 !== 0);
+  // Split tags more evenly, ensuring both rows have content
+  const getBalancedRows = (tags: string[]) => {
+    const midpoint = Math.ceil(tags.length / 2);
+    return {
+      firstRow: tags.slice(0, midpoint),
+      secondRow: tags.slice(midpoint)
+    };
+  };
+  
+  const { firstRow, secondRow } = getBalancedRows(exampleTags);
 
-  // Set up the initial dynamic tags
+  // Set up the initial dynamic tags - ensure we have enough repetition for continuous flow
   useEffect(() => {
-    setDynamicFirstRowTags([...firstRowTags, ...firstRowTags, ...firstRowTags]);
-    setDynamicSecondRowTags([...secondRowTags, ...secondRowTags, ...secondRowTags]);
+    // Ensure both rows have at least some content
+    const initialFirstRow = firstRow.length > 0 ? firstRow : [getRandomExamples(1)[0]];
+    const initialSecondRow = secondRow.length > 0 ? secondRow : [getRandomExamples(1)[0]];
+    
+    // Triple the content to ensure continuous scrolling
+    setDynamicFirstRowTags([...initialFirstRow, ...initialFirstRow, ...initialFirstRow]);
+    setDynamicSecondRowTags([...initialSecondRow, ...initialSecondRow, ...initialSecondRow]);
   }, [exampleTags]);
 
   // Add new tags periodically for the continuous pop effect
@@ -68,7 +80,7 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
         if (newTags.length > 30) newTags.pop();
         return newTags;
       });
-    }, 6000);
+    }, 5000); // Slightly faster interval
 
     const secondInterval = setInterval(() => {
       // Add a new random tag to second row
@@ -82,11 +94,31 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
         if (newTags.length > 30) newTags.pop();
         return newTags;
       });
-    }, 7000);
+    }, 6000); // Different timing for variation
+    
+    // When tags get low, add more examples
+    const replenishInterval = setInterval(() => {
+      setDynamicFirstRowTags(prev => {
+        if (prev.length < 10) {
+          // Add more tags if running low
+          return [...prev, ...getRandomExamples(5)];
+        }
+        return prev;
+      });
+      
+      setDynamicSecondRowTags(prev => {
+        if (prev.length < 10) {
+          // Add more tags if running low
+          return [...prev, ...getRandomExamples(5)];
+        }
+        return prev;
+      });
+    }, 10000);
     
     return () => {
       clearInterval(firstInterval);
       clearInterval(secondInterval);
+      clearInterval(replenishInterval);
     };
   }, []);
 
@@ -135,7 +167,7 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
                 <ExamplePromptTag
                   example={example}
                   index={index}
-                  style={tagStyles[(index + firstRowTags.length) % tagStyles.length] || { color: getRandomColor(), size: getRandomSize() }}
+                  style={tagStyles[(index + firstRow.length) % tagStyles.length] || { color: getRandomColor(), size: getRandomSize() }}
                   onClick={handleExampleClick}
                 />
               </motion.div>
