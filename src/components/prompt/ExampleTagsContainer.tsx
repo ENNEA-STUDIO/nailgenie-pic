@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import ExamplePromptTag from './ExamplePromptTag';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getRandomColor, getRandomSize } from './ExampleTagsContainer';
 import { getRandomExamples } from '../../utils/promptUtils';
 
 interface ExampleTagsContainerProps {
@@ -10,6 +9,31 @@ interface ExampleTagsContainerProps {
   tagStyles: Array<{ color: string; size: string }>;
   handleExampleClick: (example: string) => void;
 }
+
+// Helper functions for generating random styles
+export const getRandomColor = () => {
+  const colors = [
+    'bg-rose-200/80 border-rose-300',
+    'bg-amber-200/80 border-amber-300',
+    'bg-lime-200/80 border-lime-300',
+    'bg-cyan-200/80 border-cyan-300',
+    'bg-purple-200/80 border-purple-300',
+    'bg-indigo-200/80 border-indigo-300',
+    'bg-pink-200/80 border-pink-300',
+    'bg-emerald-200/80 border-emerald-300'
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
+export const getRandomSize = () => {
+  const sizes = [
+    'text-xs min-w-24',
+    'text-sm min-w-28',
+    'text-base min-w-32',
+    'text-sm min-w-28 font-medium',
+  ];
+  return sizes[Math.floor(Math.random() * sizes.length)];
+};
 
 const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
   exampleTags,
@@ -123,30 +147,4 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
   );
 };
 
-// Helper functions for generating random styles
-const getRandomColor = () => {
-  const colors = [
-    'bg-rose-200/80 border-rose-300',
-    'bg-amber-200/80 border-amber-300',
-    'bg-lime-200/80 border-lime-300',
-    'bg-cyan-200/80 border-cyan-300',
-    'bg-purple-200/80 border-purple-300',
-    'bg-indigo-200/80 border-indigo-300',
-    'bg-pink-200/80 border-pink-300',
-    'bg-emerald-200/80 border-emerald-300'
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-};
-
-const getRandomSize = () => {
-  const sizes = [
-    'text-xs min-w-24',
-    'text-sm min-w-28',
-    'text-base min-w-32',
-    'text-sm min-w-28 font-medium',
-  ];
-  return sizes[Math.floor(Math.random() * sizes.length)];
-};
-
-export { getRandomColor, getRandomSize };
 export default ExampleTagsContainer;
