@@ -6,36 +6,28 @@ import { getRandomColor, getRandomSize } from './ExampleTagsContainer';
 import ExampleTagsContainer from './ExampleTagsContainer';
 import PromptInputField from './PromptInputField';
 import { getRandomExamples, extractMainConcept } from '../../utils/promptUtils';
-import useTextAnimation from '../../hooks/useTextAnimation';
+import useExamplePrompts from './useExamplePrompts';
 
 const PromptInput: React.FC = () => {
   const { prompt, setPrompt, generateDesign, isLoading } = useApp();
   const [isFocused, setIsFocused] = useState(false);
-  const [exampleTags, setExampleTags] = useState(getRandomExamples());
+  
+  // Use our custom hook for example management
+  const { exampleTags, displayText } = useExamplePrompts(isFocused, prompt);
+  
   const [tagStyles, setTagStyles] = useState<Array<{color: string, size: string}>>([]);
   
-  // Use the animation hook
-  const { displayText } = useTextAnimation(prompt, isFocused);
-  
-  // Initialize tag styles
+  // Initialize tag styles with more variety
   useEffect(() => {
-    setTagStyles(exampleTags.map(() => ({
-      color: getRandomColor(),
-      size: getRandomSize()
-    })));
+    // Ensure each tag gets a unique style combination
+    const uniqueStyles = exampleTags.map(() => {
+      const randomColor = getRandomColor();
+      const randomSize = getRandomSize();
+      return { color: randomColor, size: randomSize };
+    });
+    
+    setTagStyles(uniqueStyles);
   }, [exampleTags]);
-
-  // Refresh examples periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isFocused && !prompt) {
-        const newExamples = getRandomExamples();
-        setExampleTags(newExamples);
-      }
-    }, 20000);
-
-    return () => clearInterval(interval);
-  }, [isFocused, prompt]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
