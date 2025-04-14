@@ -65,7 +65,7 @@ serve(async (req) => {
           quantity: 1,
         },
       ],
-      mode: checkoutMode, // one-time payment or subscription
+      mode: checkoutMode,
       success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/buy-credits`,
       metadata: {

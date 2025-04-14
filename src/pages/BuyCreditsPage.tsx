@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -125,7 +124,7 @@ const BuyCreditsPage: React.FC = () => {
           
           <CardContent className="pb-2">
             <div className="flex items-center mb-3">
-              <span className="text-3xl font-bold text-primary">{t.credits.unlimitedPlanPrice}</span>
+              <span className="text-3xl font-bold text-primary">$8.99/month</span>
             </div>
             
             <ul className="space-y-2">

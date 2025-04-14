@@ -1,4 +1,3 @@
-
 import { Language, CreditsTranslations } from './types';
 
 export const creditsTranslations: Record<Language, CreditsTranslations> = {
@@ -61,7 +60,7 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     copyCode: 'Copy Link',
     shareInvite: 'Share',
     inviteCodeCopied: 'Invitation link copied!',
-    invitationSuccess: 'Invitation validated! You received 5 credits!',
+    invitationSuccess: 'Invitation validated! You received 5 free credits!',
     rewardAmount: '5 free credits',
     shareAndEarn: 'Share and earn credits',
     earnCredits: 'Earn 5 free credits',
