@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
@@ -85,7 +84,7 @@ const InvitationSection: React.FC = () => {
   const shareInvite = () => {
     if (inviteCode) {
       const inviteUrl = `${window.location.origin}/onboarding?invite=${inviteCode}`;
-      const shareText = `${t.credits.shareText} ${inviteUrl}`;
+      const shareText = t.credits.shareText;
       
       if (navigator.share) {
         navigator.share({
@@ -96,7 +95,7 @@ const InvitationSection: React.FC = () => {
           console.error('Error sharing:', err);
         });
       } else {
-        navigator.clipboard.writeText(shareText);
+        navigator.clipboard.writeText(`${shareText} ${inviteUrl}`);
         toast.success(t.credits.inviteCodeCopied);
       }
     }

@@ -18,7 +18,7 @@ export const useDesignSharing = (design: SharedDesign | null) => {
         await navigator.share({
           title: language === 'fr' ? 'Design d\'ongle GeNails' : 'GeNails Nail Design',
           text: shareText,
-          url: shareUrl
+          url: undefined // Remove the URL parameter since we already include it in the text
         });
       } else {
         await navigator.clipboard.writeText(shareText);

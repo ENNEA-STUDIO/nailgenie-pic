@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, RefreshCw, Share, CheckCircle, XCircle } from 'lucide-react';
@@ -31,7 +30,6 @@ const ResultActions: React.FC<ResultActionsProps> = ({
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
 
-  // Show feedback and automatically hide it after a delay
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message, visible: true });
     setTimeout(() => {
@@ -98,7 +96,6 @@ const ResultActions: React.FC<ResultActionsProps> = ({
         await navigator.share({
           title: language === 'fr' ? 'Mon design NailGenie' : 'My NailGenie design',
           text: shareText,
-          url: generatedDesign
         });
       } else {
         const response = await fetch(generatedDesign);
@@ -154,7 +151,6 @@ const ResultActions: React.FC<ResultActionsProps> = ({
             <Share size={28} />
           )}
           
-          {/* Success indicator */}
           <AnimatePresence>
             {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.shareSuccess && (
               <motion.div 
@@ -184,7 +180,6 @@ const ResultActions: React.FC<ResultActionsProps> = ({
           <Download size={28} />
         )}
         
-        {/* Success indicator */}
         <AnimatePresence>
           {feedback?.visible && feedback.type === 'success' && 
           (feedback.message === t.result.downloadSuccess || feedback.message === t.result.imageOpened) && (
@@ -200,7 +195,6 @@ const ResultActions: React.FC<ResultActionsProps> = ({
         </AnimatePresence>
       </motion.button>
       
-      {/* Visual feedback instead of toast */}
       <AnimatePresence>
         {feedback && feedback.visible && (
           <motion.div

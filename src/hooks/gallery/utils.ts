@@ -1,4 +1,3 @@
-
 import { ActionFeedback } from '@/types/gallery';
 
 // Download a design image
@@ -50,8 +49,7 @@ export const shareImageExternally = async (imageUrl: string, prompt?: string) =>
       text: prompt 
         ? `Check out my nail design: "${prompt}"\n\nCreated with NailGenie!` 
         : 'Check out my nail design created with NailGenie!',
-      // Pass the image URL directly to make it appear in the share preview
-      url: imageUrl
+      // Don't include the URL parameter since we already include it in the text
     };
 
     // Trigger the native share dialog

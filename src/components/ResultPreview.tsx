@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
@@ -28,7 +27,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   
   if (!generatedDesign) return null;
   
-  // Show feedback and automatically hide it after a delay
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message, visible: true });
     setTimeout(() => {
@@ -41,7 +39,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       setSharing(true);
       console.log("Starting share process...");
       
-      // Get an invitation code to include in the share
       const { data: inviteData, error: inviteError } = await supabase
         .from('invitations')
         .select('code')
@@ -55,7 +52,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       let inviteCode = '';
       
       if (!inviteData || inviteData.length === 0) {
-        // Create a new invitation code if none exists
         console.log("No invitation code found, creating a new one...");
         const { data: newInviteData, error: newInviteError } = await supabase.rpc('create_invitation');
         
@@ -72,8 +68,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         console.log("Using existing invitation code:", inviteCode);
       }
       
-      // Create a shareable link to view the design
-      // First, save this design to a temporary shared_view table
       console.log("Saving design to shared_views table...");
       const { data: viewData, error: viewError } = await supabase
         .from('shared_views')
@@ -97,28 +91,25 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       
       console.log("Design saved with ID:", viewData.id);
       
-      // Create view URL with the shared view ID
       const viewUrl = `${window.location.origin}/shared/${viewData.id}`;
       console.log("Share URL created:", viewUrl);
       
-      // Create share message with GeNails instead of NailGenie
       const shareText = language === 'fr' 
-        ? `Regarde ce design d'ongle que j'ai créé avec GeNails: "${prompt}". Clique ici pour le voir et essayer toi-même: ${viewUrl}`
-        : `Check out this nail design I created with GeNails: "${prompt}". Click here to view it and try it yourself: ${viewUrl}`;
+        ? `Regarde ce design d'ongle que j'ai créé avec GeNails: "${prompt}"`
+        : `Check out this nail design I created with GeNails: "${prompt}"`;
       
-      // Use the Web Share API to share the text with the link
       if (navigator.share) {
         console.log("Using Web Share API...");
         await navigator.share({
           title: language === 'fr' ? 'Mon design GeNails' : 'My GeNails design',
           text: shareText,
+          url: viewUrl
         });
         
         showFeedback('success', t.result.shareSuccess);
       } else {
-        // Fallback for browsers that don't support Web Share API
         console.log("Web Share API not supported, copying to clipboard...");
-        await navigator.clipboard.writeText(shareText);
+        await navigator.clipboard.writeText(`${shareText} ${viewUrl}`);
         
         showFeedback('success', t.result.shareLinkCopied);
       }
@@ -132,7 +123,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   
   const handleDownload = async () => {
     try {
-      // Use our improved download function
       await downloadDesignImage(generatedDesign, 0);
       
       showFeedback('success', t.result.downloadSuccess);
@@ -146,7 +136,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     try {
       setSaving(true);
       
-      // Get current user
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         showFeedback('error', t.common.connectionRequired);
@@ -156,7 +145,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       
       const userId = sessionData.session.user.id;
       
-      // Insert into saved_designs table
       const { data, error } = await supabase
         .from('saved_designs')
         .insert([
@@ -240,7 +228,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           </Tooltip>
         </TooltipProvider>
         
-        {/* Bouton de partage amélioré */}
         <Button 
           onClick={handleShare}
           variant="outline" 
@@ -255,7 +242,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
             <Share2 size={20} />
           )}
           
-          {/* Share success indicator */}
           <AnimatePresence>
             {feedback?.visible && feedback.type === 'success' && 
              (feedback.message === t.result.shareSuccess || feedback.message === t.result.shareLinkCopied) && (
@@ -287,7 +273,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
             <Save size={20} />
           )}
           
-          {/* Save success indicator */}
           <AnimatePresence>
             {feedback?.visible && feedback.type === 'success' && feedback.message === t.result.savedSuccess && (
               <motion.div 
@@ -303,7 +288,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         </Button>
       </div>
       
-      {/* Visual feedback instead of toast */}
       <AnimatePresence>
         {feedback && feedback.visible && (
           <motion.div
