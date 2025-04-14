@@ -53,7 +53,14 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Create a payment session - always use payment mode for credit packs
+    // Get price info to determine if it's recurring
+    const price = await stripe.prices.retrieve(priceId);
+    const isRecurring = price.type === 'recurring';
+    const mode = isRecurring ? 'subscription' : 'payment';
+    
+    console.log(`Price ${priceId} is ${isRecurring ? 'recurring' : 'one-time'}, using mode: ${mode}`);
+    
+    // Create a checkout session with the appropriate mode
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -63,12 +70,12 @@ serve(async (req) => {
           quantity: 1,
         },
       ],
-      mode: 'payment',
+      mode: mode,
       success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/buy-credits`,
       metadata: {
         userId: user.id,
-        mode: 'payment', // Store the mode in metadata
+        mode: mode, // Store the mode in metadata
       },
     });
 

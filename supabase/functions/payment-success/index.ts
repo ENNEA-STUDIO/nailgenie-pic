@@ -98,6 +98,8 @@ serve(async (req) => {
         creditsToAdd = 100; // Premium pack gives 100 credits
       }
       
+      console.log(`Adding ${creditsToAdd} credits to user ${userId} for price ${priceId}`);
+      
       const { error, data } = await supabaseClient.rpc("add_user_credits", {
         user_id_param: userId,
         credits_to_add: creditsToAdd,

@@ -19,6 +19,7 @@ type OfferType = 'credits' | 'subscription';
 
 // Updated to use the actual Stripe price IDs provided by the user
 const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
+// The price ID for the 100 credits pack - this should be a one-time payment price
 const PREMIUM_CREDITS_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
 
 const BuyCreditsPage: React.FC = () => {
