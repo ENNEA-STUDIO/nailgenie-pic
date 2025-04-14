@@ -30,12 +30,14 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
-    const { priceId, mode: requestedMode } = await req.json();
+    const requestData = await req.json();
+    const { priceId, mode: requestedMode } = requestData;
+    
     if (!priceId) {
       throw new Error('Price ID is required');
     }
 
-    console.log('Creating payment session...');
+    console.log('Creating payment session...', { priceId, requestedMode });
     
     // We'll continue to use the server-side secret key for security
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {

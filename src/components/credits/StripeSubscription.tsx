@@ -26,21 +26,24 @@ const StripeSubscription = ({
     setIsLoading(true);
     
     try {
-      // Important change: explicitly setting mode to 'subscription' in the request
+      console.log('Initiating subscription checkout with priceId:', priceId);
+      
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: { 
           priceId,
-          mode: 'subscription' // Explicitly set mode to subscription
+          mode: 'subscription' // Always explicitly set mode to subscription
         },
       });
       
       if (error) {
+        console.error('Subscription checkout error:', error);
         throw error;
       }
       
       if (data?.url) {
         window.location.href = data.url;
       } else {
+        console.error('No checkout URL returned');
         throw new Error('No checkout URL returned');
       }
     } catch (error) {
