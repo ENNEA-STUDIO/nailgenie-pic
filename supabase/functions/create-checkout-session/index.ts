@@ -30,7 +30,7 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
-    const { priceId, mode, publicKey } = await req.json();
+    const { priceId, mode } = await req.json();
     if (!priceId) {
       throw new Error('Price ID is required');
     }
@@ -70,7 +70,6 @@ serve(async (req) => {
       cancel_url: `${req.headers.get('origin')}/buy-credits`,
       metadata: {
         userId: user.id,
-        publicKey: publicKey || 'not_provided', // Store the public key in metadata for reference
         mode: checkoutMode, // Store the mode in metadata
       },
     });

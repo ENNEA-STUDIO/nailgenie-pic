@@ -145,7 +145,7 @@ const BuyCreditsPage: React.FC = () => {
               priceId={UNLIMITED_PRICE_ID}
               buttonText={t.credits.subscribe}
               isProcessing={isProcessing && processingOption === 'subscription'}
-              showSuccess={false}
+              showSuccess={showSuccess}
             />
           </CardFooter>
         </Card>
