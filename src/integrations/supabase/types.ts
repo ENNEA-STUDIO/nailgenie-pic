@@ -247,7 +247,7 @@ export type Database = {
         Returns: boolean
       }
       create_invitation: {
-        Args: Record<PropertyKey, never>
+        Args: Record<PropertyKey, never> | { user_id_param: string }
         Returns: string
       }
       create_subscription_table: {

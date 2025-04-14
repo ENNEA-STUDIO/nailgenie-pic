@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -27,6 +28,60 @@ const OnboardingPage: React.FC = () => {
     inviteCode: "",
   });
   const [processingInvitation, setProcessingInvitation] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
+
+  // Process the email verification token if present in the URL
+  useEffect(() => {
+    const handleEmailVerification = async () => {
+      // Check if there's an email verification token in the URL
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const queryParams = new URLSearchParams(location.search);
+      
+      // Look for the token in hash or query params (different email clients handle them differently)
+      const token = hashParams.get("token") || queryParams.get("token");
+      const type = hashParams.get("type") || queryParams.get("type");
+      
+      // If we have a token and it's for email verification
+      if (token && type === "signup") {
+        try {
+          console.log("Processing email verification token:", token);
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: token,
+            type: "signup",
+          });
+
+          if (error) {
+            console.error("Email verification error:", error);
+            setVerificationError(error.message);
+            toast.error(
+              language === "fr"
+                ? "Erreur lors de la vérification de l'email"
+                : "Error verifying email"
+            );
+          } else {
+            toast.success(
+              language === "fr"
+                ? "Email vérifié avec succès!"
+                : "Email verified successfully!"
+            );
+            
+            // Redirect to camera page after successful verification
+            navigate("/camera", { replace: true });
+          }
+        } catch (error: any) {
+          console.error("Verification error:", error);
+          setVerificationError(error.message);
+          toast.error(
+            language === "fr"
+              ? "Erreur lors de la vérification de l'email"
+              : "Error verifying email"
+          );
+        }
+      }
+    };
+
+    handleEmailVerification();
+  }, [location, navigate, language]);
 
   // Check if there's a just-verified session
   useEffect(() => {
@@ -44,7 +99,6 @@ const OnboardingPage: React.FC = () => {
             const { data: inviteResult, error: inviteError } =
               await supabase.functions.invoke("use-invitation", {
                 body: JSON.stringify({
-                  // Assurez-vous que le body est stringifié
                   invitationCode: pendingInviteCode,
                   newUserId: data.session.user.id,
                 }),
@@ -161,6 +215,7 @@ const OnboardingPage: React.FC = () => {
             full_name: userData.fullName,
             preferences: userData.preferences,
           },
+          emailRedirectTo: window.location.origin + "/onboarding",
         },
       });
 
@@ -279,7 +334,7 @@ const OnboardingPage: React.FC = () => {
             language === "fr"
               ? "Veuillez vérifier votre email"
               : "Please check your email",
-          component: <EmailVerificationStep />,
+          component: <EmailVerificationStep error={verificationError} />,
         },
         {
           id: "success",
