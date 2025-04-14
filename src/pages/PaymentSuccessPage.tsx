@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Infinity } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
@@ -15,6 +15,7 @@ const PaymentSuccessPage = () => {
   const [searchParams] = useSearchParams();
   const { checkCredits } = useApp();
   const [isVerifying, setIsVerifying] = useState(true);
+  const [isSubscription, setIsSubscription] = useState(false);
   
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -29,7 +30,6 @@ const PaymentSuccessPage = () => {
           return;
         }
         
-        // Fixed: Using proper parameter format for supabase.functions.invoke
         const { data, error } = await supabase.functions.invoke('payment-success', {
           body: { session_id: sessionId }
         });
@@ -44,6 +44,9 @@ const PaymentSuccessPage = () => {
         }
         
         if (data?.success) {
+          // Set subscription status
+          setIsSubscription(data.mode === 'subscription');
+          
           // Trigger confetti effect
           confetti({
             particleCount: 100,
@@ -92,11 +95,29 @@ const PaymentSuccessPage = () => {
           <h1 className="text-2xl font-bold mb-2">
             {language === 'fr' ? "Paiement réussi!" : "Payment Successful!"}
           </h1>
-          <p className="text-lg mb-8">
-            {language === 'fr' 
-              ? "Vos 10 crédits ont été ajoutés à votre compte" 
-              : "Your 10 credits have been added to your account"}
-          </p>
+          
+          {isSubscription ? (
+            <>
+              <div className="flex items-center mb-4">
+                <Infinity className="w-6 h-6 text-primary mr-2" />
+                <p className="text-lg font-medium">
+                  {language === 'fr' ? "Abonnement illimité activé" : "Unlimited subscription activated"}
+                </p>
+              </div>
+              <p className="text-md text-muted-foreground mb-8">
+                {language === 'fr' 
+                  ? "Vous pouvez maintenant générer autant de designs que vous voulez" 
+                  : "You can now generate as many designs as you want"}
+              </p>
+            </>
+          ) : (
+            <p className="text-lg mb-8">
+              {language === 'fr' 
+                ? "Vos 10 crédits ont été ajoutés à votre compte" 
+                : "Your 10 credits have been added to your account"}
+            </p>
+          )}
+          
           <p className="text-sm text-muted-foreground">
             {language === 'fr' 
               ? "Vous allez être redirigé automatiquement..." 
