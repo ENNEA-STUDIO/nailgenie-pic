@@ -13,11 +13,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import StripeCheckout from '@/components/credits/StripeCheckout';
+import StripeSubscription from '@/components/credits/StripeSubscription';
 
 type OfferType = 'credits' | 'subscription';
 
-// Updated to use the actual Stripe price ID provided by the user
+// Updated to use the actual Stripe price IDs provided by the user
 const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
+const UNLIMITED_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, addCredits } = useApp();
@@ -26,40 +28,6 @@ const BuyCreditsPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  
-  const handleBuyCredits = async () => {
-    setIsProcessing(true);
-    setProcessingOption('credits');
-    
-    // Simulate payment processing
-    setTimeout(async () => {
-      const success = await addCredits(10);
-      
-      if (success) {
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          setIsProcessing(false);
-          setProcessingOption(null);
-        }, 2000);
-      } else {
-        setIsProcessing(false);
-        setProcessingOption(null);
-      }
-    }, 1500);
-  };
-  
-  const handleSubscribe = async () => {
-    setIsProcessing(true);
-    setProcessingOption('subscription');
-    
-    // Simulate subscription processing
-    setTimeout(() => {
-      toast.success(language === 'fr' ? "Abonnement activé avec succès!" : "Subscription activated successfully!");
-      setIsProcessing(false);
-      setProcessingOption(null);
-    }, 1500);
-  };
   
   return (
     <motion.div 
@@ -134,11 +102,11 @@ const BuyCreditsPage: React.FC = () => {
           </CardFooter>
         </Card>
         
-        {/* Abonnement illimité - maintenant marqué comme "Bientôt disponible" */}
-        <Card className="border-2 border-muted overflow-hidden relative opacity-75">
+        {/* Abonnement illimité - now active */}
+        <Card className="border-2 border-primary/50 overflow-hidden relative">
           <div className="absolute top-0 right-0">
-            <Badge className="m-2 bg-amber-500">
-              {language === 'fr' ? 'Bientôt disponible' : 'Coming soon'}
+            <Badge className="m-2 bg-primary">
+              {t.credits.mostPopular}
             </Badge>
           </div>
           
@@ -173,13 +141,12 @@ const BuyCreditsPage: React.FC = () => {
           </CardContent>
           
           <CardFooter>
-            <Button 
-              className="w-full" 
-              size="lg"
-              disabled={true}
-            >
-              {language === 'fr' ? 'Bientôt disponible' : 'Coming soon'}
-            </Button>
+            <StripeSubscription
+              priceId={UNLIMITED_PRICE_ID}
+              buttonText={t.credits.subscribe}
+              isProcessing={isProcessing && processingOption === 'subscription'}
+              showSuccess={false}
+            />
           </CardFooter>
         </Card>
         

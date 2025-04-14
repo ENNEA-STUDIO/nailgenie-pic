@@ -30,7 +30,7 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
-    const { priceId, publicKey } = await req.json();
+    const { priceId, mode, publicKey } = await req.json();
     if (!priceId) {
       throw new Error('Price ID is required');
     }
@@ -53,6 +53,9 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
+    // Set the checkout mode (payment or subscription)
+    const checkoutMode = mode === 'subscription' ? 'subscription' : 'payment';
+    
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -62,12 +65,13 @@ serve(async (req) => {
           quantity: 1,
         },
       ],
-      mode: 'payment', // one-time payment
+      mode: checkoutMode, // one-time payment or subscription
       success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/buy-credits`,
       metadata: {
         userId: user.id,
         publicKey: publicKey || 'not_provided', // Store the public key in metadata for reference
+        mode: checkoutMode, // Store the mode in metadata
       },
     });
 

@@ -51,16 +51,58 @@ serve(async (req) => {
     }
 
     console.log("Session details:", session);
-    console.log("Adding credits for user:", userId);
+    console.log("Processing payment for user:", userId);
     
-    // Update to add 10 credits instead of 5 for the credit pack
-    const { error, data } = await supabaseClient.rpc("add_user_credits", {
-      user_id_param: userId,
-      credits_to_add: 10,
-    });
-    console.log("RPC response:", { error, data });
+    // Check if this was a subscription or one-time payment
+    const mode = session.mode;
+    console.log("Payment mode:", mode);
+    
+    if (mode === 'subscription') {
+      // For subscriptions, we need to store the subscription details
+      const subscriptionId = session.subscription as string;
+      if (subscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        
+        // Check if we need to create a user_subscriptions table first
+        await supabaseClient.rpc("create_subscription_table");
+        
+        // Insert or update the subscription record
+        const { error } = await supabaseClient
+          .from("user_subscriptions")
+          .upsert({
+            user_id: userId,
+            stripe_subscription_id: subscriptionId,
+            stripe_customer_id: subscription.customer as string,
+            status: subscription.status,
+            price_id: subscription.items.data[0].price.id,
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            cancel_at_period_end: subscription.cancel_at_period_end,
+          });
+          
+        if (error) {
+          console.error("Error saving subscription:", error);
+          throw error;
+        }
+        
+        console.log("Subscription saved successfully");
+      }
+    } else {
+      // For one-time payments, add credits
+      const { error, data } = await supabaseClient.rpc("add_user_credits", {
+        user_id_param: userId,
+        credits_to_add: 10,
+      });
+      console.log("RPC response:", { error, data });
+      
+      if (error) {
+        throw error;
+      }
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ 
+      success: true,
+      mode: mode
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
