@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -27,25 +26,27 @@ serve(async (req) => {
     );
 
     // Get the user's JWT token from the request headers
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      throw new Error('Missing Authorization header');
+      throw new Error("Missing Authorization header");
     }
 
     // Verify the JWT token
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseClient.auth.getUser(authHeader.replace("Bearer ", ""));
 
     if (authError || !user) {
-      throw new Error('Unauthorized: Invalid token');
+      throw new Error("Unauthorized: Invalid token");
     }
 
     console.log("Creating invitation code for user:", user.id);
 
     // Generate a unique invitation code
     const { data: inviteCode, error: rpcError } = await supabaseClient.rpc(
-      "create_invitation"
+      "create_invitation",
+      { user_id_param: user.id }
     );
 
     if (rpcError) {
@@ -60,9 +61,9 @@ serve(async (req) => {
     console.log("Created invitation code:", inviteCode, "for user:", user.id);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        code: inviteCode 
+      JSON.stringify({
+        success: true,
+        code: inviteCode,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -72,9 +73,9 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error creating invitation code:", error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message 
+      JSON.stringify({
+        success: false,
+        error: error.message,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
