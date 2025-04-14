@@ -19,7 +19,7 @@ type OfferType = 'credits' | 'subscription';
 
 // Updated to use the actual Stripe price IDs provided by the user
 const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
-// The price ID for the 100 credits pack - this should be a one-time payment price
+// The premium pack is actually a recurring subscription
 const PREMIUM_CREDITS_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
 
 const BuyCreditsPage: React.FC = () => {
@@ -103,7 +103,7 @@ const BuyCreditsPage: React.FC = () => {
           </CardFooter>
         </Card>
         
-        {/* 100 Credits Pack - now the main offer */}
+        {/* 100 Credits Pack - updated to show as a subscription */}
         <Card className="border-2 border-primary/50 overflow-hidden relative">
           <div className="absolute top-0 right-0">
             <Badge className="m-2 bg-primary">
@@ -113,38 +113,38 @@ const BuyCreditsPage: React.FC = () => {
           
           <CardHeader className="pb-2">
             <Badge variant="outline" className="w-fit mb-2">
-              {t.credits.oneTimePurchase}
+              {t.credits.subscriptionExplainer}
             </Badge>
             <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-primary" />
-              {t.credits.premiumCreditPack}
+              <Infinity className="h-5 w-5 text-primary" />
+              {t.credits.unlimitedPlan}
             </CardTitle>
             <CardDescription>
-              100 designs = 100 {language === 'fr' ? 'crédits' : 'credits'}
+              {t.credits.unlimitedExplainer}
             </CardDescription>
           </CardHeader>
           
           <CardContent className="pb-2">
             <div className="flex items-center mb-3">
-              <span className="text-3xl font-bold text-primary">$8.99</span>
+              <span className="text-3xl font-bold text-primary">{t.credits.unlimitedPlanPrice}</span>
             </div>
             
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-sm">
                 <Zap className="h-4 w-4 text-green-500" />
-                {t.credits.hundredCreditsForDesigns}
+                {t.credits.unlimitedDesigns}
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Zap className="h-4 w-4 text-green-500" />
-                {t.credits.bestValue}
+                {t.credits.cancelAnytime}
               </li>
             </ul>
           </CardContent>
           
           <CardFooter>
-            <StripeCheckout
+            <StripeSubscription
               priceId={PREMIUM_CREDITS_PRICE_ID}
-              buttonText="$8.99"
+              buttonText={t.credits.unlimitedPlanPrice}
               isProcessing={isProcessing && processingOption === 'subscription'}
               showSuccess={showSuccess}
             />
