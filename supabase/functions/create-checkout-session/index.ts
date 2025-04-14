@@ -30,7 +30,7 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
-    const { priceId } = await req.json();
+    const { priceId, mode: requestedMode } = await req.json();
     if (!priceId) {
       throw new Error('Price ID is required');
     }
@@ -56,7 +56,9 @@ serve(async (req) => {
     // Get price info to determine if it's recurring
     const price = await stripe.prices.retrieve(priceId);
     const isRecurring = price.type === 'recurring';
-    const mode = isRecurring ? 'subscription' : 'payment';
+    
+    // Use the requested mode if provided, otherwise determine based on price type
+    const mode = requestedMode || (isRecurring ? 'subscription' : 'payment');
     
     console.log(`Price ${priceId} is ${isRecurring ? 'recurring' : 'one-time'}, using mode: ${mode}`);
     

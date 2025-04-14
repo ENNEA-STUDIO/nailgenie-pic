@@ -26,10 +26,11 @@ const StripeSubscription = ({
     setIsLoading(true);
     
     try {
+      // Important change: explicitly setting mode to 'subscription' in the request
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: { 
           priceId,
-          mode: 'subscription'
+          mode: 'subscription' // Explicitly set mode to subscription
         },
       });
       
