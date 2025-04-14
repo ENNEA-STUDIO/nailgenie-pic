@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -18,7 +19,7 @@ type OfferType = 'credits' | 'subscription';
 
 // Updated to use the actual Stripe price IDs provided by the user
 const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
-const UNLIMITED_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
+const PREMIUM_CREDITS_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, addCredits } = useApp();
@@ -101,7 +102,7 @@ const BuyCreditsPage: React.FC = () => {
           </CardFooter>
         </Card>
         
-        {/* Abonnement illimité - now active */}
+        {/* 100 Credits Pack - now the main offer */}
         <Card className="border-2 border-primary/50 overflow-hidden relative">
           <div className="absolute top-0 right-0">
             <Badge className="m-2 bg-primary">
@@ -111,38 +112,38 @@ const BuyCreditsPage: React.FC = () => {
           
           <CardHeader className="pb-2">
             <Badge variant="outline" className="w-fit mb-2">
-              {t.credits.subscriptionExplainer}
+              {t.credits.oneTimePurchase}
             </Badge>
             <CardTitle className="flex items-center gap-2">
-              <Infinity className="h-5 w-5 text-primary" />
-              {t.credits.unlimitedPlan}
+              <CreditCard className="h-5 w-5 text-primary" />
+              {t.credits.premiumCreditPack}
             </CardTitle>
             <CardDescription>
-              {t.credits.unlimitedExplainer}
+              100 designs = 100 {language === 'fr' ? 'crédits' : 'credits'}
             </CardDescription>
           </CardHeader>
           
           <CardContent className="pb-2">
             <div className="flex items-center mb-3">
-              <span className="text-3xl font-bold text-primary">$8.99/month</span>
+              <span className="text-3xl font-bold text-primary">$8.99</span>
             </div>
             
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-sm">
                 <Zap className="h-4 w-4 text-green-500" />
-                {t.credits.unlimitedDesigns}
+                {t.credits.hundredCreditsForDesigns}
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Zap className="h-4 w-4 text-green-500" />
-                {t.credits.cancelAnytime}
+                {t.credits.bestValue}
               </li>
             </ul>
           </CardContent>
           
           <CardFooter>
-            <StripeSubscription
-              priceId={UNLIMITED_PRICE_ID}
-              buttonText={t.credits.subscribe}
+            <StripeCheckout
+              priceId={PREMIUM_CREDITS_PRICE_ID}
+              buttonText="$8.99"
               isProcessing={isProcessing && processingOption === 'subscription'}
               showSuccess={showSuccess}
             />

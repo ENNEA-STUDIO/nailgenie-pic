@@ -87,10 +87,20 @@ serve(async (req) => {
         console.log("Subscription saved successfully");
       }
     } else {
-      // For one-time payments, add credits
+      // For one-time payments, add credits based on the price ID
+      const lineItems = await stripe.checkout.sessions.listLineItems(session_id, { limit: 1 });
+      const priceId = lineItems.data[0]?.price?.id;
+      
+      let creditsToAdd = 10; // Default for regular credit pack
+      
+      // Check if this is the premium credit pack
+      if (priceId === 'price_1RDnGiGpMCOJlOLHek9KvjVv') {
+        creditsToAdd = 100; // Premium pack gives 100 credits
+      }
+      
       const { error, data } = await supabaseClient.rpc("add_user_credits", {
         user_id_param: userId,
-        credits_to_add: 10,
+        credits_to_add: creditsToAdd,
       });
       console.log("RPC response:", { error, data });
       

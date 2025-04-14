@@ -1,3 +1,4 @@
+
 import { Language, CreditsTranslations } from './types';
 
 export const creditsTranslations: Record<Language, CreditsTranslations> = {
@@ -30,6 +31,8 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     successInviteCode: 'Code d\'invitation validé!',
     creditPack: 'Pack de 10 crédits',
     creditPackPrice: '2,99 €',
+    premiumCreditPack: 'Pack de 100 crédits',
+    premiumCreditPackPrice: '8,99 €',
     unlimitedPlan: 'Crédits illimités',
     unlimitedPlanPrice: '8,99 €/mois',
     unlimitedExplainer: 'Générez autant de designs que vous voulez',
@@ -39,6 +42,8 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     unlimitedDesigns: 'Designs illimités',
     cancelAnytime: 'Annulez à tout moment',
     tenCreditsForDesigns: '10 crédits pour générer des designs d\'ongles',
+    hundredCreditsForDesigns: '100 crédits pour générer des designs d\'ongles',
+    bestValue: 'Meilleure valeur',
     comingSoon: 'Bientôt disponible',
     shareText: 'Rejoignez-moi sur GeNails et obtenez 5 crédits gratuits!',
     errorGeneratingCode: 'Erreur lors de la génération du code d\'invitation'
@@ -72,6 +77,8 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     successInviteCode: 'Invitation code validated!',
     creditPack: '10 Credits Pack',
     creditPackPrice: '$2.99',
+    premiumCreditPack: '100 Credits Pack',
+    premiumCreditPackPrice: '$8.99',
     unlimitedPlan: 'Unlimited Credits',
     unlimitedPlanPrice: '$8.99/month',
     unlimitedExplainer: 'Generate as many designs as you want',
@@ -81,6 +88,8 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     unlimitedDesigns: 'Unlimited designs',
     cancelAnytime: 'Cancel anytime',
     tenCreditsForDesigns: '10 credits to generate nail designs',
+    hundredCreditsForDesigns: '100 credits to generate nail designs',
+    bestValue: 'Best value',
     comingSoon: 'Coming soon',
     shareText: 'Join me on GeNails and get 5 free credits!',
     errorGeneratingCode: 'Error generating invitation code'

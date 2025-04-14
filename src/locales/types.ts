@@ -178,6 +178,8 @@ export interface CreditsTranslations {
   successInviteCode: string;
   creditPack: string;
   creditPackPrice: string;
+  premiumCreditPack: string;
+  premiumCreditPackPrice: string;
   unlimitedPlan: string;
   unlimitedPlanPrice: string;
   unlimitedExplainer: string;
@@ -187,7 +189,11 @@ export interface CreditsTranslations {
   unlimitedDesigns: string;
   cancelAnytime: string;
   tenCreditsForDesigns: string;
+  hundredCreditsForDesigns: string;
+  bestValue: string;
   comingSoon: string;
   shareText: string;
   errorGeneratingCode: string;
 }
+
+export type Language = 'fr' | 'en';
