@@ -195,5 +195,3 @@ export interface CreditsTranslations {
   shareText: string;
   errorGeneratingCode: string;
 }
-
-export type Language = 'fr' | 'en';

@@ -30,7 +30,7 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
-    const { priceId, mode } = await req.json();
+    const { priceId } = await req.json();
     if (!priceId) {
       throw new Error('Price ID is required');
     }
@@ -53,9 +53,7 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Set the checkout mode (payment or subscription)
-    const checkoutMode = mode === 'subscription' ? 'subscription' : 'payment';
-    
+    // Create a payment session - always use payment mode for credit packs
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -65,12 +63,12 @@ serve(async (req) => {
           quantity: 1,
         },
       ],
-      mode: checkoutMode,
+      mode: 'payment',
       success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/buy-credits`,
       metadata: {
         userId: user.id,
-        mode: checkoutMode, // Store the mode in metadata
+        mode: 'payment', // Store the mode in metadata
       },
     });
 
