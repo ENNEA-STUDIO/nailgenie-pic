@@ -59,10 +59,19 @@ serve(async (req) => {
     const price = await stripe.prices.retrieve(priceId);
     const isRecurring = price.type === 'recurring';
     
-    // Use the requested mode if provided, otherwise determine based on price type
+    // Always honor the explicitly requested mode if provided
     const mode = requestedMode || (isRecurring ? 'subscription' : 'payment');
     
     console.log(`Price ${priceId} is ${isRecurring ? 'recurring' : 'one-time'}, using mode: ${mode}`);
+    
+    // Validate mode and price type compatibility
+    if (mode === 'payment' && isRecurring) {
+      throw new Error('Cannot use payment mode with a recurring price. Use subscription mode instead.');
+    }
+    
+    if (mode === 'subscription' && !isRecurring) {
+      throw new Error('Cannot use subscription mode with a one-time price. Use payment mode instead.');
+    }
     
     // Create a checkout session with the appropriate mode
     const session = await stripe.checkout.sessions.create({
