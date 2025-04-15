@@ -81,60 +81,31 @@ serve(async (req) => {
       nailLength === 'medium' ? 'moyens' : 'longs'} de forme ${nailShape} de couleur ${colorName}`;
     
     console.log("Full prompt:", fullPrompt);
-    
-    // Generate three variations of the prompt for diverse results
-    const promptVariations = [
-      fullPrompt,
-      `Style différent: ${fullPrompt}`,
-      `Variation créative: ${fullPrompt}`
-    ];
-    
-    console.log("Generated prompt variations for multiple designs");
     console.log("Connecting to Gemini Image Edit model...");
     
-    // Generate three designs in parallel
+    // Connect to the Gemini Image Edit model
     try {
       const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", { 
         hf_token: HUGGINGFACE_TOKEN 
       });
       
       console.log("Connected to client successfully");
+      console.log("Making prediction with prompt:", fullPrompt);
       
-      // Generate three designs in parallel
-      const designResults = await Promise.all(
-        promptVariations.map(async (variationPrompt, index) => {
-          console.log(`Making prediction ${index + 1}/3 with prompt:`, variationPrompt);
-          
-          try {
-            const result = await client.predict("/process_image_and_prompt", {
-              composite_pil: imageBlob,
-              prompt: variationPrompt,
-              gemini_api_key: GEMINI_API_KEY,
-            });
-            
-            console.log(`Prediction ${index + 1}/3 result received:`, result ? "success" : "undefined");
-            
-            return result.data;
-          } catch (error) {
-            console.error(`Error in prediction ${index + 1}/3:`, error);
-            return null; // Return null for failed generations
-          }
-        })
-      );
+      // Make API call to generate the design
+      const result = await client.predict("/process_image_and_prompt", {
+        composite_pil: imageBlob,
+        prompt: fullPrompt,
+        gemini_api_key: GEMINI_API_KEY,
+      });
       
-      // Filter out any failed generations
-      const successfulDesigns = designResults.filter(design => design !== null);
-      
-      if (successfulDesigns.length === 0) {
-        throw new Error("Aucun design n'a pu être généré. Veuillez réessayer.");
-      }
-      
-      console.log(`Successfully generated ${successfulDesigns.length} designs`);
+      console.log("Prediction result received:", result ? "success" : "undefined");
+      console.log("Result data:", result.data ? "exists" : "missing");
 
-      // Return all generated designs
+      // Return the result
       return new Response(JSON.stringify({ 
         success: true, 
-        designs: successfulDesigns
+        data: result.data
       }), { 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
@@ -163,7 +134,7 @@ const getColorName = (hexColor: string): string => {
     // Nude & Neutrals
     '#E6CCAF': 'beige',
     '#B8A99A': 'taupe',
-    '#FFF3D9': 'ivoire',
+    '#F8F0DD': 'ivoire',
     '#FFF3D9': 'crème',
     '#A17249': 'cappuccino',
     '#D2B48C': 'sable',
