@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useLanguage } from '@/context/LanguageContext';
 import { CheckCircle, Infinity, Sparkles } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
 
 interface StripeSubscriptionProps {
   priceId: string;
@@ -22,6 +23,7 @@ const StripeSubscription = ({
   isUnlimited = false
 }: StripeSubscriptionProps) => {
   const { language } = useLanguage();
+  const { checkSubscription } = useApp();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubscribe = async () => {
@@ -43,6 +45,8 @@ const StripeSubscription = ({
       }
       
       if (data?.url) {
+        // Try to update subscription status before redirecting
+        await checkSubscription();
         window.location.href = data.url;
       } else {
         console.error('No checkout URL returned');

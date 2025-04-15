@@ -76,7 +76,7 @@ const CreditsDisplay: React.FC<CreditsDisplayProps> = ({
               {hasUnlimitedCredits ? '∞' : credits}
             </span>
             
-            {showTooltip && lowCredits && (
+            {showTooltip && lowCredits && !hasUnlimitedCredits && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

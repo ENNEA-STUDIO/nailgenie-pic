@@ -12,10 +12,15 @@ import { Button } from "@/components/ui/button";
 
 const CameraPage: React.FC = () => {
   const navigate = useNavigate();
-  const { handImage, credits, hasUnlimitedCredits } = useApp();
+  const { handImage, credits, hasUnlimitedCredits, checkSubscription } = useApp();
   const { t } = useLanguage();
   const [showTip, setShowTip] = useState(false);
   const hasNoCredits = credits <= 0 && !hasUnlimitedCredits;
+
+  // Update subscription status when the page loads
+  useEffect(() => {
+    checkSubscription();
+  }, [checkSubscription]);
 
   // Show camera tip when page loads
   useEffect(() => {
