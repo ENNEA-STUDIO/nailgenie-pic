@@ -22,6 +22,8 @@ export interface ResultTranslations {
   sharedDesignTitle: string; 
   tryItFree: string; 
   sharedBy: string; // Translation key for shared by text
+  noDescription: string; // Added for empty description fallback
+  colorTitle: string; // Added for color section title
 }
 
 export const resultTranslations: Record<Language, ResultTranslations> = {
@@ -46,6 +48,8 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     sharedDesignTitle: 'Design Partagé',
     tryItFree: 'Essayer gratuitement',
     sharedBy: 'partagé par',
+    noDescription: 'Sans description',
+    colorTitle: 'Couleur'
   },
   en: {
     working: 'Designing your nails',
@@ -68,5 +72,7 @@ export const resultTranslations: Record<Language, ResultTranslations> = {
     sharedDesignTitle: 'Shared Design',
     tryItFree: 'Try it Free',
     sharedBy: 'shared by',
+    noDescription: 'No description',
+    colorTitle: 'Color'
   }
 };

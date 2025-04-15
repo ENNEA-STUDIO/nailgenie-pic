@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, Trash2, Rss, Share2 } from 'lucide-react';
@@ -27,7 +28,7 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
   designIndex,
   actionInProgress
 }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   
   // Display nail details as badges
   const renderDetailBadges = () => {
@@ -59,6 +60,23 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
       : "Share via WhatsApp, Instagram, etc.";
   };
 
+  // Translation for delete tooltip
+  const getDeleteTooltip = () => {
+    return language === 'fr' ? 'Supprimer' : 'Delete';
+  };
+
+  // Translation for download tooltip
+  const getDownloadTooltip = () => {
+    return language === 'fr' ? 'Télécharger' : 'Download';
+  };
+
+  // Translation for feed share tooltip
+  const getFeedShareTooltip = () => {
+    return language === 'fr' 
+      ? design.is_shared ? 'Déjà partagé' : 'Partager au feed'
+      : design.is_shared ? 'Already shared' : 'Share to feed';
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.9 }} 
@@ -68,7 +86,7 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
       <div className="relative glass-card rounded-2xl overflow-hidden shadow-lg">
         <img 
           src={design.image_url} 
-          alt="Design sélectionné"
+          alt={language === 'fr' ? "Design sélectionné" : "Selected design"}
           className="w-full aspect-square object-cover"
         />
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 backdrop-blur-md flex justify-between">
@@ -91,7 +109,7 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
                   </motion.button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Télécharger</p>
+                  <p>{getDownloadTooltip()}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -144,7 +162,7 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
                   </motion.button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{design.is_shared ? 'Déjà partagé' : 'Partager au feed'}</p>
+                  <p>{getFeedShareTooltip()}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -167,7 +185,7 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
                   </motion.button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Supprimer</p>
+                  <p>{getDeleteTooltip()}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -181,7 +199,7 @@ const SelectedDesignDetail: React.FC<SelectedDesignDetailProps> = ({
         </button>
       </div>
       <p className="text-sm text-muted-foreground mt-2 text-center">
-        {design.prompt || "Sans description"}
+        {design.prompt || (language === 'fr' ? "Sans description" : "No description")}
       </p>
       {renderDetailBadges()}
     </motion.div>

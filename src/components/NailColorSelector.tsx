@@ -16,7 +16,7 @@ import { colorCategories } from '@/utils/colorCategories';
 const NailColorSelector: React.FC = () => {
   const { nailColor, setNailColor } = useApp();
   const [activeCategory, setActiveCategory] = useState<string>(colorCategories[0].name);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const handleCategoryChange = (categoryName: string) => {
     setActiveCategory(categoryName);
@@ -27,7 +27,7 @@ const NailColorSelector: React.FC = () => {
   
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-medium mb-3 px-4">Couleur</h3>
+      <h3 className="text-lg font-medium mb-3 px-4">{language === 'fr' ? 'Couleur' : 'Color'}</h3>
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

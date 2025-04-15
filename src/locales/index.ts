@@ -25,6 +25,21 @@ export const translations = {
       gallery: 'Galerie',
       feed: 'Découvrir',
       credits: 'Crédits'
+    },
+    colors: {
+      title: 'Couleur',
+      categories: {
+        pastelsSophistiques: 'Pastels Sophistiqués',
+        neutralsMinimalistes: 'Neutres Minimalistes',
+        chromesMetalliques: 'Chromes & Métallisées',
+        jellyTranslucide: 'Effet "Jelly" Translucide',
+        vibrantesVitaminees: 'Vibrantes & Vitaminées',
+        earthyTerracotta: 'Earthy & Terracotta',
+        blancsBleu: 'Blancs & Bleus Glaciaires',
+        mystiquesEtMagiques: 'Teintes Mystiques & Magiques',
+        sunsetVibes: 'Sunset Vibes',
+        sorbetPop: 'Sorbet Pop'
+      }
     }
   },
   en: {
@@ -41,6 +56,21 @@ export const translations = {
       gallery: 'Gallery',
       feed: 'Discover',
       credits: 'Credits'
+    },
+    colors: {
+      title: 'Color',
+      categories: {
+        pastelsSophistiques: 'Sophisticated Pastels',
+        neutralsMinimalistes: 'Minimalist Neutrals',
+        chromesMetalliques: 'Chromes & Metallics',
+        jellyTranslucide: 'Translucent "Jelly" Effect',
+        vibrantesVitaminees: 'Vibrant & Vitamin-Rich',
+        earthyTerracotta: 'Earthy & Terracotta',
+        blancsBleu: 'Icy Whites & Blues',
+        mystiquesEtMagiques: 'Mystical & Magical Hues',
+        sunsetVibes: 'Sunset Vibes',
+        sorbetPop: 'Sorbet Pop'
+      }
     }
   }
 };
