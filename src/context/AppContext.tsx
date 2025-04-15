@@ -31,7 +31,8 @@ export type NailLength = "short" | "medium" | "long";
 
 interface AppContextType {
   handImage: string | null;
-  generatedDesign: string | null;
+  generatedDesigns: string[] | null;
+  currentDesignIndex: number;
   isLoading: boolean;
   prompt: string;
   nailShape: NailShape;
@@ -42,7 +43,9 @@ interface AppContextType {
   subscriptionStart: string | null;
   subscriptionEnd: string | null;
   setHandImage: (image: string | null) => void;
-  setGeneratedDesign: (design: string | null) => void;
+  setGeneratedDesigns: (designs: string[] | null) => void;
+  setCurrentDesignIndex: (index: number) => void;
+  getCurrentDesign: () => string | null;
   setPrompt: (prompt: string) => void;
   setNailShape: (shape: NailShape) => void;
   setNailLength: (length: NailLength) => void;
@@ -86,7 +89,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [handImage, setHandImage] = useState<string | null>(null);
-  const [generatedDesign, setGeneratedDesign] = useState<string | null>(null);
+  const [generatedDesigns, setGeneratedDesigns] = useState<string[] | null>(null);
+  const [currentDesignIndex, setCurrentDesignIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [prompt, setPrompt] = useState<string>("");
   const [nailShape, setNailShape] = useState<NailShape>("oval");
@@ -97,6 +101,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [hasUnlimitedSubscription, setHasUnlimitedSubscription] = useState<boolean>(false);
   const [subscriptionStart, setSubscriptionStart] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
+
+  const getCurrentDesign = useCallback((): string | null => {
+    if (!generatedDesigns || generatedDesigns.length === 0) {
+      return null;
+    }
+    return generatedDesigns[currentDesignIndex];
+  }, [generatedDesigns, currentDesignIndex]);
 
   useEffect(() => {
     checkCredits();
@@ -356,6 +367,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     setIsLoading(true);
+    setCurrentDesignIndex(0);
     let retryCount = 0;
     let success = false;
 
@@ -375,126 +387,96 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           nailColor,
         });
 
-        const base64Data = handImage.replace(/^data:image\/\w+;base64,/, "");
-        const byteString = atob(base64Data);
-        const buffer = new Uint8Array(byteString.length);
+        const { data, error } = await supabase.functions.invoke("generate-nail-design", {
+          body: {
+            imageBase64: handImage,
+            prompt,
+            nailShape,
+            nailLength,
+            nailColor
+          }
+        });
 
-        for (let i = 0; i < byteString.length; i++) {
-          buffer[i] = byteString.charCodeAt(i);
+        if (error) {
+          throw new Error(`Erreur lors de l'appel à la fonction: ${error.message}`);
         }
 
-        const imageBlob = new Blob([buffer], { type: "image/jpeg" });
+        if (!data || !data.success) {
+          throw new Error(data?.error || "Échec de la génération sans erreur spécifique");
+        }
 
-        const lengthText =
-          nailLength === "short"
-            ? "short"
-            : nailLength === "medium"
-            ? "medium"
-            : "long";
-
-        const isGradient = nailColor.includes("gradient");
-        const colorKey = isGradient ? `${nailColor}_gradient` : nailColor;
-        const colorName = getColorName(colorKey);
-
-        const fullPrompt = `Transform nails into ${lengthText} ${nailShape} nails painted in ${colorName}. The nails are adorned with ${prompt}, creating a stylish and eye-catching design.`;
-
-        console.log("Full prompt:", fullPrompt);
-        console.log("Connecting to Gemini Image Edit model...");
-
-        const client = await Client.connect("BenKCDQ/Gemini-Image-Edit-nails", {
-          hf_token: import.meta.env.VITE_HUGGINGFACE_TOKEN,
-        });
-
-        console.log("Connected to client successfully");
-        console.log("Making prediction with prompt:", fullPrompt);
-
-        const result = await client.predict("/process_image_and_prompt", {
-          composite_pil: imageBlob,
-          prompt: fullPrompt,
-          gemini_api_key: import.meta.env.VITE_GEMINI_API_KEY,
-        });
-
-        console.log(
-          "Prediction result received:",
-          result ? "success" : "undefined"
-        );
-        console.log("Result data:", result.data ? "exists" : "missing");
-        console.log("Full result object:", JSON.stringify(result, null, 2));
-
-        if (result && "data" in result) {
-          try {
-            const gradioResult = result as unknown as GradioResult;
-            const imageUrl = gradioResult.data[0]?.[0]?.image?.url;
-
-            if (!imageUrl) {
-              throw new Error("URL de l'image non trouvée");
-            }
-
-            console.log("Gradio URL:", imageUrl);
-
-            try {
-              const response = await fetch(imageUrl, {
-                headers: {
-                  Authorization: `Bearer ${
-                    import.meta.env.VITE_HUGGINGFACE_TOKEN
-                  }`,
-                },
-              });
-
-              if (!response.ok) {
-                throw new Error(`Failed to fetch image: ${response.status}`);
+        if (data.designs && Array.isArray(data.designs)) {
+          const uploadedUrls = await Promise.all(
+            data.designs.map(async (designData: any, index: number) => {
+              if (!designData || !designData[0]?.image?.url) {
+                console.error(`Design ${index} is missing URL data:`, designData);
+                return null;
               }
 
-              const imageBlob = await response.blob();
-              console.log("Blob size:", imageBlob.size);
+              const imageUrl = designData[0]?.image?.url;
+              console.log(`Uploading design ${index + 1}:`, imageUrl);
 
-              const fileName = `nail-designs/${Date.now()}.webp`;
-              console.log("Attempting upload to:", fileName);
+              try {
+                const response = await fetch(imageUrl, {
+                  headers: {
+                    Authorization: `Bearer ${import.meta.env.VITE_HUGGINGFACE_TOKEN}`,
+                  },
+                });
 
-              const { data: uploadData, error: uploadError } =
-                await supabase.storage
+                if (!response.ok) {
+                  console.error(`Failed to fetch image ${index + 1}: ${response.status}`);
+                  return null;
+                }
+
+                const imageBlob = await response.blob();
+                const fileName = `nail-designs/${Date.now()}-${index}.webp`;
+                
+                const { data: uploadData, error: uploadError } = await supabase.storage
                   .from("nail_designs")
                   .upload(fileName, imageBlob, {
                     contentType: "image/webp",
                     upsert: true,
                   });
 
-              if (uploadError) {
-                console.error("Upload error details:", uploadError);
-                throw uploadError;
-              }
-
-              const {
-                data: { publicUrl },
-              } = supabase.storage.from("nail_designs").getPublicUrl(fileName);
-
-              console.log("Final URL:", publicUrl);
-              setGeneratedDesign(publicUrl);
-              toast.success("Design généré avec succès!");
-
-              if (!hasUnlimitedSubscription) {
-                const { error: creditError } = await supabase.rpc("use_credit");
-                if (creditError) {
-                  console.error("Error deducting credit:", creditError);
-                } else {
-                  setCredits((prev) => Math.max(0, prev - 1));
+                if (uploadError) {
+                  console.error(`Upload error for design ${index + 1}:`, uploadError);
+                  return null;
                 }
+
+                const { data: { publicUrl } } = supabase.storage
+                  .from("nail_designs")
+                  .getPublicUrl(fileName);
+
+                return publicUrl;
+              } catch (error) {
+                console.error(`Error processing design ${index + 1}:`, error);
+                return null;
               }
-              
-              success = true;
-            } catch (fetchError) {
-              console.error("Error fetching/processing image:", fetchError);
-              throw new Error(
-                `Erreur lors de la récupération de l'image: ${fetchError.message}`
-              );
-            }
-          } catch (error) {
-            console.error("Detailed error:", error);
-            throw new Error(`Erreur: ${error.message || "Erreur inconnue"}`);
+            })
+          );
+
+          const validUrls = uploadedUrls.filter(url => url !== null) as string[];
+
+          if (validUrls.length === 0) {
+            throw new Error("Aucun design valide n'a pu être généré");
           }
+
+          console.log(`Successfully uploaded ${validUrls.length} designs`, validUrls);
+          setGeneratedDesigns(validUrls);
+          toast.success(`${validUrls.length} designs générés avec succès!`);
+
+          if (!hasUnlimitedSubscription) {
+            const { error: creditError } = await supabase.rpc("use_credit");
+            if (creditError) {
+              console.error("Error deducting credit:", creditError);
+            } else {
+              setCredits((prev) => Math.max(0, prev - 1));
+            }
+          }
+
+          success = true;
         } else {
-          console.error("Unexpected data format:", result);
-          throw new Error("Aucune donnée d'image reçue de l'API");
+          throw new Error("Format de réponse inattendu");
         }
       } catch (error) {
         console.error(`Erreur lors de la génération (essai ${retryCount + 1}/${MAX_RETRIES + 1}):`, error);
@@ -570,7 +552,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   const resetState = useCallback(() => {
     setHandImage(null);
-    setGeneratedDesign(null);
+    setGeneratedDesigns(null);
+    setCurrentDesignIndex(0);
     setPrompt("");
     setNailShape("oval");
     setNailLength("medium");
@@ -579,7 +562,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   const value = {
     handImage,
-    generatedDesign,
+    generatedDesigns,
+    currentDesignIndex,
     isLoading,
     prompt,
     nailShape,
@@ -590,7 +574,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     subscriptionStart,
     subscriptionEnd,
     setHandImage,
-    setGeneratedDesign,
+    setGeneratedDesigns,
+    setCurrentDesignIndex,
+    getCurrentDesign,
     setPrompt,
     setNailShape,
     setNailLength,

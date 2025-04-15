@@ -10,34 +10,34 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const ResultPage: React.FC = () => {
   const navigate = useNavigate();
-  const { generatedDesign, resetState, isLoading, prompt, generateDesign } = useApp();
+  const { generatedDesigns, resetState, isLoading, prompt, generateDesign, currentDesignIndex } = useApp();
   const [imagePreloaded, setImagePreloaded] = useState(false);
   const { isIOS, isSafari } = useIsMobile();
   const { t } = useLanguage();
   
-  // Log the generated design URL for debugging
+  // Log the generated designs for debugging
   useEffect(() => {
-    if (generatedDesign) {
-      console.log("Result Page - Generated design URL:", generatedDesign);
+    if (generatedDesigns && generatedDesigns.length > 0) {
+      console.log("Result Page - Generated designs:", generatedDesigns);
       
-      // Add a short timeout before showing the image to ensure all components are ready
+      // Add a short timeout before showing the images to ensure all components are ready
       const timer = setTimeout(() => {
         setImagePreloaded(true);
       }, 500);
       
       return () => clearTimeout(timer);
     } else {
-      console.log("Result Page - No generated design available");
+      console.log("Result Page - No generated designs available");
       setImagePreloaded(false);
     }
-  }, [generatedDesign]);
+  }, [generatedDesigns]);
   
-  // Redirect if no design and not loading
+  // Redirect if no designs and not loading
   useEffect(() => {
-    if (!generatedDesign && !isLoading) {
+    if (!generatedDesigns && !isLoading) {
       navigate('/');
     }
-  }, [generatedDesign, navigate, isLoading]);
+  }, [generatedDesigns, navigate, isLoading]);
 
   const handleTryAgain = () => {
     // Instead of resetting state and navigating away, we'll regenerate with the same prompt
@@ -55,7 +55,7 @@ const ResultPage: React.FC = () => {
     );
   }
 
-  if (!generatedDesign) return null;
+  if (!generatedDesigns || generatedDesigns.length === 0) return null;
   
   // Show loading state briefly before rendering the preview
   if (!imagePreloaded) {

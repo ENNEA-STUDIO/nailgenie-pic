@@ -10,7 +10,7 @@ import ResultLoading from '../components/result/ResultLoading';
 
 const PromptInputPage: React.FC = () => {
   const navigate = useNavigate();
-  const { handImage, isLoading, prompt } = useApp();
+  const { handImage, isLoading, prompt, generatedDesigns } = useApp();
   const { t } = useLanguage();
   
   // Redirect if no hand image
@@ -22,10 +22,10 @@ const PromptInputPage: React.FC = () => {
 
   // Navigate to result page after generation
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading || (generatedDesigns && generatedDesigns.length > 0)) {
       navigate('/result');
     }
-  }, [isLoading, navigate]);
+  }, [isLoading, generatedDesigns, navigate]);
 
   if (!handImage) return null;
   

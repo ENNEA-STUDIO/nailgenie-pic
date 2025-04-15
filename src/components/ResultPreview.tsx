@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { Download, Save, RefreshCw, CheckCircle, XCircle, CreditCard, Share2 } from 'lucide-react';
@@ -7,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { downloadDesignImage } from '@/hooks/gallery/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import DesignCarousel from './result/DesignCarousel';
 
 interface ResultPreviewProps {
   onTryAgain: () => void;
@@ -19,13 +21,17 @@ interface ActionFeedback {
 }
 
 const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
-  const { generatedDesign, prompt, nailShape, nailColor, nailLength, credits } = useApp();
+  const { generatedDesigns, currentDesignIndex, getCurrentDesign, prompt, nailShape, nailColor, nailLength, credits } = useApp();
   const [saving, setSaving] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
   const { t, language } = useLanguage();
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   
-  if (!generatedDesign) return null;
+  const currentDesign = getCurrentDesign();
+  
+  if (!generatedDesigns || generatedDesigns.length === 0 || !currentDesign) return null;
   
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message, visible: true });
@@ -73,7 +79,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         .from('shared_views')
         .insert([
           {
-            image_url: generatedDesign,
+            image_url: currentDesign,
             prompt: prompt || 'Custom design',
             nail_shape: nailShape,
             nail_color: nailColor,
@@ -123,7 +129,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   
   const handleDownload = async () => {
     try {
-      await downloadDesignImage(generatedDesign, 0);
+      await downloadDesignImage(currentDesign, currentDesignIndex);
       
       showFeedback('success', t.result.downloadSuccess);
     } catch (error) {
@@ -150,7 +156,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         .insert([
           {
             user_id: userId,
-            image_url: generatedDesign,
+            image_url: currentDesign,
             prompt: prompt || 'Design personnalisé',
             nail_shape: nailShape,
             nail_color: nailColor,
@@ -168,6 +174,16 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       setSaving(false);
     }
   };
+
+  const handleImageLoad = () => {
+    setImagesLoaded(true);
+    setLoadError(false);
+  };
+
+  const handleImageError = () => {
+    setLoadError(true);
+    setImagesLoaded(false);
+  };
   
   return (
     <motion.div 
@@ -176,7 +192,12 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       transition={{ duration: 0.5 }}
       className="w-full max-w-md flex flex-col items-center p-4 relative"
     >
-      <h2 className="text-xl font-medium mb-6 text-center">{t.result.yourDesign}</h2>
+      <h2 className="text-xl font-medium mb-4 text-center">
+        {t.result.yourDesign} 
+        <span className="text-sm ml-2 text-muted-foreground">
+          ({currentDesignIndex + 1}/{generatedDesigns.length})
+        </span>
+      </h2>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -187,10 +208,9 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
         }}
       >
-        <img 
-          src={generatedDesign} 
-          alt="Generated nail design" 
-          className="w-full object-cover"
+        <DesignCarousel 
+          onImageLoad={handleImageLoad}
+          onImageError={handleImageError}
         />
       </motion.div>
       
