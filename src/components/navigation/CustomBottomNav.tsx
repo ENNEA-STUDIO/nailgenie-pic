@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
-import { Camera, Image, Home, CreditCard, Sparkles, Infinity } from 'lucide-react';
+import { Camera, Image, Home, CreditCard, Sparkles, InfinityIcon } from 'lucide-react';
 import CreditsDisplay from '../credits/CreditsDisplay';
 import { Card } from '../ui/card';
 import { useApp } from '@/context/AppContext';
@@ -83,7 +83,7 @@ const CustomBottomNav: React.FC = () => {
                   className="relative"
                 >
                   <CreditsDisplay showTooltip={false} className="mb-1" />
-                  <Infinity 
+                  <InfinityIcon 
                     className="absolute -top-1 -right-1 w-4 h-4 text-purple-500" 
                   />
                 </motion.div>
@@ -109,7 +109,7 @@ const CustomBottomNav: React.FC = () => {
               
               <span className={`text-xs ${hasLowCredits ? 'font-medium' : ''}`}>
                 {hasUnlimitedCredits 
-                  ? t.credits.unlimitedLabel 
+                  ? t.credits.unlimitedDesigns 
                   : hasLowCredits 
                     ? t.credits.buyCredits 
                     : t.nav.credits}

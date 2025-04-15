@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useLanguage } from '@/context/LanguageContext';
-import { CheckCircle, Infinity, Sparkles } from 'lucide-react';
+import { CheckCircle, InfinityIcon, Sparkles } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 
 interface StripeSubscriptionProps {
@@ -93,7 +93,7 @@ const StripeSubscription = ({
       ) : isProcessing ? (
         <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2" />
       ) : !isLoading ? (
-        isUnlimited ? <Infinity className="w-5 h-5 mr-2" /> : <Sparkles className="w-5 h-5 mr-2" />
+        isUnlimited ? <InfinityIcon className="w-5 h-5 mr-2" /> : <Sparkles className="w-5 h-5 mr-2" />
       ) : null}
       
       <span className="relative z-10">
