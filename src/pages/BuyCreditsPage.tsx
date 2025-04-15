@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import StripeCheckout from '@/components/credits/StripeCheckout';
 import StripeSubscription from '@/components/credits/StripeSubscription';
+import { format } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
 
 type OfferType = 'credits' | 'subscription';
 
@@ -24,12 +26,25 @@ const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
 const PREMIUM_CREDITS_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
 
 const BuyCreditsPage: React.FC = () => {
-  const { credits, hasUnlimitedSubscription } = useApp();
+  const { credits, hasUnlimitedSubscription, subscriptionStart, subscriptionEnd } = useApp();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  
+  // Format dates based on user's language preference
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return null;
+    
+    const date = new Date(dateString);
+    const locale = language === 'fr' ? fr : enUS;
+    
+    return format(date, 'PPP', { locale });
+  };
+  
+  const startDate = subscriptionStart ? formatDate(subscriptionStart) : null;
+  const renewalDate = subscriptionEnd ? formatDate(subscriptionEnd) : null;
   
   return (
     <motion.div 
@@ -75,6 +90,31 @@ const BuyCreditsPage: React.FC = () => {
             ? t.credits.unlimitedSubscriptionExplainer 
             : t.credits.creditsExplainer}
         </p>
+        
+        {/* Subscription dates - only shown for subscribed users */}
+        {hasUnlimitedSubscription && (startDate || renewalDate) && (
+          <div className="mt-4 pt-4 border-t border-primary/10">
+            <div className="grid grid-cols-2 gap-4">
+              {startDate && (
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'fr' ? 'Début de l\'abonnement' : 'Subscription start'}
+                  </p>
+                  <p className="text-sm font-medium">{startDate}</p>
+                </div>
+              )}
+              
+              {renewalDate && (
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'fr' ? 'Prochain renouvellement' : 'Next renewal'}
+                  </p>
+                  <p className="text-sm font-medium">{renewalDate}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="flex-1 space-y-6">
