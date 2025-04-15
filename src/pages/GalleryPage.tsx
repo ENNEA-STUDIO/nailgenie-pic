@@ -37,7 +37,9 @@ const GalleryPage: React.FC = () => {
           <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
         </div>
       ) : designs.length === 0 ? (
-        <EmptyGalleryState />
+        <div className="flex-1 flex items-stretch">
+          <EmptyGalleryState />
+        </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
           {/* Selected design view */}
