@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle, CreditCard, Zap } from 'lucide-react';
-import { InfinityIcon } from 'lucide-react';  // Changed from Infinity to InfinityIcon
+import { InfinityIcon } from 'lucide-react';  
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '@/components/navigation/BottomNav';
 import NailPolishIcon from '@/components/credits/NailPolishIcon';
@@ -180,7 +180,8 @@ const BuyCreditsPage: React.FC = () => {
           </CardFooter>
         </Card>
         
-        {!hasUnlimitedSubscription && <InvitationSection />}
+        {/* Always show the invitation section, regardless of subscription status */}
+        <InvitationSection />
       </div>
       
       <BottomNav />
