@@ -1,4 +1,3 @@
-
 import React, {
   createContext,
   useContext,
@@ -190,13 +189,55 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       // If user has an active subscription, set hasUnlimitedSubscription to true
-      setHasUnlimitedSubscription(!!data);
+      const hasUnlimited = !!data;
+      setHasUnlimitedSubscription(hasUnlimited);
       console.log("User subscription status:", data ? "Active" : "None");
+
+      // If user has unlimited subscription, set credits to 1,000,000 in the database
+      if (hasUnlimited) {
+        await ensureHighCreditCount(sessionData.session.user.id);
+      }
     } catch (error) {
       console.error("Error checking subscription:", error);
       setHasUnlimitedSubscription(false);
     }
   }, []);
+
+  // Ensure high credit count for unlimited subscription users
+  const ensureHighCreditCount = async (userId: string): Promise<void> => {
+    try {
+      const { data, error } = await supabase
+        .from("user_credits")
+        .select("credits")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking user credits:", error);
+        return;
+      }
+
+      // If credits are less than 1,000,000, update them
+      if (!data || data.credits < 1000000) {
+        const { error: updateError } = await supabase
+          .from("user_credits")
+          .upsert({
+            user_id: userId,
+            credits: 1000000,
+            updated_at: new Date().toISOString()
+          });
+
+        if (updateError) {
+          console.error("Error updating credits for unlimited user:", updateError);
+        } else {
+          console.log("Updated credits to 1,000,000 for unlimited subscription user");
+          setCredits(1000000);
+        }
+      }
+    } catch (error) {
+      console.error("Error ensuring high credit count:", error);
+    }
+  };
 
   const checkCredits = useCallback(async (): Promise<number> => {
     try {
@@ -204,6 +245,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       if (!sessionData.session) {
         setCredits(0);
         return 0;
+      }
+
+      // Check if user has unlimited subscription first
+      await checkSubscription();
+      
+      // If they have unlimited subscription, we already set the credits to 1,000,000
+      if (hasUnlimitedSubscription) {
+        return 1000000;
       }
 
       const { data, error } = await supabase
@@ -241,7 +290,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       console.error("Error checking credits:", error);
       return 0;
     }
-  }, []);
+  }, [hasUnlimitedSubscription, checkSubscription]);
 
   const addCredits = useCallback(
     async (amount: number): Promise<boolean> => {
@@ -290,12 +339,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       return;
     }
 
-    const currentCredits = await checkCredits();
-    if (currentCredits < 1) {
-      toast.error(
-        "Vous n'avez pas assez de crédits. Achetez-en plus pour continuer."
-      );
-      return;
+    // Only check credits if not unlimited subscription
+    if (!hasUnlimitedSubscription) {
+      const currentCredits = await checkCredits();
+      if (currentCredits < 1) {
+        toast.error(
+          "Vous n'avez pas assez de crédits. Achetez-en plus pour continuer."
+        );
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -420,11 +472,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
               setGeneratedDesign(publicUrl);
               toast.success("Design généré avec succès!");
 
-              const { error: creditError } = await supabase.rpc("use_credit");
-              if (creditError) {
-                console.error("Error deducting credit:", creditError);
-              } else {
-                setCredits((prev) => Math.max(0, prev - 1));
+              // Only deduct credit if not unlimited
+              if (!hasUnlimitedSubscription) {
+                const { error: creditError } = await supabase.rpc("use_credit");
+                if (creditError) {
+                  console.error("Error deducting credit:", creditError);
+                } else {
+                  setCredits((prev) => Math.max(0, prev - 1));
+                }
               }
               
               // Marquer comme réussi pour sortir de la boucle
@@ -462,7 +517,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
     // Désactiver l'indicateur de chargement
     setIsLoading(false);
-  }, [handImage, prompt, nailShape, nailLength, nailColor, checkCredits]);
+  }, [handImage, prompt, nailShape, nailLength, nailColor, checkCredits, hasUnlimitedSubscription]);
 
   const getColorName = (hexColor: string): string => {
     const colorMap: Record<string, string> = {
