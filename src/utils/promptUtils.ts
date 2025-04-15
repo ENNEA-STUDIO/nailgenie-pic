@@ -1,3 +1,4 @@
+
 /**
  * Utility functions for handling prompt examples and text transformations
  */
@@ -291,6 +292,41 @@ export const colorSpecificPrompts: Record<string, [string, string][]> = {
     ["Nappe néon", "Neon overlay"],
     ["Graphisme tribal", "Tribal graphics"]
   ],
+  "Warm Sand": [
+    ["Motif bohème", "Bohemian pattern"],
+    ["Effet vaporeux", "Misty effect"],
+    ["Tracé ondulé", "Wavy lines"],
+    ["Dégradé fruité", "Fruity gradient"],
+    ["Nappe cosmique", "Cosmic overlay"]
+  ],
+  "Matte Ivory": [
+    ["Style holographique", "Holographic style"],
+    ["Texture givré", "Frosted texture"],
+    ["Effet champêtre", "Rustic effect"],
+    ["Finition mystique", "Mystical finish"],
+    ["Motif floral", "Floral pattern"]
+  ],
+  "Mocha Brown": [
+    ["Voile lunaire", "Lunar veil"],
+    ["Dessin pixelisé", "Pixelated design"],
+    ["Graphisme psyché", "Psychedelic graphics"],
+    ["Esthétique animalier", "Animal aesthetic"],
+    ["Dégradé bohème", "Bohemian gradient"]
+  ],
+  "Rosy Nude": [
+    ["Tracé gourmand", "Gourmet lines"],
+    ["Finition pastel", "Pastel finish"],
+    ["Texture digitale", "Digital texture"],
+    ["Style vintage", "Vintage style"],
+    ["Motif abstrait", "Abstract pattern"]
+  ],
+  "Café au Lait": [
+    ["Relief tropical", "Tropical relief"],
+    ["Graphisme gothique", "Gothic graphics"],
+    ["Motif pixelisé", "Pixelated pattern"],
+    ["Effet aquatique", "Aquatic effect"],
+    ["Style glacé", "Frosted style"]
+  ],
 
   // Chromes & Metallics
   "Liquid Silver": [
@@ -327,6 +363,545 @@ export const colorSpecificPrompts: Record<string, [string, string][]> = {
     ["Style lunaire", "Lunar style"],
     ["Esthétique tribale", "Tribal aesthetic"],
     ["Motif ondulé", "Wavy pattern"]
+  ],
+  "Steel Blue": [
+    ["Voile abstrait", "Abstract veil"],
+    ["Finition fruitée", "Fruity finish"],
+    ["Graphisme linéaire", "Linear graphics"],
+    ["Nappe vintage", "Vintage overlay"],
+    ["Effet perlé", "Pearly effect"]
+  ],
+  "Warm Bronze": [
+    ["Dessin surréaliste", "Surrealist design"],
+    ["Style calligraphié", "Calligraphic style"],
+    ["Relief digital", "Digital relief"],
+    ["Texture givré", "Frosted texture"],
+    ["Dégradé aquatique", "Aquatic gradient"]
+  ],
+  "Platinum": [
+    ["Esthétique lunaire", "Lunar aesthetic"],
+    ["Tracé tribal", "Tribal lines"],
+    ["Voile glacé", "Icy veil"],
+    ["Finition pastel", "Pastel finish"],
+    ["Graphisme holographique", "Holographic graphics"]
+  ],
+  "Mirror Black": [
+    ["Motif vaporeux", "Misty pattern"],
+    ["Dégradé floral", "Floral gradient"],
+    ["Forme gothique", "Gothic shape"],
+    ["Effet oriental", "Oriental effect"],
+    ["Texture glacée", "Icy texture"]
+  ],
+  "Chrome Lavender": [
+    ["Style dynamisé", "Dynamic style"],
+    ["Tracé floral", "Floral lines"],
+    ["Nappe abstraite", "Abstract overlay"],
+    ["Esthétique givrée", "Frosted aesthetic"],
+    ["Motif psyché", "Psychedelic pattern"]
+  ],
+
+  // Translucent "Jelly" Effect
+  "Transparent Candy Pink": [
+    ["Texture fruitée", "Fruity texture"],
+    ["Effet aquatique", "Aquatic effect"],
+    ["Nappe irisée", "Iridescent overlay"],
+    ["Style pastel", "Pastel style"],
+    ["Tracé cosmique", "Cosmic lines"]
+  ],
+  "Peach Orange": [
+    ["Dégradé givré", "Frosted gradient"],
+    ["Graphisme bohème", "Bohemian graphics"],
+    ["Motif pixelisé", "Pixelated pattern"],
+    ["Voile vintage", "Vintage veil"],
+    ["Finition digitale", "Digital finish"]
+  ],
+  "Frosted Blue": [
+    ["Dessin lunaire", "Lunar design"],
+    ["Forme holographique", "Holographic shape"],
+    ["Esthétique champêtre", "Rustic aesthetic"],
+    ["Texture tropicale", "Tropical texture"],
+    ["Style surréaliste", "Surrealist style"]
+  ],
+  "Watercolor Lavender": [
+    ["Motif abstrait", "Abstract pattern"],
+    ["Tracé tribal", "Tribal lines"],
+    ["Nappe brillante", "Glossy overlay"],
+    ["Dégradé mystique", "Mystical gradient"],
+    ["Effet floral", "Floral effect"]
+  ],
+  "Lime Jelly": [
+    ["Voile gothique", "Gothic veil"],
+    ["Esthétique givrée", "Frosted aesthetic"],
+    ["Style poétique", "Poetic style"],
+    ["Texture linéaire", "Linear texture"],
+    ["Graphisme néon", "Neon graphics"]
+  ],
+  "Cherry Gloss Red": [
+    ["Finition cosmique", "Cosmic finish"],
+    ["Motif oriental", "Oriental pattern"],
+    ["Nappe aquatique", "Aquatic overlay"],
+    ["Forme fruitée", "Fruity shape"],
+    ["Tracé ondulé", "Wavy lines"]
+  ],
+  "Bubblegum Mauve": [
+    ["Dégradé calligraphié", "Calligraphic gradient"],
+    ["Relief pastel", "Pastel relief"],
+    ["Effet digital", "Digital effect"],
+    ["Texture pixelisée", "Pixelated texture"],
+    ["Style vintage", "Vintage style"]
+  ],
+  "Melon Yellow": [
+    ["Esthétique tribale", "Tribal aesthetic"],
+    ["Motif givré", "Frosted pattern"],
+    ["Nappe galactique", "Galactic overlay"],
+    ["Forme dynamique", "Dynamic shape"],
+    ["Finition brillante", "Glossy finish"]
+  ],
+  "Translucent Lychee": [
+    ["Voile aquatique", "Aquatic veil"],
+    ["Tracé floral", "Floral lines"],
+    ["Graphisme holographique", "Holographic graphics"],
+    ["Dégradé lunaire", "Lunar gradient"],
+    ["Texture perlé", "Pearly texture"]
+  ],
+  "Glossy Apricot": [
+    ["Effet fruité", "Fruity effect"],
+    ["Style gothique", "Gothic style"],
+    ["Nappe vaporeuse", "Misty overlay"],
+    ["Forme abstraite", "Abstract shape"],
+    ["Dessin galactique", "Galactic design"]
+  ],
+
+  // Vibrant & Vitamin-Rich
+  "Lemon Yellow": [
+    ["Finition givrée", "Frosted finish"],
+    ["Esthétique dynamique", "Dynamic aesthetic"],
+    ["Motif pastel", "Pastel pattern"],
+    ["Dégradé fruité", "Fruity gradient"],
+    ["Graphisme tribal", "Tribal graphics"]
+  ],
+  "Neon Coral": [
+    ["Texture aquatique", "Aquatic texture"],
+    ["Tracé lunaire", "Lunar lines"],
+    ["Style cosmique", "Cosmic style"],
+    ["Voile pixelisé", "Pixelated veil"],
+    ["Forme tropicale", "Tropical shape"]
+  ],
+  "Electric Blue": [
+    ["Nappe bohème", "Bohemian overlay"],
+    ["Effet néon", "Neon effect"],
+    ["Esthétique tribale", "Tribal aesthetic"],
+    ["Relief digital", "Digital relief"],
+    ["Dégradé holographique", "Holographic gradient"]
+  ],
+  "Kiwi Green": [
+    ["Motif calligraphié", "Calligraphic pattern"],
+    ["Finition abstraite", "Abstract finish"],
+    ["Voile glacé", "Icy veil"],
+    ["Texture pastel", "Pastel texture"],
+    ["Forme pixelisée", "Pixelated shape"]
+  ],
+  "Neon Pink": [
+    ["Dégradé gothique", "Gothic gradient"],
+    ["Tracé tribal", "Tribal lines"],
+    ["Style fruité", "Fruity style"],
+    ["Nappe givrée", "Frosted overlay"],
+    ["Effet linéaire", "Linear effect"]
+  ],
+  "Orange Punch": [
+    ["Graphisme poétique", "Poetic graphics"],
+    ["Texture digitale", "Digital texture"],
+    ["Motif aquatique", "Aquatic pattern"],
+    ["Voile tribal", "Tribal veil"],
+    ["Esthétique givrée", "Frosted aesthetic"]
+  ],
+  "Intense Fuchsia": [
+    ["Style holographique", "Holographic style"],
+    ["Tracé vaporeux", "Misty lines"],
+    ["Finition lunaire", "Lunar finish"],
+    ["Dégradé abstrait", "Abstract gradient"],
+    ["Relief pastel", "Pastel relief"]
+  ],
+  "Ultra Violet": [
+    ["Voile organique", "Organic veil"],
+    ["Motif champêtre", "Rustic pattern"],
+    ["Graphisme digital", "Digital graphics"],
+    ["Esthétique tropicale", "Tropical aesthetic"],
+    ["Texture gothique", "Gothic texture"]
+  ],
+  "Paprika Red": [
+    ["Dégradé galactique", "Galactic gradient"],
+    ["Nappe pixelisée", "Pixelated overlay"],
+    ["Forme tribal", "Tribal shape"],
+    ["Finition pastel", "Pastel finish"],
+    ["Style gothique", "Gothic style"]
+  ],
+  "Turquoise Aqua": [
+    ["Motif floral", "Floral pattern"],
+    ["Esthétique néon", "Neon aesthetic"],
+    ["Tracé givré", "Frosted lines"],
+    ["Voile dynamique", "Dynamic veil"],
+    ["Texture holographique", "Holographic texture"]
+  ],
+  
+  // Earthy & Terracotta
+  "Burnt Brick": [
+    ["Texture terracotta", "Terracotta texture"],
+    ["Finition brute", "Raw finish"],
+    ["Voile tribal", "Tribal veil"],
+    ["Graphisme ocre", "Ochre graphics"],
+    ["Motif naturel", "Natural pattern"]
+  ],
+  "Terracotta": [
+    ["Dégradé sable", "Sand gradient"],
+    ["Esthétique chaleureuse", "Warm aesthetic"],
+    ["Tracé rustique", "Rustic lines"],
+    ["Forme minérale", "Mineral shape"],
+    ["Effet mat", "Matte effect"]
+  ],
+  "Golden Ochre": [
+    ["Style ensoleillé", "Sunny style"],
+    ["Relief argile", "Clay relief"],
+    ["Nappe dorée", "Golden overlay"],
+    ["Dessin ethnique", "Ethnic design"],
+    ["Finition veloutée", "Velvety finish"]
+  ],
+  "Matte Olive": [
+    ["Motif désertique", "Desert pattern"],
+    ["Texture douce", "Soft texture"],
+    ["Voile feuille", "Leaf veil"],
+    ["Dégradé kaki", "Khaki gradient"],
+    ["Tracé organique", "Organic lines"]
+  ],
+  "Warm Sand": [
+    ["Graphisme en spirale", "Spiral graphics"],
+    ["Esthétique minérale", "Mineral aesthetic"],
+    ["Nappe nude", "Nude overlay"],
+    ["Forme rocailleuse", "Rocky shape"],
+    ["Effet sec", "Dry effect"]
+  ],
+  "Clay Brown": [
+    ["Finition brute", "Raw finish"],
+    ["Voile charbon", "Charcoal veil"],
+    ["Tracé pierre", "Stone lines"],
+    ["Dégradé profond", "Deep gradient"],
+    ["Motif texturé", "Textured pattern"]
+  ],
+  "Soft Mustard": [
+    ["Effet lumineux", "Luminous effect"],
+    ["Graphisme mat", "Matte graphics"],
+    ["Texture végétale", "Plant texture"],
+    ["Style rétro", "Retro style"],
+    ["Nappe ocre", "Ochre overlay"]
+  ],
+  "Cinnamon": [
+    ["Voile toasté", "Toasted veil"],
+    ["Motif boisé", "Woody pattern"],
+    ["Tracé chaud", "Warm lines"],
+    ["Esthétique racine", "Root aesthetic"],
+    ["Dégradé épicé", "Spicy gradient"]
+  ],
+  "Earthy Nude": [
+    ["Finition satinée", "Satin finish"],
+    ["Texture beige", "Beige texture"],
+    ["Dessin naturel", "Natural design"],
+    ["Style brut", "Raw style"],
+    ["Voile poudré", "Powdered veil"]
+  ],
+  "Reddish Copper": [
+    ["Dégradé volcanique", "Volcanic gradient"],
+    ["Motif intense", "Intense pattern"],
+    ["Graphisme terreux", "Earthy graphics"],
+    ["Tracé incandescent", "Incandescent lines"],
+    ["Effet sculpté", "Sculpted effect"]
+  ],
+  
+  // Icy Whites & Blues
+  "Glacier Blue": [
+    ["Dégradé polaire", "Polar gradient"],
+    ["Texture givrée", "Frosted texture"],
+    ["Finition cristalline", "Crystalline finish"],
+    ["Voile arctique", "Arctic veil"],
+    ["Graphisme gelé", "Frozen graphics"]
+  ],
+  "Pearly White": [
+    ["Motif opale", "Opal pattern"],
+    ["Esthétique douce", "Soft aesthetic"],
+    ["Tracé perlé", "Pearly lines"],
+    ["Voile laiteux", "Milky veil"],
+    ["Style angélique", "Angelic style"]
+  ],
+  "Polar Blue": [
+    ["Finition bleutée", "Bluish finish"],
+    ["Graphisme iceberg", "Iceberg graphics"],
+    ["Dégradé brumeux", "Misty gradient"],
+    ["Texture arctique", "Arctic texture"],
+    ["Voile métallique", "Metallic veil"]
+  ],
+  "Frosted Silver": [
+    ["Style miroir", "Mirror style"],
+    ["Effet miroir", "Mirror effect"],
+    ["Forme givrée", "Frosted shape"],
+    ["Voile lunaire", "Lunar veil"],
+    ["Nappe brillante", "Glossy overlay"]
+  ],
+  "Frosted Grey": [
+    ["Esthétique cristaux", "Crystal aesthetic"],
+    ["Dégradé brume", "Mist gradient"],
+    ["Motif neigeux", "Snowy pattern"],
+    ["Texture minérale", "Mineral texture"],
+    ["Tracé nuageux", "Cloudy lines"]
+  ],
+  "Bluish Ivory": [
+    ["Graphisme glacé", "Icy graphics"],
+    ["Finition satin", "Satin finish"],
+    ["Voile fumé", "Smoky veil"],
+    ["Motif silence", "Silence pattern"],
+    ["Dégradé doux", "Soft gradient"]
+  ],
+  "Opal Blue": [
+    ["Texture opaline", "Opaline texture"],
+    ["Esthétique limpide", "Clear aesthetic"],
+    ["Tracé lustré", "Glossy lines"],
+    ["Voile nuancé", "Nuanced veil"],
+    ["Dégradé céleste", "Celestial gradient"]
+  ],
+  "Bluish Silver": [
+    ["Style arctique", "Arctic style"],
+    ["Graphisme métallisé", "Metallic graphics"],
+    ["Nappe givrée", "Frosted overlay"],
+    ["Voile froid", "Cold veil"],
+    ["Tracé argenté", "Silver lines"]
+  ],
+  "Snow White": [
+    ["Dégradé pur", "Pure gradient"],
+    ["Texture flocon", "Snowflake texture"],
+    ["Voile nacré", "Pearly veil"],
+    ["Motif givré", "Frosted pattern"],
+    ["Style immaculé", "Immaculate style"]
+  ],
+  "Pearly Blue": [
+    ["Effet perle", "Pearl effect"],
+    ["Nappe arctique", "Arctic overlay"],
+    ["Voile translucide", "Translucent veil"],
+    ["Dégradé givré", "Frosted gradient"],
+    ["Motif miroir", "Mirror pattern"]
+  ],
+  
+  // Mystical & Magical Hues
+  "Astral Plum": [
+    ["Motif ésotérique", "Esoteric pattern"],
+    ["Texture mystique", "Mystical texture"],
+    ["Voile céleste", "Celestial veil"],
+    ["Tracé profond", "Deep lines"],
+    ["Esthétique galactique", "Galactic aesthetic"]
+  ],
+  "Deep Indigo": [
+    ["Dégradé astral", "Astral gradient"],
+    ["Style nébuleux", "Nebulous style"],
+    ["Forme symbolique", "Symbolic shape"],
+    ["Nappe sombre", "Dark overlay"],
+    ["Finition cosmique", "Cosmic finish"]
+  ],
+  "Glittery Black": [
+    ["Voile nuit", "Night veil"],
+    ["Effet stellaire", "Stellar effect"],
+    ["Graphisme intersidéral", "Interstellar graphics"],
+    ["Tracé lunaire", "Lunar lines"],
+    ["Texture brillante", "Glossy texture"]
+  ],
+  "Iridescent Burgundy": [
+    ["Esthétique vamp", "Vamp aesthetic"],
+    ["Dégradé ensorcelé", "Enchanted gradient"],
+    ["Voile rougeoyant", "Glowing veil"],
+    ["Motif antique", "Antique pattern"],
+    ["Finition obscure", "Dark finish"]
+  ],
+  "Mystic Violet": [
+    ["Tracé sacré", "Sacred lines"],
+    ["Style astral", "Astral style"],
+    ["Nappe occulte", "Occult overlay"],
+    ["Motif astral", "Astral pattern"],
+    ["Dégradé sombre", "Dark gradient"]
+  ],
+  "Starry Night Blue": [
+    ["Voile galaxie", "Galaxy veil"],
+    ["Finition céleste", "Celestial finish"],
+    ["Motif constellation", "Constellation pattern"],
+    ["Tracé galactique", "Galactic lines"],
+    ["Esthétique onirique", "Dreamlike aesthetic"]
+  ],
+  "Dark Emerald Green": [
+    ["Texture pierre précieuse", "Gemstone texture"],
+    ["Nappe dense", "Dense overlay"],
+    ["Style magique", "Magical style"],
+    ["Motif forêt", "Forest pattern"],
+    ["Dégradé jade", "Jade gradient"]
+  ],
+  "Lunar Mauve": [
+    ["Effet astral", "Astral effect"],
+    ["Voile magique", "Magical veil"],
+    ["Tracé flottant", "Floating lines"],
+    ["Dégradé vaporeux", "Misty gradient"],
+    ["Style féérique", "Fairy-like style"]
+  ],
+  "Sparkling Charcoal": [
+    ["Texture cendrée", "Ashy texture"],
+    ["Finition brillante", "Glossy finish"],
+    ["Voile obscure", "Dark veil"],
+    ["Graphisme intense", "Intense graphics"],
+    ["Motif métallique", "Metallic pattern"]
+  ],
+  "Cosmic Purple": [
+    ["Motif intergalactique", "Intergalactic pattern"],
+    ["Dégradé lumineux", "Luminous gradient"],
+    ["Voile violet", "Purple veil"],
+    ["Tracé flamboyant", "Flamboyant lines"],
+    ["Esthétique divine", "Divine aesthetic"]
+  ],
+  
+  // Sunset Vibes
+  "Mandarin Orange": [
+    ["Dégradé solaire", "Solar gradient"],
+    ["Voile orangé", "Orange veil"],
+    ["Texture chaleur", "Heat texture"],
+    ["Graphisme vibrant", "Vibrant graphics"],
+    ["Motif flare", "Flare pattern"]
+  ],
+  "Sunset Pink": [
+    ["Tracé déclinant", "Declining lines"],
+    ["Esthétique coucher de soleil", "Sunset aesthetic"],
+    ["Voile saumoné", "Salmon veil"],
+    ["Finition douce", "Soft finish"],
+    ["Motif rayon", "Ray pattern"]
+  ],
+  "Vibrant Fuchsia": [
+    ["Graphisme néon", "Neon graphics"],
+    ["Voile intense", "Intense veil"],
+    ["Dégradé flamboyant", "Flamboyant gradient"],
+    ["Motif chaud", "Hot pattern"],
+    ["Texture punchy", "Punchy texture"]
+  ],
+  "Poppy Red": [
+    ["Motif floral", "Floral pattern"],
+    ["Esthétique été", "Summer aesthetic"],
+    ["Voile coquelicot", "Poppy veil"],
+    ["Finition chaleureuse", "Warm finish"],
+    ["Tracé vif", "Vivid lines"]
+  ],
+  "Mango Yellow": [
+    ["Dégradé fruité", "Fruity gradient"],
+    ["Texture douce", "Soft texture"],
+    ["Voile vitaminé", "Vitamin-rich veil"],
+    ["Motif soleil", "Sun pattern"],
+    ["Graphisme exotique", "Exotic graphics"]
+  ],
+  "Dark Coral": [
+    ["Finition feu", "Fire finish"],
+    ["Tracé couchant", "Sunset lines"],
+    ["Voile brûlé", "Burnt veil"],
+    ["Dégradé vif", "Vivid gradient"],
+    ["Style incandescent", "Incandescent style"]
+  ],
+  "Golden Salmon": [
+    ["Texture dorée", "Golden texture"],
+    ["Esthétique sunset", "Sunset aesthetic"],
+    ["Nappe douce", "Soft overlay"],
+    ["Motif chaleur", "Heat pattern"],
+    ["Voile lumineux", "Luminous veil"]
+  ],
+  "Warm Peach": [
+    ["Dégradé pastel chaud", "Warm pastel gradient"],
+    ["Voile pêche", "Peach veil"],
+    ["Finition légère", "Light finish"],
+    ["Graphisme estival", "Summer graphics"],
+    ["Motif nuancé", "Nuanced pattern"]
+  ],
+  "Neon Pink": [
+    ["Voile électrique", "Electric veil"],
+    ["Texture flashy", "Flashy texture"],
+    ["Esthétique pop", "Pop aesthetic"],
+    ["Motif glow", "Glow pattern"],
+    ["Dégradé acide", "Acidic gradient"]
+  ],
+  "Orangey Red": [
+    ["Finition ardente", "Ardent finish"],
+    ["Voile crépusculaire", "Twilight veil"],
+    ["Dégradé sunset", "Sunset gradient"],
+    ["Motif solaire", "Solar pattern"],
+    ["Tracé intense", "Intense lines"]
+  ],
+  
+  // Sorbet Pop
+  "Frosted Raspberry": [
+    ["Voile acidulé", "Tangy veil"],
+    ["Texture fraîche", "Fresh texture"],
+    ["Graphisme fruité", "Fruity graphics"],
+    ["Dégradé sucré", "Sweet gradient"],
+    ["Motif glacé", "Icy pattern"]
+  ],
+  "Lime Green": [
+    ["Esthétique punchy", "Punchy aesthetic"],
+    ["Tracé pétillant", "Sparkling lines"],
+    ["Nappe citronnée", "Lemony overlay"],
+    ["Voile zesté", "Zesty veil"],
+    ["Motif vif", "Vivid pattern"]
+  ],
+  "Pastel Peach": [
+    ["Texture douce", "Soft texture"],
+    ["Voile velouté", "Velvety veil"],
+    ["Dégradé léger", "Light gradient"],
+    ["Motif pastel", "Pastel pattern"],
+    ["Finition onctueuse", "Creamy finish"]
+  ],
+  "Curaçao Blue": [
+    ["Voile tropical", "Tropical veil"],
+    ["Motif rafraîchissant", "Refreshing pattern"],
+    ["Dégradé piscine", "Pool gradient"],
+    ["Texture fruitée", "Fruity texture"],
+    ["Tracé frais", "Fresh lines"]
+  ],
+  "Sorbet Lavender": [
+    ["Graphisme doux", "Soft graphics"],
+    ["Voile givré", "Frosted veil"],
+    ["Texture lisse", "Smooth texture"],
+    ["Dégradé pastel", "Pastel gradient"],
+    ["Esthétique tendre", "Tender aesthetic"]
+  ],
+  "Sweet Strawberry": [
+    ["Nappe sucrée", "Sweet overlay"],
+    ["Motif fruits rouges", "Red fruits pattern"],
+    ["Voile bonbon", "Candy veil"],
+    ["Finition confiserie", "Confectionery finish"],
+    ["Tracé juteux", "Juicy lines"]
+  ],
+  "Whipped Mint": [
+    ["Texture glacée", "Icy texture"],
+    ["Graphisme givré", "Frosted graphics"],
+    ["Dégradé mentholé", "Menthol gradient"],
+    ["Voile léger", "Light veil"],
+    ["Motif éclatant", "Bright pattern"]
+  ],
+  "Orange Ice": [
+    ["Voile crémeux", "Creamy veil"],
+    ["Dégradé fruit givré", "Frosted fruit gradient"],
+    ["Motif sorbet", "Sorbet pattern"],
+    ["Finition douce", "Soft finish"],
+    ["Tracé agrume", "Citrus lines"]
+  ],
+  "Pink Lychee": [
+    ["Texture subtile", "Subtle texture"],
+    ["Voile fruit blanc", "White fruit veil"],
+    ["Graphisme élégant", "Elegant graphics"],
+    ["Dégradé rosé", "Rosy gradient"],
+    ["Motif tendre", "Tender pattern"]
+  ],
+  "Sweet Pineapple": [
+    ["Motif exotique", "Exotic pattern"],
+    ["Tracé sucré", "Sweet lines"],
+    ["Finition juteuse", "Juicy finish"],
+    ["Voile jaune pâle", "Pale yellow veil"],
+    ["Texture tropicale", "Tropical texture"]
   ]
 };
 
