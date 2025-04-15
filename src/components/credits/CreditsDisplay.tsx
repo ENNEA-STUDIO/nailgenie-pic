@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import NailPolishIcon from './NailPolishIcon';
-import { Infinity } from 'lucide-react';
+import { InfinityIcon } from 'lucide-react';  // Changed from Infinity to InfinityIcon
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CreditsDisplayProps {
@@ -62,7 +62,7 @@ const CreditsDisplay: React.FC<CreditsDisplayProps> = ({
             onClick={() => navigate('/buy-credits')}
           >
             {hasUnlimitedSubscription ? (
-              <Infinity 
+              <InfinityIcon 
                 className={`${currentSize.icon} text-primary`} 
               />
             ) : (

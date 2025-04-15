@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle, CreditCard, Infinity, Zap } from 'lucide-react';
+import { ArrowLeft, CheckCircle, CreditCard, Zap } from 'lucide-react';
+import { InfinityIcon } from 'lucide-react';  // Changed from Infinity to InfinityIcon
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '@/components/navigation/BottomNav';
 import NailPolishIcon from '@/components/credits/NailPolishIcon';
@@ -54,7 +55,7 @@ const BuyCreditsPage: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
             {hasUnlimitedSubscription ? (
-              <Infinity className="w-6 h-6 text-primary mr-2" />
+              <InfinityIcon className="w-6 h-6 text-primary mr-2" />
             ) : (
               <NailPolishIcon className="w-6 h-6 text-primary mr-2" />
             )}
@@ -130,7 +131,7 @@ const BuyCreditsPage: React.FC = () => {
               {t.credits.subscriptionExplainer}
             </Badge>
             <CardTitle className="flex items-center gap-2">
-              <Infinity className="h-5 w-5 text-primary" />
+              <InfinityIcon className="h-5 w-5 text-primary" />
               {t.credits.unlimitedPlan}
             </CardTitle>
             <CardDescription>
