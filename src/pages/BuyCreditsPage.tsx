@@ -49,7 +49,7 @@ const BuyCreditsPage: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-24"
+      className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-32"
     >
       <div className="flex items-center mb-6">
         <Button 
@@ -61,56 +61,6 @@ const BuyCreditsPage: React.FC = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-xl font-medium ml-2">{t.credits.buyCredits}</h1>
-      </div>
-      
-      <div className="glass-card rounded-3xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            {hasUnlimitedSubscription ? (
-              <InfinityIcon className="w-6 h-6 text-primary mr-2" />
-            ) : (
-              <NailPolishIcon className="w-6 h-6 text-primary mr-2" />
-            )}
-            <h2 className="text-lg font-medium">
-              {hasUnlimitedSubscription ? t.credits.unlimitedSubscription : t.credits.currentCredits}
-            </h2>
-          </div>
-          {hasUnlimitedSubscription ? (
-            <span className="text-2xl font-bold">∞</span>
-          ) : (
-            <span className="text-2xl font-bold">{credits}</span>
-          )}
-        </div>
-        
-        <p className="text-muted-foreground text-sm">
-          {hasUnlimitedSubscription 
-            ? t.credits.unlimitedSubscriptionExplainer 
-            : t.credits.creditsExplainer}
-        </p>
-        
-        {hasUnlimitedSubscription && (startDate || renewalDate) && (
-          <div className="mt-4 pt-4 border-t border-primary/10">
-            <div className="grid grid-cols-2 gap-4">
-              {startDate && (
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    {language === 'fr' ? 'Début de l\'abonnement' : 'Subscription start'}
-                  </p>
-                  <p className="text-sm font-medium">{startDate}</p>
-                </div>
-              )}
-              
-              {renewalDate && (
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    {language === 'fr' ? 'Prochain renouvellement' : 'Next renewal'}
-                  </p>
-                  <p className="text-sm font-medium">{renewalDate}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
       
       <div className="flex-1 space-y-6">
@@ -217,7 +167,7 @@ const BuyCreditsPage: React.FC = () => {
         <InvitationSection />
       </div>
       
-      <div className="mt-auto flex justify-center pt-6">
+      <div className="flex justify-center mb-20">
         <LogoutButton 
           variant="ghost" 
           size="sm" 
