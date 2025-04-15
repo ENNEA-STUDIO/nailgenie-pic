@@ -27,7 +27,10 @@ const StripeCheckout = ({
     
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { priceId }
+        body: { 
+          priceId,
+          mode: 'payment' // Always explicitly set mode to one-time payment
+        }
       });
       
       if (error) {

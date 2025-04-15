@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
-import { CheckCircle, Infinity } from 'lucide-react';
+import { CheckCircle, CreditCard, Infinity } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
@@ -16,9 +16,11 @@ const PaymentSuccessPage = () => {
   const { checkCredits, checkSubscription } = useApp();
   const [isVerifying, setIsVerifying] = useState(true);
   const [isSubscription, setIsSubscription] = useState(false);
+  const [creditsAdded, setCreditsAdded] = useState(0);
   
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
+    const paymentMode = searchParams.get('mode') || 'payment';
     
     const verifyPayment = async () => {
       try {
@@ -45,7 +47,12 @@ const PaymentSuccessPage = () => {
         
         if (data?.success) {
           // Set subscription status
-          setIsSubscription(data.mode === 'subscription');
+          setIsSubscription(data.isSubscription || data.mode === 'subscription');
+          
+          // Set credits added if one-time payment
+          if (data.creditsAdded) {
+            setCreditsAdded(data.creditsAdded);
+          }
           
           // Trigger confetti effect
           confetti({
@@ -112,11 +119,21 @@ const PaymentSuccessPage = () => {
               </p>
             </>
           ) : (
-            <p className="text-lg mb-8">
-              {language === 'fr' 
-                ? "Vos 10 crédits ont été ajoutés à votre compte" 
-                : "Your 10 credits have been added to your account"}
-            </p>
+            <>
+              <div className="flex items-center mb-4">
+                <CreditCard className="w-6 h-6 text-primary mr-2" />
+                <p className="text-lg font-medium">
+                  {language === 'fr' 
+                    ? `${creditsAdded} crédits ont été ajoutés à votre compte` 
+                    : `${creditsAdded} credits have been added to your account`}
+                </p>
+              </div>
+              <p className="text-md text-muted-foreground mb-8">
+                {language === 'fr' 
+                  ? "Vous pouvez maintenant générer plus de designs" 
+                  : "You can now generate more designs"}
+              </p>
+            </>
           )}
           
           <p className="text-sm text-muted-foreground">

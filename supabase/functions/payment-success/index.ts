@@ -69,9 +69,12 @@ serve(async (req) => {
 
     // Check if this was a subscription or one-time payment
     const mode = session.mode;
-    logStep("Payment mode", { mode });
+    const isSubscription = session.metadata?.isSubscription === 'true' || mode === 'subscription';
     
-    if (mode === 'subscription') {
+    logStep("Payment mode", { mode, isSubscription });
+    
+    if (isSubscription) {
+      // SUBSCRIPTION FLOW
       // For subscriptions, we need to store the subscription details
       const subscriptionId = typeof session.subscription === 'string' 
         ? session.subscription 
@@ -132,7 +135,18 @@ serve(async (req) => {
       }
       
       logStep("Subscription saved successfully");
+      
+      return new Response(JSON.stringify({ 
+        success: true,
+        mode: 'subscription',
+        isSubscription: true
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+      
     } else {
+      // ONE-TIME PAYMENT FLOW
       // For one-time payments, add credits based on the price ID
       const lineItems = await stripe.checkout.sessions.listLineItems(session_id, { limit: 1 });
       const priceId = lineItems.data[0]?.price?.id;
@@ -157,15 +171,18 @@ serve(async (req) => {
       } else {
         logStep("Credits added successfully", { creditsToAdd });
       }
+      
+      return new Response(JSON.stringify({ 
+        success: true,
+        mode: 'payment',
+        isSubscription: false,
+        creditsAdded: creditsToAdd
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
-    return new Response(JSON.stringify({ 
-      success: true,
-      mode: mode
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("Error processing payment success", { error: errorMessage });

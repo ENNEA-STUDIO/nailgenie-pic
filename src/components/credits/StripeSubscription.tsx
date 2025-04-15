@@ -41,6 +41,7 @@ const StripeSubscription = ({
       }
       
       if (data?.url) {
+        console.log('Redirecting to subscription checkout:', data.url);
         window.location.href = data.url;
       } else {
         console.error('No checkout URL returned');

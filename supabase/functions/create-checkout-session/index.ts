@@ -39,14 +39,28 @@ serve(async (req) => {
     logStep("User authenticated", { id: user.id, email: user.email });
 
     const requestData = await req.json();
-    const { priceId, mode: requestedMode } = requestData;
+    const { priceId, mode } = requestData;
     
     if (!priceId) {
       throw new Error('Price ID is required');
     }
 
-    logStep('Creating checkout session', { priceId, requestedMode });
+    // Force specific mode based on priceId - strict separation of payment flows
+    let checkoutMode;
+    let metadata = { userId: user.id };
     
+    if (priceId === 'price_1RDnGiGpMCOJlOLHek9KvjVv') {
+      // Subscription price ID - force subscription mode
+      checkoutMode = 'subscription';
+      metadata = { ...metadata, isSubscription: 'true' };
+      logStep('Creating subscription checkout', { priceId, mode: checkoutMode });
+    } else {
+      // One-time payment price ID
+      checkoutMode = 'payment';
+      metadata = { ...metadata, isSubscription: 'false' };
+      logStep('Creating one-time payment checkout', { priceId, mode: checkoutMode });
+    }
+
     // We'll continue to use the server-side secret key for security
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
       apiVersion: '2023-10-16',
@@ -65,13 +79,6 @@ serve(async (req) => {
     }
     
     try {
-      // Get price info to determine if it's recurring
-      const price = await stripe.prices.retrieve(priceId);
-      
-      // Determine mode based on whether the price is recurring or requested mode
-      const mode = requestedMode || (price.type === 'recurring' ? 'subscription' : 'payment');
-      logStep(`Price type: ${price.type}, using mode: ${mode}`);
-      
       // Create a checkout session with the appropriate mode
       const session = await stripe.checkout.sessions.create({
         customer: customerId,
@@ -82,19 +89,23 @@ serve(async (req) => {
             quantity: 1,
           },
         ],
-        mode: mode,
-        success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        mode: checkoutMode,
+        success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}&mode=${checkoutMode}`,
         cancel_url: `${req.headers.get('origin')}/buy-credits`,
-        metadata: {
-          userId: user.id,
-          mode: mode, // Store the mode in metadata
-        },
+        metadata: metadata,
       });
 
-      logStep('Payment session created', { sessionId: session.id, url: session.url });
+      logStep('Payment session created', { 
+        sessionId: session.id, 
+        url: session.url, 
+        mode: checkoutMode 
+      });
       
       return new Response(
-        JSON.stringify({ url: session.url }),
+        JSON.stringify({ 
+          url: session.url,
+          mode: checkoutMode
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200,
