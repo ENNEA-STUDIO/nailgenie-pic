@@ -1,18 +1,29 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import { getRandomColor, getRandomSize } from './ExampleTagsContainer';
 import ExampleTagsContainer from './ExampleTagsContainer';
 import PromptInputField from './PromptInputField';
-import { getRandomExamples, extractMainConcept } from '../../utils/promptUtils';
+import { getColorSpecificPrompts, extractMainConcept } from '../../utils/promptUtils';
 import useTextAnimation from '../../hooks/useTextAnimation';
 import { toast } from 'sonner';
+import { getColorNameFromHex } from '../../utils/colorUtils';
+import { useLanguage } from '@/context/LanguageContext';
 
 const PromptInput: React.FC = () => {
-  const { prompt, setPrompt, generateDesign, isLoading } = useApp();
+  const { prompt, setPrompt, generateDesign, isLoading, nailColor } = useApp();
+  const { language } = useLanguage();
   const [isFocused, setIsFocused] = useState(false);
-  const [exampleTags, setExampleTags] = useState(getRandomExamples(20)); // Increase to 20 examples
+  
+  // Get color name from hex
+  const colorName = getColorNameFromHex(nailColor);
+  
+  // Get color-specific prompts
+  const [exampleTags, setExampleTags] = useState(() => 
+    getColorSpecificPrompts(colorName, language)
+  );
+  
   const [tagStyles, setTagStyles] = useState<Array<{color: string, size: string}>>([]);
   
   // Use the animation hook
@@ -26,17 +37,11 @@ const PromptInput: React.FC = () => {
     })));
   }, [exampleTags]);
 
-  // Refresh base examples periodically
+  // Update when color changes
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isFocused && !prompt) {
-        const newExamples = getRandomExamples(20); // Increased number for more variety
-        setExampleTags(newExamples);
-      }
-    }, 60000); // Longer interval since we have dynamic additions
-
-    return () => clearInterval(interval);
-  }, [isFocused, prompt]);
+    const newExamples = getColorSpecificPrompts(colorName, language);
+    setExampleTags(newExamples);
+  }, [nailColor, colorName, language]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,8 +55,7 @@ const PromptInput: React.FC = () => {
   };
 
   const handleExampleClick = (example: string) => {
-    const mainConcept = extractMainConcept(example);
-    setPrompt(mainConcept);
+    setPrompt(example);
   };
 
   return (
@@ -67,7 +71,7 @@ const PromptInput: React.FC = () => {
         isLoading={isLoading}
         handleSubmit={handleSubmit}
         displayText={displayText}
-        placeholder="Décrivez vos ongles de rêve..."
+        placeholder={language === 'fr' ? "Décrivez vos ongles de rêve..." : "Describe your dream nails..."}
         setIsFocused={setIsFocused}
       />
       

@@ -1,7 +1,9 @@
 
 import { useState, useEffect } from 'react';
-import { getRandomExamples } from '../../utils/promptUtils';
+import { getRandomExamples, getColorSpecificPrompts } from '../../utils/promptUtils';
 import { useLanguage } from '@/context/LanguageContext';
+import { useApp } from '@/context/AppContext';
+import { getColorNameFromHex } from '@/utils/colorUtils';
 
 interface TextAnimationState {
   displayText: string;
@@ -13,7 +15,16 @@ interface TextAnimationState {
 
 export const useExamplePrompts = (isFocused: boolean, prompt: string) => {
   const { language } = useLanguage();
-  const [exampleTags, setExampleTags] = useState(() => getRandomExamples(8, language));
+  const { nailColor } = useApp();
+  
+  // Get color name from hex
+  const colorName = getColorNameFromHex(nailColor);
+  
+  // Use color-specific prompts when available
+  const [exampleTags, setExampleTags] = useState(() => 
+    getColorSpecificPrompts(colorName, language)
+  );
+  
   const [animationState, setAnimationState] = useState<TextAnimationState>({
     displayText: "",
     isTyping: true,
@@ -22,21 +33,34 @@ export const useExamplePrompts = (isFocused: boolean, prompt: string) => {
     currentExampleIndex: 0
   });
 
+  // Update examples when the selected color changes
+  useEffect(() => {
+    const newColorName = getColorNameFromHex(nailColor);
+    const newExamples = getColorSpecificPrompts(newColorName, language);
+    setExampleTags(newExamples);
+    
+    // Reset animation when color changes
+    setAnimationState(prev => ({
+      ...prev,
+      displayText: "",
+      isTyping: true,
+      isDeleting: false,
+      currentExampleIndex: 0
+    }));
+  }, [nailColor, language]);
+
   // Refresh examples periodically
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isFocused && !prompt) {
-        setExampleTags(getRandomExamples(8, language));
+        // Get new examples for the current color
+        const newExamples = getColorSpecificPrompts(colorName, language);
+        setExampleTags(newExamples);
       }
     }, 20000);
 
     return () => clearInterval(interval);
-  }, [isFocused, prompt, language]);
-
-  // Update examples when language changes
-  useEffect(() => {
-    setExampleTags(getRandomExamples(8, language));
-  }, [language]);
+  }, [isFocused, prompt, language, colorName]);
 
   // Handle text animation
   useEffect(() => {

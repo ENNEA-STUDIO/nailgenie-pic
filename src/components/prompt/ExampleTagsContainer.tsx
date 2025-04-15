@@ -1,8 +1,12 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import ExamplePromptTag from './ExamplePromptTag';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getRandomExamples } from '../../utils/promptUtils';
+import { getRandomExamples, getColorSpecificPrompts } from '../../utils/promptUtils';
+import { useApp } from '@/context/AppContext';
+import { getColorNameFromHex } from '@/utils/colorUtils';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ExampleTagsContainerProps {
   exampleTags: string[];
@@ -40,6 +44,10 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
   tagStyles,
   handleExampleClick
 }) => {
+  const { nailColor } = useApp();
+  const { language } = useLanguage();
+  const colorName = getColorNameFromHex(nailColor);
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const [dynamicFirstRowTags, setDynamicFirstRowTags] = useState<string[]>([]);
   const [dynamicSecondRowTags, setDynamicSecondRowTags] = useState<string[]>([]);
@@ -58,19 +66,21 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
   // Set up the initial dynamic tags - ensure we have enough repetition for continuous flow
   useEffect(() => {
     // Ensure both rows have at least some content
-    const initialFirstRow = firstRow.length > 0 ? firstRow : [getRandomExamples(1)[0]];
-    const initialSecondRow = secondRow.length > 0 ? secondRow : [getRandomExamples(1)[0]];
+    const initialFirstRow = firstRow.length > 0 ? firstRow : [getRandomExamples(1, language)[0]];
+    const initialSecondRow = secondRow.length > 0 ? secondRow : [getRandomExamples(1, language)[0]];
     
     // Triple the content to ensure continuous scrolling
     setDynamicFirstRowTags([...initialFirstRow, ...initialFirstRow, ...initialFirstRow]);
     setDynamicSecondRowTags([...initialSecondRow, ...initialSecondRow, ...initialSecondRow]);
-  }, [exampleTags]);
+  }, [exampleTags, language]);
 
   // Add new tags periodically for the continuous pop effect
   useEffect(() => {
     const firstInterval = setInterval(() => {
-      // Add a new random tag to first row
-      const newTag = getRandomExamples(1)[0];
+      // Add a new color-specific prompt
+      const colorPrompts = getColorSpecificPrompts(colorName, language);
+      const newTag = colorPrompts[Math.floor(Math.random() * colorPrompts.length)];
+      
       setDynamicFirstRowTags(prev => {
         const newTags = [...prev];
         // Insert at random position
@@ -83,8 +93,10 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
     }, 5000); // Slightly faster interval
 
     const secondInterval = setInterval(() => {
-      // Add a new random tag to second row
-      const newTag = getRandomExamples(1)[0];
+      // Add a new color-specific prompt
+      const colorPrompts = getColorSpecificPrompts(colorName, language);
+      const newTag = colorPrompts[Math.floor(Math.random() * colorPrompts.length)];
+      
       setDynamicSecondRowTags(prev => {
         const newTags = [...prev];
         // Insert at random position
@@ -98,10 +110,12 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
     
     // When tags get low, add more examples
     const replenishInterval = setInterval(() => {
+      const colorPrompts = getColorSpecificPrompts(colorName, language);
+      
       setDynamicFirstRowTags(prev => {
         if (prev.length < 10) {
           // Add more tags if running low
-          return [...prev, ...getRandomExamples(5)];
+          return [...prev, ...colorPrompts];
         }
         return prev;
       });
@@ -109,7 +123,7 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
       setDynamicSecondRowTags(prev => {
         if (prev.length < 10) {
           // Add more tags if running low
-          return [...prev, ...getRandomExamples(5)];
+          return [...prev, ...colorPrompts];
         }
         return prev;
       });
@@ -120,7 +134,7 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
       clearInterval(secondInterval);
       clearInterval(replenishInterval);
     };
-  }, []);
+  }, [nailColor, colorName, language]);
 
   return (
     <motion.div 
@@ -131,6 +145,14 @@ const ExampleTagsContainer: React.FC<ExampleTagsContainerProps> = ({
       className="relative mt-6"
     >
       <div className="space-y-3">
+        {/* Color name display */}
+        <div className="text-center mb-2">
+          <span className="inline-block px-3 py-1 bg-secondary/50 rounded-full text-sm font-medium">
+            {language === 'fr' ? 'Idées pour ' : 'Ideas for '} 
+            <span className="font-semibold">{colorName}</span>
+          </span>
+        </div>
+        
         {/* First row - slower scroll to the right */}
         <ScrollArea className="w-full overflow-hidden">
           <div className="flex animate-scroll-right py-2">

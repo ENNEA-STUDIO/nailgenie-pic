@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { extractMainConcept } from '../../utils/promptUtils';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface ExamplePromptTagProps {
@@ -22,9 +21,8 @@ const ExamplePromptTag: React.FC<ExamplePromptTagProps> = ({
 }) => {
   const { language } = useLanguage();
   
-  // Extract the main concept and truncate if needed
-  const displayName = extractMainConcept(example);
-  const truncatedName = displayName.length > 15 ? `${displayName.substring(0, 15)}...` : displayName;
+  // For color-specific prompts, we don't need to truncate as much since they're already focused
+  const displayName = example.length > 30 ? `${example.substring(0, 30)}...` : example;
   
   return (
     <motion.button
@@ -41,7 +39,7 @@ const ExamplePromptTag: React.FC<ExamplePromptTagProps> = ({
       onClick={() => onClick(example)}
       className={`${style.color} ${style.size} px-3.5 py-2.5 rounded-full hover:shadow-md transition-all duration-200 cursor-pointer border whitespace-nowrap font-medium`}
     >
-      {truncatedName}
+      {displayName}
     </motion.button>
   );
 };

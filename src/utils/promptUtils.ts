@@ -3,8 +3,9 @@
  * Utility functions for handling prompt examples and text transformations
  */
 import { Language } from '../locales/types';
+import { Color } from './colorCategories';
 
-// Complete list of example prompts
+// Original list of example prompts for backwards compatibility
 export const examplePromptsBase = {
   fr: [
     "French Tips avec un dégradé de bleu",
@@ -180,12 +181,183 @@ export const examplePrompts = [
 ];
 
 /**
+ * Color-specific prompt ideas organized by color name
+ * Format: [French prompt, English prompt]
+ */
+export const colorSpecificPrompts: Record<string, [string, string][]> = {
+  // Pastels Sophistiqués / Sophisticated Pastels
+  "Smoky Lilac": [
+    ["Relief brillant en lilas fumé", "Glossy relief in smoky lilac"],
+    ["Esthétique nacrée en lilas fumé", "Pearly aesthetic in smoky lilac"],
+    ["Effet glacé en lilas fumé", "Frosted effect in smoky lilac"],
+    ["Graphisme ondulé en lilas fumé", "Wavy graphics in smoky lilac"],
+    ["Style organique en lilas fumé", "Organic style in smoky lilac"]
+  ],
+  "Frosted Mint": [
+    ["Voile abstrait en menthe givrée", "Abstract veil in frosted mint"],
+    ["Effet mat en menthe givrée", "Matte effect in frosted mint"],
+    ["Forme galactique en menthe givrée", "Galactic shape in frosted mint"],
+    ["Texture dynamique en menthe givrée", "Dynamic texture in frosted mint"],
+    ["Tracé dynamique en menthe givrée", "Dynamic lines in frosted mint"]
+  ],
+  "Powder Pink": [
+    ["Nappe animalier en rose poudre", "Animal print in powder pink"],
+    ["Effet brillant en rose poudre", "Glossy effect in powder pink"],
+    ["Nappe abstrait en rose poudre", "Abstract overlay in powder pink"],
+    ["Dessin oriental en rose poudre", "Oriental pattern in powder pink"],
+    ["Effet fruité en rose poudre", "Fruity effect in powder pink"]
+  ],
+  "Greyed Blue": [
+    ["Forme tribal en bleu grisé", "Tribal shape in greyed blue"],
+    ["Texture bohème en bleu grisé", "Bohemian texture in greyed blue"],
+    ["Silhouette pastel en bleu grisé", "Pastel silhouette in greyed blue"],
+    ["Nappe gourmand en bleu grisé", "Gourmet overlay in greyed blue"],
+    ["Texture irisée en bleu grisé", "Iridescent texture in greyed blue"]
+  ],
+  "Pale Yellow": [
+    ["Tracé brillant en jaune pâle", "Glossy lines in pale yellow"],
+    ["Nappe éthérée en jaune pâle", "Ethereal overlay in pale yellow"],
+    ["Esthétique brillante en jaune pâle", "Glossy aesthetic in pale yellow"],
+    ["Dégradé champêtre en jaune pâle", "Rustic gradient in pale yellow"],
+    ["Dessin digital en jaune pâle", "Digital design in pale yellow"]
+  ],
+  "Soft Lavender": [
+    ["Effet givré en lavande douce", "Frosted effect in soft lavender"],
+    ["Texture gothique en lavande douce", "Gothic texture in soft lavender"],
+    ["Voile galactique en lavande douce", "Galactic veil in soft lavender"],
+    ["Forme pixelisée en lavande douce", "Pixelated shape in soft lavender"],
+    ["Nappe aquatique en lavande douce", "Aquatic overlay in soft lavender"]
+  ],
+  "Pastel Coral": [
+    ["Dessin mystique en corail pastel", "Mystical design in pastel coral"],
+    ["Effet tropical en corail pastel", "Tropical effect in pastel coral"],
+    ["Style tribal en corail pastel", "Tribal style in pastel coral"],
+    ["Texture linéaire en corail pastel", "Linear texture in pastel coral"],
+    ["Finition ondulée en corail pastel", "Wavy finish in pastel coral"]
+  ],
+  "Light Pistachio": [
+    ["Voile pixelisé en pistache claire", "Pixelated veil in light pistachio"],
+    ["Style scandinave en pistache claire", "Scandinavian style in light pistachio"],
+    ["Finition irisée en pistache claire", "Iridescent finish in light pistachio"],
+    ["Texture holographique en pistache claire", "Holographic texture in light pistachio"],
+    ["Dégradé givré en pistache claire", "Frosted gradient in light pistachio"]
+  ],
+  "Pearl Grey": [
+    ["Motif lunaire en gris perle", "Lunar pattern in pearl grey"],
+    ["Finition perlée en gris perle", "Pearly finish in pearl grey"],
+    ["Esthétique calligraphiée en gris perle", "Calligraphic aesthetic in pearl grey"],
+    ["Voile champêtre en gris perle", "Rustic veil in pearl grey"],
+    ["Dégradé poétique en gris perle", "Poetic gradient in pearl grey"]
+  ],
+  "Soft Vanilla": [
+    ["Effet poudré en vanille douce", "Powdered effect in soft vanilla"],
+    ["Tracé cosmique en vanille douce", "Cosmic lines in soft vanilla"],
+    ["Silhouette fruitée en vanille douce", "Fruity silhouette in soft vanilla"],
+    ["Nappe givrée en vanille douce", "Frosted overlay in soft vanilla"],
+    ["Style bohème en vanille douce", "Bohemian style in soft vanilla"]
+  ],
+
+  // Neutres Minimalistes / Minimalist Neutrals
+  "Latte Beige": [
+    ["Dessin gothique en beige latte", "Gothic design in latte beige"],
+    ["Effet digital en beige latte", "Digital effect in latte beige"],
+    ["Texture animalier en beige latte", "Animal texture in latte beige"],
+    ["Dégradé pastel en beige latte", "Pastel gradient in latte beige"],
+    ["Style néon en beige latte", "Neon style in latte beige"]
+  ],
+  "Cool Taupe": [
+    ["Voile vintage en taupe froid", "Vintage veil in cool taupe"],
+    ["Style poétique en taupe froid", "Poetic style in cool taupe"],
+    ["Motif tropical en taupe froid", "Tropical pattern in cool taupe"],
+    ["Nappe mat en taupe froid", "Matte overlay in cool taupe"],
+    ["Esthétique cosmique en taupe froid", "Cosmic aesthetic in cool taupe"]
+  ],
+  "Stone Grey": [
+    ["Relief floral en gris pierre", "Floral relief in stone grey"],
+    ["Tracé aquatique en gris pierre", "Aquatic lines in stone grey"],
+    ["Finition lunaire en gris pierre", "Lunar finish in stone grey"],
+    ["Forme dynamique en gris pierre", "Dynamic shape in stone grey"],
+    ["Graphisme givré en gris pierre", "Frosted graphics in stone grey"]
+  ],
+  "Cappuccino Brown": [
+    ["Texture glacée en brun cappuccino", "Frosted texture in cappuccino brown"],
+    ["Dégradé pixelisé en brun cappuccino", "Pixelated gradient in cappuccino brown"],
+    ["Effet linéaire en brun cappuccino", "Linear effect in cappuccino brown"],
+    ["Finition calligraphiée en brun cappuccino", "Calligraphic finish in cappuccino brown"],
+    ["Esthétique gothique en brun cappuccino", "Gothic aesthetic in cappuccino brown"]
+  ],
+  "Nude Cream": [
+    ["Dessin digital en crème nude", "Digital design in nude cream"],
+    ["Forme pastel en crème nude", "Pastel shape in nude cream"],
+    ["Voile galactique en crème nude", "Galactic veil in nude cream"],
+    ["Nappe néon en crème nude", "Neon overlay in nude cream"],
+    ["Graphisme tribal en crème nude", "Tribal graphics in nude cream"]
+  ],
+
+  // Chromes & Metallics
+  "Liquid Silver": [
+    ["Style givré en argent liquide", "Frosted style in liquid silver"],
+    ["Tracé brillant en argent liquide", "Glossy lines in liquid silver"],
+    ["Nappe lunaire en argent liquide", "Lunar overlay in liquid silver"],
+    ["Texture tropicale en argent liquide", "Tropical texture in liquid silver"],
+    ["Finition digitale en argent liquide", "Digital finish in liquid silver"]
+  ],
+  "Rose Gold": [
+    ["Motif tribal en or rose", "Tribal pattern in rose gold"],
+    ["Esthétique aquatique en or rose", "Aquatic aesthetic in rose gold"],
+    ["Voile pixelisé en or rose", "Pixelated veil in rose gold"],
+    ["Effet holographique en or rose", "Holographic effect in rose gold"],
+    ["Dégradé mystique en or rose", "Mystical gradient in rose gold"]
+  ],
+  "Holographic Chrome": [
+    ["Graphisme galactique en chrome holographique", "Galactic graphics in holographic chrome"],
+    ["Forme néon en chrome holographique", "Neon shape in holographic chrome"],
+    ["Texture poétique en chrome holographique", "Poetic texture in holographic chrome"],
+    ["Relief digital en chrome holographique", "Digital relief in holographic chrome"],
+    ["Style pastel en chrome holographique", "Pastel style in holographic chrome"]
+  ],
+  "Beetle Green": [
+    ["Dessin gothique en vert scarabée", "Gothic design in beetle green"],
+    ["Nappe givrée en vert scarabée", "Frosted overlay in beetle green"],
+    ["Effet cosmique en vert scarabée", "Cosmic effect in beetle green"],
+    ["Tracé bohème en vert scarabée", "Bohemian lines in beetle green"],
+    ["Voile organique en vert scarabée", "Organic veil in beetle green"]
+  ],
+  "Metallic Copper": [
+    ["Texture champêtre en cuivre métallique", "Rustic texture in metallic copper"],
+    ["Dégradé pixelisé en cuivre métallique", "Pixelated gradient in metallic copper"],
+    ["Style lunaire en cuivre métallique", "Lunar style in metallic copper"],
+    ["Esthétique tribale en cuivre métallique", "Tribal aesthetic in metallic copper"],
+    ["Motif ondulé en cuivre métallique", "Wavy pattern in metallic copper"]
+  ]
+};
+
+/**
  * Gets a random selection of example prompts
  */
-export const getRandomExamples = (count = 8, language: Language = 'fr') => {
+export const getRandomExamples = (count = 8, language: Language = 'fr'): string[] => {
   const promptsToUse = examplePromptsBase[language] || examplePromptsBase.en;
   const shuffled = [...promptsToUse].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
+};
+
+/**
+ * Get prompts specific to a color
+ * @param colorName The name of the color
+ * @param language The current language
+ * @returns Array of prompts for the color, or random prompts if none exist for the color
+ */
+export const getColorSpecificPrompts = (colorName: string, language: Language = 'fr'): string[] => {
+  const colorPrompts = colorSpecificPrompts[colorName];
+  
+  if (colorPrompts && colorPrompts.length > 0) {
+    // Return the appropriate language version (0 for French, 1 for English)
+    const langIndex = language === 'fr' ? 0 : 1;
+    return colorPrompts.map(promptPair => promptPair[langIndex]);
+  }
+  
+  // Fallback to random examples if no specific prompts for this color
+  return getRandomExamples(5, language);
 };
 
 /**
@@ -194,6 +366,6 @@ export const getRandomExamples = (count = 8, language: Language = 'fr') => {
  */
 export const extractMainConcept = (example: string): string => {
   // Extract the main concept before any descriptors
-  const mainConcept = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0].split(" with ")[0].split(" inspired")[0];
+  const mainConcept = example.split(" avec ")[0].split(" en ")[0].split(" inspiré")[0].split(" with ")[0].split(" inspired")[0].split(" in ")[0];
   return mainConcept;
 };
