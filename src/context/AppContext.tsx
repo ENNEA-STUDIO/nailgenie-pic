@@ -1,4 +1,3 @@
-
 import React, {
   createContext,
   useContext,
@@ -158,6 +157,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         } else if (event === "SIGNED_OUT") {
           setCredits(0);
           setHasUnlimitedSubscription(false);
+          setSubscriptionStart(null);
+          setSubscriptionEnd(null);
         }
       }
     );
@@ -177,6 +178,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         return;
       }
 
+      console.log("Checking subscription status for user:", sessionData.session.user.id);
+
       const { data, error } = await supabase
         .from("user_subscriptions")
         .select("status, price_id, created_at, current_period_end")
@@ -192,7 +195,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         return;
       }
 
-      const hasUnlimited = !!data;
+      // Check if subscription exists and if it's still valid (end date in the future)
+      const hasUnlimited = !!data && new Date(data.current_period_end) > new Date();
+      console.log("Subscription check result:", {
+        hasData: !!data,
+        endDate: data?.current_period_end,
+        isValid: hasUnlimited
+      });
+
       setHasUnlimitedSubscription(hasUnlimited);
       
       if (data) {
@@ -203,7 +213,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         setSubscriptionEnd(null);
       }
       
-      console.log("User subscription status:", data ? "Active" : "None");
+      console.log("User subscription status:", hasUnlimited ? "Active until " + data?.current_period_end : "None");
 
       if (hasUnlimited) {
         await ensureHighCreditCount(sessionData.session.user.id);

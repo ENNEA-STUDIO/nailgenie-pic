@@ -8,6 +8,12 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function for logging
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -30,14 +36,16 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
+    logStep("User authenticated", { id: user.id, email: user.email });
+
     const requestData = await req.json();
-    const { priceId } = requestData;
+    const { priceId, mode: requestedMode } = requestData;
     
     if (!priceId) {
       throw new Error('Price ID is required');
     }
 
-    console.log('Creating payment session...', { priceId });
+    logStep('Creating checkout session', { priceId, requestedMode });
     
     // We'll continue to use the server-side secret key for security
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
@@ -53,17 +61,16 @@ serve(async (req) => {
     let customerId = undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
+      logStep("Found existing customer", { customerId });
     }
     
     try {
       // Get price info to determine if it's recurring
       const price = await stripe.prices.retrieve(priceId);
       
-      // Determine mode based on whether the price is recurring
-      const mode = price.type === 'recurring' ? 'subscription' : 'payment';
-      console.log(`Price type: ${price.type}, using mode: ${mode}`);
-      
-      console.log(`Creating ${mode} session for price ${priceId}`);
+      // Determine mode based on whether the price is recurring or requested mode
+      const mode = requestedMode || (price.type === 'recurring' ? 'subscription' : 'payment');
+      logStep(`Price type: ${price.type}, using mode: ${mode}`);
       
       // Create a checkout session with the appropriate mode
       const session = await stripe.checkout.sessions.create({
@@ -84,7 +91,8 @@ serve(async (req) => {
         },
       });
 
-      console.log('Payment session created:', session.id);
+      logStep('Payment session created', { sessionId: session.id, url: session.url });
+      
       return new Response(
         JSON.stringify({ url: session.url }),
         { 
@@ -93,7 +101,7 @@ serve(async (req) => {
         }
       );
     } catch (stripeError) {
-      console.error('Stripe API error:', stripeError);
+      logStep('Stripe API error', { error: stripeError });
       return new Response(
         JSON.stringify({ error: `Stripe error: ${stripeError.message}` }),
         { 
@@ -103,9 +111,10 @@ serve(async (req) => {
       );
     }
   } catch (error) {
-    console.error('Error creating payment session:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep('Error creating checkout session', { error: errorMessage });
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

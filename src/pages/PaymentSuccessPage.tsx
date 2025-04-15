@@ -13,7 +13,7 @@ const PaymentSuccessPage = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { checkCredits } = useApp();
+  const { checkCredits, checkSubscription } = useApp();
   const [isVerifying, setIsVerifying] = useState(true);
   const [isSubscription, setIsSubscription] = useState(false);
   
@@ -54,8 +54,9 @@ const PaymentSuccessPage = () => {
             origin: { y: 0.6 }
           });
           
-          // Refresh the credits
+          // Refresh the credits and subscription status
           await checkCredits();
+          await checkSubscription();
           
           // Auto-redirect after 3 seconds
           setTimeout(() => {
@@ -73,7 +74,7 @@ const PaymentSuccessPage = () => {
     };
     
     verifyPayment();
-  }, [searchParams, navigate, language, checkCredits]);
+  }, [searchParams, navigate, language, checkCredits, checkSubscription]);
   
   return (
     <motion.div
