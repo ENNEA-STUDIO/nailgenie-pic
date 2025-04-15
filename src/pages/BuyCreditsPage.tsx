@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -17,12 +16,11 @@ import StripeCheckout from '@/components/credits/StripeCheckout';
 import StripeSubscription from '@/components/credits/StripeSubscription';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
+import LogoutButton from '@/components/auth/LogoutButton';
 
 type OfferType = 'credits' | 'subscription';
 
-// Updated to use the actual Stripe price IDs provided by the user
 const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
-// The premium pack is actually a recurring subscription
 const PREMIUM_CREDITS_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
 
 const BuyCreditsPage: React.FC = () => {
@@ -33,7 +31,6 @@ const BuyCreditsPage: React.FC = () => {
   const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   
-  // Format dates based on user's language preference
   const formatDate = (dateString: string | null) => {
     if (!dateString) return null;
     
@@ -91,7 +88,6 @@ const BuyCreditsPage: React.FC = () => {
             : t.credits.creditsExplainer}
         </p>
         
-        {/* Subscription dates - only shown for subscribed users */}
         {hasUnlimitedSubscription && (startDate || renewalDate) && (
           <div className="mt-4 pt-4 border-t border-primary/10">
             <div className="grid grid-cols-2 gap-4">
@@ -118,7 +114,6 @@ const BuyCreditsPage: React.FC = () => {
       </div>
       
       <div className="flex-1 space-y-6">
-        {/* Pack de crédits */}
         {!hasUnlimitedSubscription && (
           <Card className="border-2 overflow-hidden">
             <CardHeader className="pb-2">
@@ -158,7 +153,6 @@ const BuyCreditsPage: React.FC = () => {
           </Card>
         )}
         
-        {/* 100 Credits Pack - updated to show as a subscription */}
         <Card className={`border-2 ${hasUnlimitedSubscription ? 'border-green-500' : 'border-primary/50'} overflow-hidden relative`}>
           <div className="absolute top-0 right-0">
             <Badge className="m-2 bg-primary">
@@ -220,8 +214,15 @@ const BuyCreditsPage: React.FC = () => {
           </CardFooter>
         </Card>
         
-        {/* Always show the invitation section, regardless of subscription status */}
         <InvitationSection />
+      </div>
+      
+      <div className="mt-auto flex justify-center pt-6">
+        <LogoutButton 
+          variant="ghost" 
+          size="sm" 
+          className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-all"
+        />
       </div>
       
       <BottomNav />
