@@ -102,9 +102,9 @@ const PromptPage: React.FC = () => {
               transition={{ duration: 0.4 }}
               className="w-full"
             >
-              <div className="bg-primary/10 rounded-xl p-4 mb-4 flex items-center">
-                <div className="p-2 rounded-full bg-primary/20 mr-3">
-                  <Sparkles className="h-5 w-5 text-primary" />
+              <div className="bg-[#FFD1DC]/20 rounded-xl p-4 mb-4 flex items-center">
+                <div className="p-2 rounded-full bg-[#FF3399]/20 mr-3">
+                  <Sparkles className="h-5 w-5 text-[#B76E79]" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-sm">{t.credits.notEnoughCredits}</h3>
@@ -117,8 +117,8 @@ const PromptPage: React.FC = () => {
                 className="w-full py-6 rounded-xl" 
                 size="lg"
                 style={{
-                  background: "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)",
-                  boxShadow: "0 10px 25px -5px rgba(155, 135, 245, 0.3)"
+                  background: "linear-gradient(135deg, #C8A4D4 0%, #673147 100%)",
+                  boxShadow: "0 10px 25px -5px rgba(200, 164, 212, 0.3)"
                 }}
               >
                 <CreditCard className="mr-2 h-5 w-5" /> {t.credits.buyCredits}
@@ -130,8 +130,8 @@ const PromptPage: React.FC = () => {
               className="w-full py-6 rounded-xl" 
               size="lg"
               style={{
-                background: "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)",
-                boxShadow: "0 10px 25px -5px rgba(155, 135, 245, 0.3)"
+                background: "linear-gradient(135deg, #B76E79 0%, #673147 100%)",
+                boxShadow: "0 10px 25px -5px rgba(183, 110, 121, 0.3)"
               }}
             >
               {t.prompt.continue} <ArrowRight className="ml-2 h-5 w-5" />

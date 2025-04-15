@@ -1,7 +1,32 @@
 
-// Utility function to get a color name from a hex code
+import { colorCategories, getAllColors } from "./colorCategories";
+
+/**
+ * Get a color name from a hex code
+ * @param hexColor The hex color code
+ * @returns The name of the color or the hex code if not found
+ */
 export const getColorNameFromHex = (hexColor: string): string => {
-  // Complete color mapping from the NailColorSelector component
+  // Handle special case for gradient colors
+  if (hexColor.includes("gradient")) {
+    const baseHex = hexColor.split("_gradient")[0];
+    const colors = getAllColors();
+    const matchingColor = colors.find(color => color.hex === baseHex && color.gradient);
+    if (matchingColor) {
+      return matchingColor.name;
+    }
+  }
+
+  // Regular color lookup
+  for (const category of colorCategories) {
+    for (const color of category.colors) {
+      if (color.hex === hexColor) {
+        return color.name;
+      }
+    }
+  }
+  
+  // Fallback to the original color map for backwards compatibility
   const colorMap: Record<string, string> = {
     // Nude & Neutrals
     '#E6CCAF': 'Beige',
@@ -42,45 +67,7 @@ export const getColorNameFromHex = (hexColor: string): string => {
     '#B76E79': 'Or rose',
     '#E5E4E2': 'Platine',
     '#F7E7CE': 'Champagne',
-    
-    // Dark & Deep
-    '#000000': 'Noir',
-    '#800020': 'Bordeaux',
-    '#673147': 'Prune',
-    '#7B3F00': 'Chocolat',
-    '#046307': 'Émeraude',
-    '#191970': 'Bleu nuit',
-    '#3D0C02': 'Cerise noire',
-    '#014421': 'Vert forêt',
-    '#2C3539': 'Gris anthracite',
-    '#551A8B': 'Violet cosmique',
-    
-    // Basic & Other colors
-    '#FF0000': 'Rouge',
-    '#FFA500': 'Orange',
-    '#FFFF00': 'Jaune',
-    '#00FF00': 'Vert',
-    '#0000FF': 'Bleu',
-    '#800080': 'Violet',
-    '#FFD700': 'Doré',
-    '#1E90FF': 'Bleu électrique',
-    '#39FF14': 'Vert néon',
-    '#0F52BA': 'Bleu saphir',
-    '#FFFACD': 'Jaune beurre',
-    '#8A9A5B': 'Vert mousse',
-    '#0077BE': 'Bleu océan',
-    '#8B0000': 'Rouge sang',
-    '#808080': 'Gris cendré',
-    '#A5F2F3': 'Bleu glacé',
-    '#F0FFFF': 'Blanc givré',
-    '#556B2F': 'Olive',
-    '#CC7722': 'Ocre',
-    '#C08081': 'Rose poussiéreux',
-    '#4682B4': 'Bleu réfléchissant',
-    '#8A2BE2': 'Ultraviolet',
-    '#BFFF00': 'Vert lime'
   };
   
-  // Return the color name if it exists in the map, otherwise return the hex code
   return colorMap[hexColor] || hexColor;
 };

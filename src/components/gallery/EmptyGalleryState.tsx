@@ -22,8 +22,8 @@ const EmptyGalleryState: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="flex-1 flex flex-col items-center justify-center p-6 max-w-md mx-auto"
     >
-      <div className="mb-8 p-7 rounded-full bg-gradient-to-r from-purple-100 to-pink-100">
-        <Image size={56} className="text-primary" />
+      <div className="mb-8 p-7 rounded-full bg-gradient-to-r from-[#FFD1DC] to-[#E6E6FA]">
+        <Image size={56} className="text-[#673147]" />
       </div>
       
       <h3 className="text-2xl font-semibold mb-3 text-center">
@@ -42,7 +42,11 @@ const EmptyGalleryState: React.FC = () => {
       >
         <Button 
           onClick={handleCreateFirstDesign}
-          className="px-6 py-6 rounded-xl text-base font-medium bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 flex items-center gap-3"
+          className="px-6 py-6 rounded-xl text-base font-medium flex items-center gap-3"
+          style={{
+            background: "linear-gradient(135deg, #B76E79 0%, #FF3399 100%)",
+            boxShadow: "0 8px 20px -6px rgba(183, 110, 121, 0.6)"
+          }}
         >
           <Sparkles className="w-5 h-5" />
           {language === 'fr' ? 'Créer mon premier design' : 'Create my first design'}

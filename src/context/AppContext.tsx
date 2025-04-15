@@ -9,6 +9,7 @@ import React, {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@gradio/client";
+import { colorCategories } from "@/utils/colorCategories";
 
 // Types pour les options d'ongles
 export type NailShape =
