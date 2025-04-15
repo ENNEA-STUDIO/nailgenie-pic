@@ -109,7 +109,7 @@ const CustomBottomNav: React.FC = () => {
               
               <span className={`text-xs ${hasLowCredits ? 'font-medium' : ''}`}>
                 {hasUnlimitedCredits 
-                  ? t.credits.unlimitedDesigns 
+                  ? t.credits.unlimitedLabel 
                   : hasLowCredits 
                     ? t.credits.buyCredits 
                     : t.nav.credits}
