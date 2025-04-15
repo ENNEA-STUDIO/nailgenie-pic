@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useContext,
@@ -37,7 +38,6 @@ interface AppContextType {
   nailLength: NailLength;
   nailColor: string;
   credits: number;
-  hasUnlimitedCredits: boolean;
   setHandImage: (image: string | null) => void;
   setGeneratedDesign: (design: string | null) => void;
   setPrompt: (prompt: string) => void;
@@ -47,7 +47,6 @@ interface AppContextType {
   generateDesign: () => Promise<void>;
   resetState: () => void;
   checkCredits: () => Promise<number>;
-  checkSubscription: () => Promise<boolean>;
   addCredits: (amount: number) => Promise<boolean>;
 }
 
@@ -91,21 +90,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [nailLength, setNailLength] = useState<NailLength>("medium");
   const [nailColor, setNailColor] = useState<string>("#E6CCAF"); // Beige as default
   const [credits, setCredits] = useState<number>(0);
-  const [hasUnlimitedCredits, setHasUnlimitedCredits] = useState<boolean>(false);
   const [isProcessingInvitation, setIsProcessingInvitation] = useState<boolean>(false);
 
   useEffect(() => {
     checkCredits();
-    checkSubscription();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log("Auth state change:", event, session?.user?.id);
         
         if (event === "SIGNED_IN" && session?.user) {
-          // Check subscription status first
-          await checkSubscription();
-          
           // When a user signs in (including after email verification)
           // Check if there's a pending invite code
           const pendingInviteCode = localStorage.getItem("pendingInviteCode");
@@ -159,7 +153,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           }
         } else if (event === "SIGNED_OUT") {
           setCredits(0);
-          setHasUnlimitedCredits(false);
         }
       }
     );
@@ -167,38 +160,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []);
-
-  const checkSubscription = useCallback(async (): Promise<boolean> => {
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        setHasUnlimitedCredits(false);
-        return false;
-      }
-
-      const { data, error } = await supabase
-        .from("user_subscriptions")
-        .select("status")
-        .eq("user_id", sessionData.session.user.id)
-        .eq("status", "active")
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching subscription status:", error);
-        setHasUnlimitedCredits(false);
-        return false;
-      }
-
-      const hasActiveSubscription = data !== null;
-      setHasUnlimitedCredits(hasActiveSubscription);
-      console.log("User has unlimited credits:", hasActiveSubscription);
-      return hasActiveSubscription;
-    } catch (error) {
-      console.error("Error checking subscription:", error);
-      setHasUnlimitedCredits(false);
-      return false;
-    }
   }, []);
 
   const checkCredits = useCallback(async (): Promise<number> => {
@@ -293,15 +254,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       return;
     }
 
-    // Si l'utilisateur a des crédits illimités, on ignore le check de crédits
-    if (!hasUnlimitedCredits) {
-      const currentCredits = await checkCredits();
-      if (currentCredits < 1) {
-        toast.error(
-          "Vous n'avez pas assez de crédits. Achetez-en plus pour continuer."
-        );
-        return;
-      }
+    const currentCredits = await checkCredits();
+    if (currentCredits < 1) {
+      toast.error(
+        "Vous n'avez pas assez de crédits. Achetez-en plus pour continuer."
+      );
+      return;
     }
 
     setIsLoading(true);
@@ -426,14 +384,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
               setGeneratedDesign(publicUrl);
               toast.success("Design généré avec succès!");
 
-              // Déduire un crédit seulement si l'utilisateur n'a pas d'abonnement illimité
-              if (!hasUnlimitedCredits) {
-                const { error: creditError } = await supabase.rpc("use_credit");
-                if (creditError) {
-                  console.error("Error deducting credit:", creditError);
-                } else {
-                  setCredits((prev) => Math.max(0, prev - 1));
-                }
+              const { error: creditError } = await supabase.rpc("use_credit");
+              if (creditError) {
+                console.error("Error deducting credit:", creditError);
+              } else {
+                setCredits((prev) => Math.max(0, prev - 1));
               }
               
               // Marquer comme réussi pour sortir de la boucle
@@ -471,7 +426,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
     // Désactiver l'indicateur de chargement
     setIsLoading(false);
-  }, [handImage, prompt, nailShape, nailLength, nailColor, checkCredits, hasUnlimitedCredits]);
+  }, [handImage, prompt, nailShape, nailLength, nailColor, checkCredits]);
 
   const getColorName = (hexColor: string): string => {
     const colorMap: Record<string, string> = {
@@ -638,7 +593,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     nailLength,
     nailColor,
     credits,
-    hasUnlimitedCredits,
     setHandImage,
     setGeneratedDesign,
     setPrompt,
@@ -648,7 +602,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     generateDesign,
     resetState,
     checkCredits,
-    checkSubscription,
     addCredits,
   };
 

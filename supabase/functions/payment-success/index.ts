@@ -66,14 +66,14 @@ serve(async (req) => {
         // Check if we need to create a user_subscriptions table first
         await supabaseClient.rpc("create_subscription_table");
         
-        // Insert or update the subscription record with status explicitly set to 'active'
+        // Insert or update the subscription record
         const { error } = await supabaseClient
           .from("user_subscriptions")
           .upsert({
             user_id: userId,
             stripe_subscription_id: subscriptionId,
             stripe_customer_id: subscription.customer as string,
-            status: 'active', // Explicitly set to 'active'
+            status: subscription.status,
             price_id: subscription.items.data[0].price.id,
             current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
             cancel_at_period_end: subscription.cancel_at_period_end,
@@ -84,7 +84,7 @@ serve(async (req) => {
           throw error;
         }
         
-        console.log("Subscription saved successfully with active status");
+        console.log("Subscription saved successfully");
       }
     } else {
       // For one-time payments, add credits based on the price ID

@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
-import { Camera, Image, Home, CreditCard, Sparkles, InfinityIcon } from 'lucide-react';
+import { Camera, Image, Home, CreditCard, Sparkles } from 'lucide-react';
 import CreditsDisplay from '../credits/CreditsDisplay';
 import { Card } from '../ui/card';
 import { useApp } from '@/context/AppContext';
@@ -11,8 +11,8 @@ import { useApp } from '@/context/AppContext';
 const CustomBottomNav: React.FC = () => {
   const location = useLocation();
   const { t } = useLanguage();
-  const { credits, hasUnlimitedCredits } = useApp();
-  const hasLowCredits = !hasUnlimitedCredits && credits <= 1; // Consider 1 or fewer credits as "low"
+  const { credits } = useApp();
+  const hasLowCredits = credits <= 1; // Consider 1 or fewer credits as "low"
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -49,17 +49,11 @@ const CustomBottomNav: React.FC = () => {
             </Link>
           ))}
           
-          {/* Credits display - avec animation spéciale pour mode illimité */}
+          {/* Credits display - with attention-grabbing animation when low */}
           <Link to="/buy-credits" className="flex-1">
             <div
               className={`flex flex-col items-center py-2 relative ${
-                isActive('/buy-credits') 
-                  ? 'text-primary' 
-                  : hasUnlimitedCredits 
-                    ? 'text-purple-500' 
-                    : hasLowCredits 
-                      ? 'text-amber-500' 
-                      : 'text-muted-foreground'
+                isActive('/buy-credits') ? 'text-primary' : hasLowCredits ? 'text-amber-500' : 'text-muted-foreground'
               }`}
             >
               {isActive('/buy-credits') && (
@@ -71,23 +65,7 @@ const CustomBottomNav: React.FC = () => {
                 />
               )}
               
-              {hasUnlimitedCredits ? (
-                <motion.div 
-                  initial={{ scale: 1 }}
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ 
-                    repeat: Infinity, 
-                    repeatType: "reverse", 
-                    duration: 2 
-                  }}
-                  className="relative"
-                >
-                  <CreditsDisplay showTooltip={false} className="mb-1" />
-                  <InfinityIcon 
-                    className="absolute -top-1 -right-1 w-4 h-4 text-purple-500" 
-                  />
-                </motion.div>
-              ) : hasLowCredits ? (
+              {hasLowCredits ? (
                 <motion.div 
                   initial={{ scale: 1 }}
                   animate={{ scale: [1, 1.1, 1] }}
@@ -108,11 +86,7 @@ const CustomBottomNav: React.FC = () => {
               )}
               
               <span className={`text-xs ${hasLowCredits ? 'font-medium' : ''}`}>
-                {hasUnlimitedCredits 
-                  ? t.credits.unlimitedDesigns 
-                  : hasLowCredits 
-                    ? t.credits.buyCredits 
-                    : t.nav.credits}
+                {hasLowCredits ? t.credits.buyCredits : t.nav.credits}
               </span>
             </div>
           </Link>
