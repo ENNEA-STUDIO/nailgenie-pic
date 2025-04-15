@@ -38,6 +38,8 @@ interface AppContextType {
   nailColor: string;
   credits: number;
   hasUnlimitedSubscription: boolean;
+  subscriptionStart: string | null;
+  subscriptionEnd: string | null;
   setHandImage: (image: string | null) => void;
   setGeneratedDesign: (design: string | null) => void;
   setPrompt: (prompt: string) => void;
@@ -92,6 +94,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [credits, setCredits] = useState<number>(0);
   const [isProcessingInvitation, setIsProcessingInvitation] = useState<boolean>(false);
   const [hasUnlimitedSubscription, setHasUnlimitedSubscription] = useState<boolean>(false);
+  const [subscriptionStart, setSubscriptionStart] = useState<string | null>(null);
+  const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
 
   useEffect(() => {
     checkCredits();
@@ -102,8 +106,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         console.log("Auth state change:", event, session?.user?.id);
         
         if (event === "SIGNED_IN" && session?.user) {
-          // When a user signs in (including after email verification)
-          // Check if there's a pending invite code
           const pendingInviteCode = localStorage.getItem("pendingInviteCode");
           
           if (pendingInviteCode && session?.user && !isProcessingInvitation) {
@@ -111,7 +113,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             setIsProcessingInvitation(true);
             
             try {
-              // Process the invitation
               const { data: response, error } = await supabase.functions.invoke(
                 "use-invitation", 
                 {
@@ -139,18 +140,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
                 );
               }
               
-              // Clear the pending invite code
               localStorage.removeItem("pendingInviteCode");
             } catch (err) {
               console.error("Error processing invitation:", err);
               toast.error("Erreur lors du traitement de l'invitation. Veuillez réessayer plus tard.");
             } finally {
-              // Always check credits after processing the invitation
               await checkCredits();
               setIsProcessingInvitation(false);
             }
           } else {
-            // No invite code, just check credits
             checkCredits();
             checkSubscription();
           }
@@ -166,18 +164,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, []);
 
-  // Check if the user has an active unlimited subscription
   const checkSubscription = useCallback(async (): Promise<void> => {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         setHasUnlimitedSubscription(false);
+        setSubscriptionStart(null);
+        setSubscriptionEnd(null);
         return;
       }
 
       const { data, error } = await supabase
         .from("user_subscriptions")
-        .select("status, price_id")
+        .select("status, price_id, created_at, current_period_end")
         .eq("user_id", sessionData.session.user.id)
         .eq("status", "active")
         .maybeSingle();
@@ -185,25 +184,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       if (error) {
         console.error("Error checking subscription:", error);
         setHasUnlimitedSubscription(false);
+        setSubscriptionStart(null);
+        setSubscriptionEnd(null);
         return;
       }
 
-      // If user has an active subscription, set hasUnlimitedSubscription to true
       const hasUnlimited = !!data;
       setHasUnlimitedSubscription(hasUnlimited);
+      
+      if (data) {
+        setSubscriptionStart(data.created_at);
+        setSubscriptionEnd(data.current_period_end);
+      } else {
+        setSubscriptionStart(null);
+        setSubscriptionEnd(null);
+      }
+      
       console.log("User subscription status:", data ? "Active" : "None");
 
-      // If user has unlimited subscription, set credits to 1,000,000 in the database
       if (hasUnlimited) {
         await ensureHighCreditCount(sessionData.session.user.id);
       }
     } catch (error) {
       console.error("Error checking subscription:", error);
       setHasUnlimitedSubscription(false);
+      setSubscriptionStart(null);
+      setSubscriptionEnd(null);
     }
   }, []);
 
-  // Ensure high credit count for unlimited subscription users
   const ensureHighCreditCount = async (userId: string): Promise<void> => {
     try {
       const { data, error } = await supabase
@@ -217,7 +226,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         return;
       }
 
-      // If credits are less than 1,000,000, update them
       if (!data || data.credits < 1000000) {
         const { error: updateError } = await supabase
           .from("user_credits")
@@ -247,10 +255,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         return 0;
       }
 
-      // Check if user has unlimited subscription first
       await checkSubscription();
       
-      // If they have unlimited subscription, we already set the credits to 1,000,000
       if (hasUnlimitedSubscription) {
         return 1000000;
       }
@@ -271,7 +277,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         return data.credits;
       } else {
         console.log("No credits found for user, creating initial credits (5)");
-        // Create initial credits (5) for user
         const { data: newData, error: insertError } = await supabase
           .from("user_credits")
           .insert([{ user_id: sessionData.session.user.id, credits: 5 }])
@@ -339,7 +344,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       return;
     }
 
-    // Only check credits if not unlimited subscription
     if (!hasUnlimitedSubscription) {
       const currentCredits = await checkCredits();
       if (currentCredits < 1) {
@@ -358,10 +362,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       try {
         if (retryCount > 0) {
           console.log(`Tentative de génération #${retryCount + 1}/${MAX_RETRIES + 1}`);
-          // Afficher un toast uniquement après la première tentative
           toast.info(`Relance de la génération (essai ${retryCount + 1}/${MAX_RETRIES + 1})...`);
-          
-          // Attendre un délai exponentiel avant de réessayer (1.5s, puis 3s, puis 4.5s)
           await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * retryCount));
         }
 
@@ -390,9 +391,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
             ? "medium"
             : "long";
 
-        // Check if it's a gradient color (from bi-color category)
         const isGradient = nailColor.includes("gradient");
-        // For gradient colors, we add a special suffix to use our mapping properly
         const colorKey = isGradient ? `${nailColor}_gradient` : nailColor;
         const colorName = getColorName(colorKey);
 
@@ -472,7 +471,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
               setGeneratedDesign(publicUrl);
               toast.success("Design généré avec succès!");
 
-              // Only deduct credit if not unlimited
               if (!hasUnlimitedSubscription) {
                 const { error: creditError } = await supabase.rpc("use_credit");
                 if (creditError) {
@@ -482,7 +480,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
                 }
               }
               
-              // Marquer comme réussi pour sortir de la boucle
               success = true;
             } catch (fetchError) {
               console.error("Error fetching/processing image:", fetchError);
@@ -501,7 +498,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       } catch (error) {
         console.error(`Erreur lors de la génération (essai ${retryCount + 1}/${MAX_RETRIES + 1}):`, error);
         
-        // Si nous avons atteint le nombre maximum de tentatives, afficher l'erreur à l'utilisateur
         if (retryCount === MAX_RETRIES) {
           toast.error(
             `Échec de la génération après ${MAX_RETRIES + 1} tentatives: ${
@@ -510,18 +506,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           );
         }
         
-        // Incrémenter le compteur de tentatives
         retryCount++;
       }
     }
 
-    // Désactiver l'indicateur de chargement
     setIsLoading(false);
   }, [handImage, prompt, nailShape, nailLength, nailColor, checkCredits, hasUnlimitedSubscription]);
 
   const getColorName = (hexColor: string): string => {
     const colorMap: Record<string, string> = {
-      // Nude & Minimalist
       "#E6CCAF": "soft beige",
       "#FFFFFF": "milky white",
       "#FFC0CB": "blush pink",
@@ -530,99 +523,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       "#E8E8E8": "icy grey",
       "#F2F3F4": "transparent gloss",
 
-      // Glazed & Pearlcore
-      // '#E8E8E8': 'glazed donut', // Already defined above
-      // '#FFFFFF': 'iridescent white', // Already defined above
       "#EAEAEA": "holographic pearl",
       "#C0C0C0": "baby chrome",
-      // '#F2F3F4': 'soft opal', // Already defined above
-
-      // Y2K / Pop Vibes
-      "#FF69B4": "hot pink",
-      "#1E90FF": "electric blue",
-      "#39FF14": "neon green",
-      "#FFFF00": "acid yellow",
-      "#FF7F50": "candy orange",
-      // '#C0C0C0': 'silver chrome', // Already defined above
-      "#9370DB": "bubblegum purple",
-
-      // Dark & Mysterious
-      "#800020": "deep burgundy",
-      "#191970": "midnight blue",
-      "#3D0C02": "black cherry",
-      "#014421": "forest green",
-      "#2C3539": "gunmetal",
-      "#000000": "matte black",
-      "#551A8B": "cosmic purple",
-
-      // Luxury / Metallic
-      "#D4AF37": "24k gold",
-      "#B76E79": "rose gold",
-      "#E5E4E2": "platinum",
-      "#F7E7CE": "champagne",
-      "#B87333": "bronze",
-      "#8A9A5B": "pewter",
-      "#046307": "emerald green",
-      "#0F52BA": "sapphire blue",
-
-      // Romantic / Pastelcore
-      "#C8A4D4": "pastel lilac",
-      "#B0E0E6": "baby blue",
       "#98D8C8": "soft mint",
-      // '#FFC0CB': 'powder pink', // Already defined above
-      "#FFFACD": "butter yellow",
-      "#C8A2C8": "mauve",
-      "#FFE5B4": "peachy nude",
-
-      // Bold & Graphic
-      "#D2042D": "primary red",
-      // '#000000': 'jet black', // Already defined above
-      // '#FFFFFF': 'whiteout', // Already defined above
-      "#0A2463": "high contrast blue",
-      "#FF7F00": "citrus orange",
-
-      // Goth / Punk
-      // '#000000': 'matte black', // Already defined above
-      "#8B0000": "blood red",
-      "#808080": "ash grey",
-      "#7B3F00": "rust brown",
-      "#673147": "deep plum",
-      "#556B2F": "olive green",
-      "#343434": "dark chrome",
-
-      // Frozen / Clean Girl
-      "#A5F2F3": "ice blue",
-      "#E6E6FA": "soft lavender",
-      "#F0FFFF": "frosted white",
-      // '#C0C0C0': 'shimmering grey', // Already defined above
-      "#F5F5F5": "translucent glaze",
-
-      // Artistic / Painterly
-      // '#FF7F50': 'coral', // Already defined above
-      // '#556B2F': 'olive', // Already defined above
-      "#E2725B": "terracotta",
-      // '#000000': 'ink black', // Already defined above
-      "#CC7722": "ochre",
-
-      // Nature-Inspired
-      "#9CAF88": "sage green",
-      "#A17249": "clay",
-      // '#E2725B': 'terracotta', // Already defined above
-      "#C08081": "dusty rose",
-      "#0077BE": "ocean blue",
-      "#D2B48C": "sand",
-      // '#8A9A5B': 'moss', // Already defined above
-
-      // Futuristic
-      // '#C0C0C0': 'silver', // Already defined above
-      "#4682B4": "reflective blue",
-      // '#000000': 'oil-slick black', // Already defined above
-      "#8A2BE2": "ultraviolet",
-      "#BFFF00": "lime techno",
-      // '#EAEAEA': 'holo chrome', // Already defined above
-
-      // New Bi-Color mappings
-      // We add them with their gradient names so they'll be used properly in the prompt
       "#FFC0CB_gradient": "blush pink and burgundy gradient",
       "#FFF3D9_gradient": "cream and chocolate gradient",
       "#B0E0E6_gradient": "baby blue and navy gradient",
@@ -649,7 +552,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       "#FFFACD_gradient2": "butter yellow and baby pink gradient",
       "#191970_gradient": "midnight blue and silver chrome gradient",
 
-      // Basic colors
       "#FF0000": "red",
       "#FFA500": "orange",
       "#00FF00": "green",
@@ -658,7 +560,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       "#FFD700": "gold",
     };
 
-    // Check if it's a gradient color by seeing if the hex code has a _gradient suffix
     if (hexColor.includes("_gradient")) {
       return colorMap[hexColor] || `a custom two-tone gradient`;
     }
@@ -685,6 +586,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     nailColor,
     credits,
     hasUnlimitedSubscription,
+    subscriptionStart,
+    subscriptionEnd,
     setHandImage,
     setGeneratedDesign,
     setPrompt,
