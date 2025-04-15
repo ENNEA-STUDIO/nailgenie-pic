@@ -5,6 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import NailPolishIcon from './NailPolishIcon';
+import { Infinity } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CreditsDisplayProps {
@@ -18,11 +19,11 @@ const CreditsDisplay: React.FC<CreditsDisplayProps> = ({
   showTooltip = true,
   variant = 'default'
 }) => {
-  const { credits } = useApp();
+  const { credits, hasUnlimitedSubscription } = useApp();
   const { t } = useLanguage();
   const navigate = useNavigate();
   
-  const lowCredits = credits < 2;
+  const lowCredits = credits < 2 && !hasUnlimitedSubscription;
   
   // Variants pour différentes tailles d'affichage
   const sizes = {
@@ -60,14 +61,26 @@ const CreditsDisplay: React.FC<CreditsDisplayProps> = ({
             whileHover={{ scale: 1.05 }}
             onClick={() => navigate('/buy-credits')}
           >
-            <NailPolishIcon 
-              className={`${currentSize.icon} ${lowCredits ? 'text-red-400' : 'text-primary'}`} 
-              animate={lowCredits} 
-            />
+            {hasUnlimitedSubscription ? (
+              <Infinity 
+                className={`${currentSize.icon} text-primary`} 
+              />
+            ) : (
+              <NailPolishIcon 
+                className={`${currentSize.icon} ${lowCredits ? 'text-red-400' : 'text-primary'}`} 
+                animate={lowCredits} 
+              />
+            )}
             
-            <span className={`font-medium ${currentSize.text} ${lowCredits ? 'text-red-500' : 'text-primary'}`}>
-              {credits}
-            </span>
+            {hasUnlimitedSubscription ? (
+              <span className={`font-medium ${currentSize.text} text-primary`}>
+                ∞
+              </span>
+            ) : (
+              <span className={`font-medium ${currentSize.text} ${lowCredits ? 'text-red-500' : 'text-primary'}`}>
+                {credits}
+              </span>
+            )}
             
             {showTooltip && lowCredits && (
               <motion.div
@@ -81,7 +94,11 @@ const CreditsDisplay: React.FC<CreditsDisplayProps> = ({
           </motion.div>
         </TooltipTrigger>
         <TooltipContent side="top" className="bg-background/90 backdrop-blur-sm border border-primary/20">
-          <p>{t.credits.currentCredits}: <span className="font-semibold text-primary">{credits}</span></p>
+          {hasUnlimitedSubscription ? (
+            <p>{t.credits.unlimitedSubscription}</p>
+          ) : (
+            <p>{t.credits.currentCredits}: <span className="font-semibold text-primary">{credits}</span></p>
+          )}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

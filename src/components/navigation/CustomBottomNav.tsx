@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
-import { Camera, Image, Home, CreditCard, Sparkles } from 'lucide-react';
+import { Camera, Image, Home, Infinity, Sparkles } from 'lucide-react';
 import CreditsDisplay from '../credits/CreditsDisplay';
 import { Card } from '../ui/card';
 import { useApp } from '@/context/AppContext';
@@ -11,8 +11,8 @@ import { useApp } from '@/context/AppContext';
 const CustomBottomNav: React.FC = () => {
   const location = useLocation();
   const { t } = useLanguage();
-  const { credits } = useApp();
-  const hasLowCredits = credits <= 1; // Consider 1 or fewer credits as "low"
+  const { credits, hasUnlimitedSubscription } = useApp();
+  const hasLowCredits = credits <= 1 && !hasUnlimitedSubscription; // Only show low credits warning if not unlimited
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -86,7 +86,7 @@ const CustomBottomNav: React.FC = () => {
               )}
               
               <span className={`text-xs ${hasLowCredits ? 'font-medium' : ''}`}>
-                {hasLowCredits ? t.credits.buyCredits : t.nav.credits}
+                {hasUnlimitedSubscription ? t.credits.unlimited : (hasLowCredits ? t.credits.buyCredits : t.nav.credits)}
               </span>
             </div>
           </Link>

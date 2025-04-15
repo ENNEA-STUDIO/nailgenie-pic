@@ -23,7 +23,7 @@ const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
 const PREMIUM_CREDITS_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
 
 const BuyCreditsPage: React.FC = () => {
-  const { credits, addCredits } = useApp();
+  const { credits, hasUnlimitedSubscription } = useApp();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -53,66 +53,80 @@ const BuyCreditsPage: React.FC = () => {
       <div className="glass-card rounded-3xl p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <NailPolishIcon className="w-6 h-6 text-primary mr-2" />
-            <h2 className="text-lg font-medium">{t.credits.currentCredits}</h2>
+            {hasUnlimitedSubscription ? (
+              <Infinity className="w-6 h-6 text-primary mr-2" />
+            ) : (
+              <NailPolishIcon className="w-6 h-6 text-primary mr-2" />
+            )}
+            <h2 className="text-lg font-medium">
+              {hasUnlimitedSubscription ? t.credits.unlimitedSubscription : t.credits.currentCredits}
+            </h2>
           </div>
-          <span className="text-2xl font-bold">{credits}</span>
+          {hasUnlimitedSubscription ? (
+            <span className="text-2xl font-bold">∞</span>
+          ) : (
+            <span className="text-2xl font-bold">{credits}</span>
+          )}
         </div>
         
         <p className="text-muted-foreground text-sm">
-          {t.credits.creditsExplainer}
+          {hasUnlimitedSubscription 
+            ? t.credits.unlimitedSubscriptionExplainer 
+            : t.credits.creditsExplainer}
         </p>
       </div>
       
       <div className="flex-1 space-y-6">
         {/* Pack de crédits */}
-        <Card className="border-2 overflow-hidden">
-          <CardHeader className="pb-2">
-            <Badge variant="outline" className="w-fit mb-2">
-              {t.credits.oneTimePurchase}
-            </Badge>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-primary" />
-              {t.credits.creditPack}
-            </CardTitle>
-            <CardDescription>
-              10 designs = 10 {language === 'fr' ? 'crédits' : 'credits'}
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="pb-2">
-            <div className="flex items-center mb-3">
-              <span className="text-3xl font-bold text-primary">{t.credits.creditPackPrice}</span>
-            </div>
+        {!hasUnlimitedSubscription && (
+          <Card className="border-2 overflow-hidden">
+            <CardHeader className="pb-2">
+              <Badge variant="outline" className="w-fit mb-2">
+                {t.credits.oneTimePurchase}
+              </Badge>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-primary" />
+                {t.credits.creditPack}
+              </CardTitle>
+              <CardDescription>
+                10 designs = 10 {language === 'fr' ? 'crédits' : 'credits'}
+              </CardDescription>
+            </CardHeader>
             
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm">
-                <Zap className="h-4 w-4 text-green-500" />
-                {t.credits.tenCreditsForDesigns}
-              </li>
-            </ul>
-          </CardContent>
-          
-          <CardFooter>
-            <StripeCheckout
-              priceId={CREDITS_PRICE_ID}
-              buttonText={t.credits.creditPackPrice}
-              isProcessing={isProcessing && processingOption === 'credits'}
-              showSuccess={showSuccess}
-            />
-          </CardFooter>
-        </Card>
+            <CardContent className="pb-2">
+              <div className="flex items-center mb-3">
+                <span className="text-3xl font-bold text-primary">{t.credits.creditPackPrice}</span>
+              </div>
+              
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-sm">
+                  <Zap className="h-4 w-4 text-green-500" />
+                  {t.credits.tenCreditsForDesigns}
+                </li>
+              </ul>
+            </CardContent>
+            
+            <CardFooter>
+              <StripeCheckout
+                priceId={CREDITS_PRICE_ID}
+                buttonText={t.credits.creditPackPrice}
+                isProcessing={isProcessing && processingOption === 'credits'}
+                showSuccess={showSuccess}
+              />
+            </CardFooter>
+          </Card>
+        )}
         
         {/* 100 Credits Pack - updated to show as a subscription */}
-        <Card className="border-2 border-primary/50 overflow-hidden relative">
+        <Card className={`border-2 ${hasUnlimitedSubscription ? 'border-green-500' : 'border-primary/50'} overflow-hidden relative`}>
           <div className="absolute top-0 right-0">
             <Badge className="m-2 bg-primary">
-              {t.credits.mostPopular}
+              {hasUnlimitedSubscription ? t.credits.active : t.credits.mostPopular}
             </Badge>
           </div>
           
           <CardHeader className="pb-2">
-            <Badge variant="outline" className="w-fit mb-2">
+            <Badge variant={hasUnlimitedSubscription ? "success" : "outline"} className="w-fit mb-2">
               {t.credits.subscriptionExplainer}
             </Badge>
             <CardTitle className="flex items-center gap-2">
@@ -142,16 +156,30 @@ const BuyCreditsPage: React.FC = () => {
           </CardContent>
           
           <CardFooter>
-            <StripeSubscription
-              priceId={PREMIUM_CREDITS_PRICE_ID}
-              buttonText={t.credits.unlimitedPlanPrice}
-              isProcessing={isProcessing && processingOption === 'subscription'}
-              showSuccess={showSuccess}
-            />
+            {hasUnlimitedSubscription ? (
+              <Button 
+                className="w-full py-6 relative overflow-hidden group" 
+                size="lg"
+                variant="outline"
+                disabled
+              >
+                <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+                <span>
+                  {t.credits.alreadySubscribed}
+                </span>
+              </Button>
+            ) : (
+              <StripeSubscription
+                priceId={PREMIUM_CREDITS_PRICE_ID}
+                buttonText={t.credits.unlimitedPlanPrice}
+                isProcessing={isProcessing && processingOption === 'subscription'}
+                showSuccess={showSuccess}
+              />
+            )}
           </CardFooter>
         </Card>
         
-        <InvitationSection />
+        {!hasUnlimitedSubscription && <InvitationSection />}
       </div>
       
       <BottomNav />
