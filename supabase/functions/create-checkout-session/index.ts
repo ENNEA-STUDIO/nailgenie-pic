@@ -31,13 +31,13 @@ serve(async (req) => {
     }
 
     const requestData = await req.json();
-    const { priceId, mode: requestedMode } = requestData;
+    const { priceId } = requestData;
     
     if (!priceId) {
       throw new Error('Price ID is required');
     }
 
-    console.log('Creating payment session...', { priceId, requestedMode });
+    console.log('Creating payment session...', { priceId });
     
     // We'll continue to use the server-side secret key for security
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
@@ -54,33 +54,14 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
     }
-
+    
     try {
       // Get price info to determine if it's recurring
       const price = await stripe.prices.retrieve(priceId);
-      const isRecurring = price.type === 'recurring';
       
-      // Determine the appropriate mode based on price type
-      let mode;
-      
-      // If a mode was explicitly requested, use it
-      if (requestedMode) {
-        mode = requestedMode;
-        console.log(`Using explicitly requested mode: ${mode}`);
-        
-        // Validate mode and price type compatibility
-        if (mode === 'payment' && isRecurring) {
-          throw new Error('Cannot use payment mode with a recurring price. Use subscription mode instead.');
-        }
-        
-        if (mode === 'subscription' && !isRecurring) {
-          throw new Error('Cannot use subscription mode with a one-time price. Use payment mode instead.');
-        }
-      } else {
-        // Auto-detect mode based on price type if no mode was requested
-        mode = isRecurring ? 'subscription' : 'payment';
-        console.log(`Auto-detected mode: ${mode} based on price type: ${isRecurring ? 'recurring' : 'one-time'}`);
-      }
+      // Determine mode based on whether the price is recurring
+      const mode = price.type === 'recurring' ? 'subscription' : 'payment';
+      console.log(`Price type: ${price.type}, using mode: ${mode}`);
       
       console.log(`Creating ${mode} session for price ${priceId}`);
       
@@ -117,7 +98,7 @@ serve(async (req) => {
         JSON.stringify({ error: `Stripe error: ${stripeError.message}` }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400, // Use 400 for client errors
+          status: 400,
         }
       );
     }
