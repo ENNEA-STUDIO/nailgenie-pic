@@ -11,13 +11,15 @@ interface StripeSubscriptionProps {
   buttonText: string;
   isProcessing: boolean;
   showSuccess: boolean;
+  isUnlimited?: boolean;
 }
 
 const StripeSubscription = ({ 
   priceId, 
   buttonText, 
   isProcessing, 
-  showSuccess 
+  showSuccess,
+  isUnlimited = false
 }: StripeSubscriptionProps) => {
   const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
@@ -65,8 +67,12 @@ const StripeSubscription = ({
       style={{
         background: showSuccess 
           ? "linear-gradient(135deg, #10B981 0%, #059669 100%)" 
-          : "linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)",
-        boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.3)"
+          : isUnlimited
+            ? "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)"
+            : "linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)",
+        boxShadow: isUnlimited 
+          ? "0 10px 25px -5px rgba(155, 135, 245, 0.4)"
+          : "0 10px 25px -5px rgba(59, 130, 246, 0.3)"
       }}
     >
       {/* Animated background sparkles on hover */}
@@ -83,7 +89,7 @@ const StripeSubscription = ({
       ) : isProcessing ? (
         <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2" />
       ) : !isLoading ? (
-        <Infinity className="w-5 h-5 mr-2" />
+        isUnlimited ? <Infinity className="w-5 h-5 mr-2" /> : <Sparkles className="w-5 h-5 mr-2" />
       ) : null}
       
       <span className="relative z-10">

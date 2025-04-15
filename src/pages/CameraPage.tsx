@@ -12,10 +12,10 @@ import { Button } from "@/components/ui/button";
 
 const CameraPage: React.FC = () => {
   const navigate = useNavigate();
-  const { handImage, credits } = useApp();
+  const { handImage, credits, hasUnlimitedCredits } = useApp();
   const { t } = useLanguage();
   const [showTip, setShowTip] = useState(false);
-  const hasNoCredits = credits <= 0;
+  const hasNoCredits = credits <= 0 && !hasUnlimitedCredits;
 
   // Show camera tip when page loads
   useEffect(() => {
@@ -37,7 +37,7 @@ const CameraPage: React.FC = () => {
     navigate("/buy-credits");
   };
 
-  // If user has no credits, show the credits purchase page
+  // If user has no credits and no unlimited subscription, show the credits purchase page
   if (hasNoCredits) {
     return (
       <motion.div
