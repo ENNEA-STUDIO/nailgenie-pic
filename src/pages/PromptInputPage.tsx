@@ -45,15 +45,15 @@ const PromptInputPage: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/20 p-4 pb-24"
+      className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20 p-4 pb-24 overflow-x-hidden"
     >
-      <div className="flex-1 w-full flex flex-col items-center justify-center max-w-md mx-auto">
+      <div className="flex-1 w-full flex flex-col max-w-md mx-auto">
         {/* Hand Image Preview */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="glass-card rounded-3xl overflow-hidden shadow-md mb-6 w-full max-w-xs"
+          className="glass-card rounded-3xl overflow-hidden shadow-md mb-6 w-full max-w-xs mx-auto"
           style={{
             boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)"
           }}

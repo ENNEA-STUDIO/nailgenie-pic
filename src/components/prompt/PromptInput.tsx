@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import { getRandomColor, getRandomSize } from './ExampleTagsContainer';
-import ExampleTagsContainer from './ExampleTagsContainer';
 import PromptInputField from './PromptInputField';
-import { getColorSpecificPrompts, extractMainConcept } from '../../utils/promptUtils';
+import PromptCarousel from './PromptCarousel';
+import { getColorSpecificPrompts } from '../../utils/promptUtils';
 import useTextAnimation from '../../hooks/useTextAnimation';
 import { toast } from 'sonner';
 import { getColorNameFromHex } from '../../utils/colorUtils';
@@ -75,7 +75,8 @@ const PromptInput: React.FC = () => {
         setIsFocused={setIsFocused}
       />
       
-      <ExampleTagsContainer 
+      <PromptCarousel 
+        colorName={colorName}
         exampleTags={exampleTags}
         tagStyles={tagStyles}
         handleExampleClick={handleExampleClick}
