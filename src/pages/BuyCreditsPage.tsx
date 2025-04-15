@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -17,19 +18,28 @@ import StripeSubscription from '@/components/credits/StripeSubscription';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import LogoutButton from '@/components/auth/LogoutButton';
+import { supabase } from '@/integrations/supabase/client';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 type OfferType = 'credits' | 'subscription';
 
 const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
 const PREMIUM_CREDITS_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
+const IS_ADMIN_EMAIL = 'ben@vogreenworks.com'; // Only this email can see admin controls
 
 const BuyCreditsPage: React.FC = () => {
-  const { credits, hasUnlimitedSubscription, subscriptionStart, subscriptionEnd } = useApp();
+  const { credits, hasUnlimitedSubscription, subscriptionStart, subscriptionEnd, checkCredits, checkSubscription } = useApp();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  
+  // Admin functionality
+  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
+  const [adminEmail, setAdminEmail] = useState('');
+  const [isFixingSubscription, setIsFixingSubscription] = useState(false);
   
   const formatDate = (dateString: string | null) => {
     if (!dateString) return null;
@@ -42,6 +52,46 @@ const BuyCreditsPage: React.FC = () => {
   
   const startDate = subscriptionStart ? formatDate(subscriptionStart) : null;
   const renewalDate = subscriptionEnd ? formatDate(subscriptionEnd) : null;
+  
+  // Check if current user is admin
+  const checkIfAdmin = async () => {
+    const { data } = await supabase.auth.getSession();
+    return data?.session?.user?.email === IS_ADMIN_EMAIL;
+  };
+  
+  const fixSubscription = async () => {
+    if (!adminEmail.trim()) {
+      toast.error('Please enter an email address');
+      return;
+    }
+    
+    setIsFixingSubscription(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('fix-subscription', {
+        body: { email: adminEmail.trim(), priceId: PREMIUM_CREDITS_PRICE_ID }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (data?.success) {
+        toast.success(`Subscription fixed for ${adminEmail}`);
+        setAdminEmail('');
+        setIsAdminDialogOpen(false);
+        await checkCredits();
+        await checkSubscription();
+      } else {
+        toast.error('Error fixing subscription');
+      }
+    } catch (error) {
+      console.error('Error fixing subscription:', error);
+      toast.error('Error fixing subscription');
+    } finally {
+      setIsFixingSubscription(false);
+    }
+  };
   
   return (
     <motion.div 
@@ -61,6 +111,48 @@ const BuyCreditsPage: React.FC = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-xl font-medium ml-2">{t.credits.buyCredits}</h1>
+        
+        {/* Admin access - checking user email */}
+        {checkIfAdmin() && (
+          <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="ml-auto opacity-50 hover:opacity-100"
+              >
+                Admin
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Admin: Fix User Subscription</DialogTitle>
+                <DialogDescription>
+                  Add unlimited subscription for a user
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Input
+                    placeholder="User email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button 
+                  onClick={fixSubscription} 
+                  disabled={isFixingSubscription}
+                >
+                  {isFixingSubscription ? 'Processing...' : 'Fix Subscription'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
       
       <div className="flex-1 space-y-6">

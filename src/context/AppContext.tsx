@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useContext,
@@ -50,6 +51,7 @@ interface AppContextType {
   generateDesign: () => Promise<void>;
   resetState: () => void;
   checkCredits: () => Promise<number>;
+  checkSubscription: () => Promise<void>;
   addCredits: (amount: number) => Promise<boolean>;
 }
 
@@ -598,6 +600,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     generateDesign,
     resetState,
     checkCredits,
+    checkSubscription,
     addCredits,
   };
 

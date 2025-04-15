@@ -3,87 +3,51 @@ project_id = "yvtdpfampfndlnjqoocm"
 
 [api]
 enabled = true
-port = 54323
+port = 54321
 schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
 [db]
 port = 54322
 shadow_port = 54320
 major_version = 15
 
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 15
+max_client_conn = 100
+
+[realtime]
+enabled = false
+
 [studio]
 enabled = true
-port = 54321
-api_url = "http://localhost"
+port = 54323
+api_url = "https://supabase.co"
 
 [inbucket]
 enabled = true
 port = 54324
+smtp_port = 54325
+pop3_port = 54326
 
 [storage]
 enabled = true
 
 [auth]
 enabled = true
-site_url = "http://localhost:3000"
-
-[auth.email]
-enable_confirmations = false
-
-[auth.external.apple]
-enabled = false
-
-[auth.external.azure]
-enabled = false
-
-[auth.external.bitbucket]
-enabled = false
-
-[auth.external.discord]
-enabled = false
-
-[auth.external.facebook]
-enabled = false
-
-[auth.external.figma]
-enabled = false
-
-[auth.external.github]
-enabled = false
-
-[auth.external.gitlab]
-enabled = false
-
-[auth.external.google]
-enabled = false
-
-[auth.external.keycloak]
-enabled = false
-
-[auth.external.linkedin]
-enabled = false
-
-[auth.external.notion]
-enabled = false
-
-[auth.external.slack]
-enabled = false
-
-[auth.external.spotify]
-enabled = false
-
-[auth.external.twitch]
-enabled = false
-
-[auth.external.twitter]
-enabled = false
-
-[auth.external.workos]
-enabled = false
+site_url = "https://bc69af34-88dd-4725-951d-3dca334a91fc.lovableproject.com"
+additional_redirect_urls = ["https://localhost:3000", "http://localhost:5173", "http://localhost:5174", "https://bc69af34-88dd-4725-951d-3dca334a91fc.lovableproject.com"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
 
 [functions]
-[functions.manual-subscription-setup]
-verify_jwt = false
+enabled = true
 
-[functions.setup-ben-subscription]
-verify_jwt = false
+[functions.fix-subscription]
+verify_jwt = true
