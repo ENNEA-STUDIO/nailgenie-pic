@@ -292,7 +292,7 @@ export const colorSpecificPrompts: Record<string, [string, string][]> = {
     ["Nappe néon", "Neon overlay"],
     ["Graphisme tribal", "Tribal graphics"]
   ],
-  "Warm Sand": [
+  "Warm Sand Color": [
     ["Motif bohème", "Bohemian pattern"],
     ["Effet vaporeux", "Misty effect"],
     ["Tracé ondulé", "Wavy lines"],
@@ -501,7 +501,7 @@ export const colorSpecificPrompts: Record<string, [string, string][]> = {
     ["Texture pastel", "Pastel texture"],
     ["Forme pixelisée", "Pixelated shape"]
   ],
-  "Neon Pink": [
+  "Hot Pink": [
     ["Dégradé gothique", "Gothic gradient"],
     ["Tracé tribal", "Tribal lines"],
     ["Style fruité", "Fruity style"],
@@ -552,7 +552,7 @@ export const colorSpecificPrompts: Record<string, [string, string][]> = {
     ["Graphisme ocre", "Ochre graphics"],
     ["Motif naturel", "Natural pattern"]
   ],
-  "Terracotta": [
+  "Terracotta Clay": [
     ["Dégradé sable", "Sand gradient"],
     ["Esthétique chaleureuse", "Warm aesthetic"],
     ["Tracé rustique", "Rustic lines"],
@@ -573,7 +573,7 @@ export const colorSpecificPrompts: Record<string, [string, string][]> = {
     ["Dégradé kaki", "Khaki gradient"],
     ["Tracé organique", "Organic lines"]
   ],
-  "Warm Sand": [
+  "Desert Sand": [
     ["Graphisme en spirale", "Spiral graphics"],
     ["Esthétique minérale", "Mineral aesthetic"],
     ["Nappe nude", "Nude overlay"],
@@ -817,7 +817,7 @@ export const colorSpecificPrompts: Record<string, [string, string][]> = {
     ["Graphisme estival", "Summer graphics"],
     ["Motif nuancé", "Nuanced pattern"]
   ],
-  "Neon Pink": [
+  "Neon Shock Pink": [
     ["Voile électrique", "Electric veil"],
     ["Texture flashy", "Flashy texture"],
     ["Esthétique pop", "Pop aesthetic"],
