@@ -1,9 +1,7 @@
-
 /**
  * Utility functions for handling prompt examples and text transformations
  */
 import { Language } from '../locales/types';
-import { Color } from './colorCategories';
 
 // Original list of example prompts for backwards compatibility
 export const examplePromptsBase = {
@@ -187,148 +185,148 @@ export const examplePrompts = [
 export const colorSpecificPrompts: Record<string, [string, string][]> = {
   // Pastels Sophistiqués / Sophisticated Pastels
   "Smoky Lilac": [
-    ["Relief brillant en lilas fumé", "Glossy relief in smoky lilac"],
-    ["Esthétique nacrée en lilas fumé", "Pearly aesthetic in smoky lilac"],
-    ["Effet glacé en lilas fumé", "Frosted effect in smoky lilac"],
-    ["Graphisme ondulé en lilas fumé", "Wavy graphics in smoky lilac"],
-    ["Style organique en lilas fumé", "Organic style in smoky lilac"]
+    ["Relief brillant", "Glossy relief"],
+    ["Esthétique nacrée", "Pearly aesthetic"],
+    ["Effet glacé", "Frosted effect"],
+    ["Graphisme ondulé", "Wavy graphics"],
+    ["Style organique", "Organic style"]
   ],
   "Frosted Mint": [
-    ["Voile abstrait en menthe givrée", "Abstract veil in frosted mint"],
-    ["Effet mat en menthe givrée", "Matte effect in frosted mint"],
-    ["Forme galactique en menthe givrée", "Galactic shape in frosted mint"],
-    ["Texture dynamique en menthe givrée", "Dynamic texture in frosted mint"],
-    ["Tracé dynamique en menthe givrée", "Dynamic lines in frosted mint"]
+    ["Voile abstrait", "Abstract veil"],
+    ["Effet mat", "Matte effect"],
+    ["Forme galactique", "Galactic shape"],
+    ["Texture dynamique", "Dynamic texture"],
+    ["Tracé dynamique", "Dynamic lines"]
   ],
   "Powder Pink": [
-    ["Nappe animalier en rose poudre", "Animal print in powder pink"],
-    ["Effet brillant en rose poudre", "Glossy effect in powder pink"],
-    ["Nappe abstrait en rose poudre", "Abstract overlay in powder pink"],
-    ["Dessin oriental en rose poudre", "Oriental pattern in powder pink"],
-    ["Effet fruité en rose poudre", "Fruity effect in powder pink"]
+    ["Nappe animalier", "Animal print"],
+    ["Effet brillant", "Glossy effect"],
+    ["Nappe abstrait", "Abstract overlay"],
+    ["Dessin oriental", "Oriental pattern"],
+    ["Effet fruité", "Fruity effect"]
   ],
   "Greyed Blue": [
-    ["Forme tribal en bleu grisé", "Tribal shape in greyed blue"],
-    ["Texture bohème en bleu grisé", "Bohemian texture in greyed blue"],
-    ["Silhouette pastel en bleu grisé", "Pastel silhouette in greyed blue"],
-    ["Nappe gourmand en bleu grisé", "Gourmet overlay in greyed blue"],
-    ["Texture irisée en bleu grisé", "Iridescent texture in greyed blue"]
+    ["Forme tribal", "Tribal shape"],
+    ["Texture bohème", "Bohemian texture"],
+    ["Silhouette pastel", "Pastel silhouette"],
+    ["Nappe gourmand", "Gourmet overlay"],
+    ["Texture irisée", "Iridescent texture"]
   ],
   "Pale Yellow": [
-    ["Tracé brillant en jaune pâle", "Glossy lines in pale yellow"],
-    ["Nappe éthérée en jaune pâle", "Ethereal overlay in pale yellow"],
-    ["Esthétique brillante en jaune pâle", "Glossy aesthetic in pale yellow"],
-    ["Dégradé champêtre en jaune pâle", "Rustic gradient in pale yellow"],
-    ["Dessin digital en jaune pâle", "Digital design in pale yellow"]
+    ["Tracé brillant", "Glossy lines"],
+    ["Nappe éthérée", "Ethereal overlay"],
+    ["Esthétique brillante", "Glossy aesthetic"],
+    ["Dégradé champêtre", "Rustic gradient"],
+    ["Dessin digital", "Digital design"]
   ],
   "Soft Lavender": [
-    ["Effet givré en lavande douce", "Frosted effect in soft lavender"],
-    ["Texture gothique en lavande douce", "Gothic texture in soft lavender"],
-    ["Voile galactique en lavande douce", "Galactic veil in soft lavender"],
-    ["Forme pixelisée en lavande douce", "Pixelated shape in soft lavender"],
-    ["Nappe aquatique en lavande douce", "Aquatic overlay in soft lavender"]
+    ["Effet givré", "Frosted effect"],
+    ["Texture gothique", "Gothic texture"],
+    ["Voile galactique", "Galactic veil"],
+    ["Forme pixelisée", "Pixelated shape"],
+    ["Nappe aquatique", "Aquatic overlay"]
   ],
   "Pastel Coral": [
-    ["Dessin mystique en corail pastel", "Mystical design in pastel coral"],
-    ["Effet tropical en corail pastel", "Tropical effect in pastel coral"],
-    ["Style tribal en corail pastel", "Tribal style in pastel coral"],
-    ["Texture linéaire en corail pastel", "Linear texture in pastel coral"],
-    ["Finition ondulée en corail pastel", "Wavy finish in pastel coral"]
+    ["Dessin mystique", "Mystical design"],
+    ["Effet tropical", "Tropical effect"],
+    ["Style tribal", "Tribal style"],
+    ["Texture linéaire", "Linear texture"],
+    ["Finition ondulée", "Wavy finish"]
   ],
   "Light Pistachio": [
-    ["Voile pixelisé en pistache claire", "Pixelated veil in light pistachio"],
-    ["Style scandinave en pistache claire", "Scandinavian style in light pistachio"],
-    ["Finition irisée en pistache claire", "Iridescent finish in light pistachio"],
-    ["Texture holographique en pistache claire", "Holographic texture in light pistachio"],
-    ["Dégradé givré en pistache claire", "Frosted gradient in light pistachio"]
+    ["Voile pixelisé", "Pixelated veil"],
+    ["Style scandinave", "Scandinavian style"],
+    ["Finition irisée", "Iridescent finish"],
+    ["Texture holographique", "Holographic texture"],
+    ["Dégradé givré", "Frosted gradient"]
   ],
   "Pearl Grey": [
-    ["Motif lunaire en gris perle", "Lunar pattern in pearl grey"],
-    ["Finition perlée en gris perle", "Pearly finish in pearl grey"],
-    ["Esthétique calligraphiée en gris perle", "Calligraphic aesthetic in pearl grey"],
-    ["Voile champêtre en gris perle", "Rustic veil in pearl grey"],
-    ["Dégradé poétique en gris perle", "Poetic gradient in pearl grey"]
+    ["Motif lunaire", "Lunar pattern"],
+    ["Finition perlée", "Pearly finish"],
+    ["Esthétique calligraphiée", "Calligraphic aesthetic"],
+    ["Voile champêtre", "Rustic veil"],
+    ["Dégradé poétique", "Poetic gradient"]
   ],
   "Soft Vanilla": [
-    ["Effet poudré en vanille douce", "Powdered effect in soft vanilla"],
-    ["Tracé cosmique en vanille douce", "Cosmic lines in soft vanilla"],
-    ["Silhouette fruitée en vanille douce", "Fruity silhouette in soft vanilla"],
-    ["Nappe givrée en vanille douce", "Frosted overlay in soft vanilla"],
-    ["Style bohème en vanille douce", "Bohemian style in soft vanilla"]
+    ["Effet poudré", "Powdered effect"],
+    ["Tracé cosmique", "Cosmic lines"],
+    ["Silhouette fruitée", "Fruity silhouette"],
+    ["Nappe givrée", "Frosted overlay"],
+    ["Style bohème", "Bohemian style"]
   ],
 
   // Neutres Minimalistes / Minimalist Neutrals
   "Latte Beige": [
-    ["Dessin gothique en beige latte", "Gothic design in latte beige"],
-    ["Effet digital en beige latte", "Digital effect in latte beige"],
-    ["Texture animalier en beige latte", "Animal texture in latte beige"],
-    ["Dégradé pastel en beige latte", "Pastel gradient in latte beige"],
-    ["Style néon en beige latte", "Neon style in latte beige"]
+    ["Dessin gothique", "Gothic design"],
+    ["Effet digital", "Digital effect"],
+    ["Texture animalier", "Animal texture"],
+    ["Dégradé pastel", "Pastel gradient"],
+    ["Style néon", "Neon style"]
   ],
   "Cool Taupe": [
-    ["Voile vintage en taupe froid", "Vintage veil in cool taupe"],
-    ["Style poétique en taupe froid", "Poetic style in cool taupe"],
-    ["Motif tropical en taupe froid", "Tropical pattern in cool taupe"],
-    ["Nappe mat en taupe froid", "Matte overlay in cool taupe"],
-    ["Esthétique cosmique en taupe froid", "Cosmic aesthetic in cool taupe"]
+    ["Voile vintage", "Vintage veil"],
+    ["Style poétique", "Poetic style"],
+    ["Motif tropical", "Tropical pattern"],
+    ["Nappe mat", "Matte overlay"],
+    ["Esthétique cosmique", "Cosmic aesthetic"]
   ],
   "Stone Grey": [
-    ["Relief floral en gris pierre", "Floral relief in stone grey"],
-    ["Tracé aquatique en gris pierre", "Aquatic lines in stone grey"],
-    ["Finition lunaire en gris pierre", "Lunar finish in stone grey"],
-    ["Forme dynamique en gris pierre", "Dynamic shape in stone grey"],
-    ["Graphisme givré en gris pierre", "Frosted graphics in stone grey"]
+    ["Relief floral", "Floral relief"],
+    ["Tracé aquatique", "Aquatic lines"],
+    ["Finition lunaire", "Lunar finish"],
+    ["Forme dynamique", "Dynamic shape"],
+    ["Graphisme givré", "Frosted graphics"]
   ],
   "Cappuccino Brown": [
-    ["Texture glacée en brun cappuccino", "Frosted texture in cappuccino brown"],
-    ["Dégradé pixelisé en brun cappuccino", "Pixelated gradient in cappuccino brown"],
-    ["Effet linéaire en brun cappuccino", "Linear effect in cappuccino brown"],
-    ["Finition calligraphiée en brun cappuccino", "Calligraphic finish in cappuccino brown"],
-    ["Esthétique gothique en brun cappuccino", "Gothic aesthetic in cappuccino brown"]
+    ["Texture glacée", "Frosted texture"],
+    ["Dégradé pixelisé", "Pixelated gradient"],
+    ["Effet linéaire", "Linear effect"],
+    ["Finition calligraphiée", "Calligraphic finish"],
+    ["Esthétique gothique", "Gothic aesthetic"]
   ],
   "Nude Cream": [
-    ["Dessin digital en crème nude", "Digital design in nude cream"],
-    ["Forme pastel en crème nude", "Pastel shape in nude cream"],
-    ["Voile galactique en crème nude", "Galactic veil in nude cream"],
-    ["Nappe néon en crème nude", "Neon overlay in nude cream"],
-    ["Graphisme tribal en crème nude", "Tribal graphics in nude cream"]
+    ["Dessin digital", "Digital design"],
+    ["Forme pastel", "Pastel shape"],
+    ["Voile galactique", "Galactic veil"],
+    ["Nappe néon", "Neon overlay"],
+    ["Graphisme tribal", "Tribal graphics"]
   ],
 
   // Chromes & Metallics
   "Liquid Silver": [
-    ["Style givré en argent liquide", "Frosted style in liquid silver"],
-    ["Tracé brillant en argent liquide", "Glossy lines in liquid silver"],
-    ["Nappe lunaire en argent liquide", "Lunar overlay in liquid silver"],
-    ["Texture tropicale en argent liquide", "Tropical texture in liquid silver"],
-    ["Finition digitale en argent liquide", "Digital finish in liquid silver"]
+    ["Style givré", "Frosted style"],
+    ["Tracé brillant", "Glossy lines"],
+    ["Nappe lunaire", "Lunar overlay"],
+    ["Texture tropicale", "Tropical texture"],
+    ["Finition digitale", "Digital finish"]
   ],
   "Rose Gold": [
-    ["Motif tribal en or rose", "Tribal pattern in rose gold"],
-    ["Esthétique aquatique en or rose", "Aquatic aesthetic in rose gold"],
-    ["Voile pixelisé en or rose", "Pixelated veil in rose gold"],
-    ["Effet holographique en or rose", "Holographic effect in rose gold"],
-    ["Dégradé mystique en or rose", "Mystical gradient in rose gold"]
+    ["Motif tribal", "Tribal pattern"],
+    ["Esthétique aquatique", "Aquatic aesthetic"],
+    ["Voile pixelisé", "Pixelated veil"],
+    ["Effet holographique", "Holographic effect"],
+    ["Dégradé mystique", "Mystical gradient"]
   ],
   "Holographic Chrome": [
-    ["Graphisme galactique en chrome holographique", "Galactic graphics in holographic chrome"],
-    ["Forme néon en chrome holographique", "Neon shape in holographic chrome"],
-    ["Texture poétique en chrome holographique", "Poetic texture in holographic chrome"],
-    ["Relief digital en chrome holographique", "Digital relief in holographic chrome"],
-    ["Style pastel en chrome holographique", "Pastel style in holographic chrome"]
+    ["Graphisme galactique", "Galactic graphics"],
+    ["Forme néon", "Neon shape"],
+    ["Texture poétique", "Poetic texture"],
+    ["Relief digital", "Digital relief"],
+    ["Style pastel", "Pastel style"]
   ],
   "Beetle Green": [
-    ["Dessin gothique en vert scarabée", "Gothic design in beetle green"],
-    ["Nappe givrée en vert scarabée", "Frosted overlay in beetle green"],
-    ["Effet cosmique en vert scarabée", "Cosmic effect in beetle green"],
-    ["Tracé bohème en vert scarabée", "Bohemian lines in beetle green"],
-    ["Voile organique en vert scarabée", "Organic veil in beetle green"]
+    ["Dessin gothique", "Gothic design"],
+    ["Nappe givrée", "Frosted overlay"],
+    ["Effet cosmique", "Cosmic effect"],
+    ["Tracé bohème", "Bohemian lines"],
+    ["Voile organique", "Organic veil"]
   ],
   "Metallic Copper": [
-    ["Texture champêtre en cuivre métallique", "Rustic texture in metallic copper"],
-    ["Dégradé pixelisé en cuivre métallique", "Pixelated gradient in metallic copper"],
-    ["Style lunaire en cuivre métallique", "Lunar style in metallic copper"],
-    ["Esthétique tribale en cuivre métallique", "Tribal aesthetic in metallic copper"],
-    ["Motif ondulé en cuivre métallique", "Wavy pattern in metallic copper"]
+    ["Texture champêtre", "Rustic texture"],
+    ["Dégradé pixelisé", "Pixelated gradient"],
+    ["Style lunaire", "Lunar style"],
+    ["Esthétique tribale", "Tribal aesthetic"],
+    ["Motif ondulé", "Wavy pattern"]
   ]
 };
 
