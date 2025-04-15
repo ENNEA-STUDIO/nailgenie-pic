@@ -3,16 +3,32 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import { Progress } from "@/components/ui/progress";
+import { getColorNameFromHex } from '@/utils/colorUtils';
 
 interface NailPolishLoaderProps {
   text?: string;
   timeoutMessage?: boolean;
+  color?: string;
 }
 
-const NailPolishLoader: React.FC<NailPolishLoaderProps> = ({ text, timeoutMessage = false }) => {
+const NailPolishLoader: React.FC<NailPolishLoaderProps> = ({ 
+  text, 
+  timeoutMessage = false,
+  color = "#FF69B4" // Default to pink if no color provided
+}) => {
   const [fillPercentage, setFillPercentage] = useState(0);
   const [showTimeoutMessage, setShowTimeoutMessage] = useState(false);
   const { t, language } = useLanguage();
+  
+  // Handle gradient colors for the nail polish visualization
+  const displayColor = color.includes("gradient") 
+    ? color.split("_gradient")[0] // Extract base color from gradient string
+    : color;
+  
+  // For the progress bar, use a gradient if available
+  const progressColor = color.includes("gradient")
+    ? "bg-gradient-to-r from-pink-300 to-pink-500" // Keep default gradient
+    : "";
   
   // Animate the fill level of the nail polish
   useEffect(() => {
@@ -55,11 +71,12 @@ const NailPolishLoader: React.FC<NailPolishLoaderProps> = ({ text, timeoutMessag
           
           {/* Bottle Body */}
           <div className="absolute bottom-0 left-0 right-0 mx-auto w-20 h-24 bg-transparent border-2 border-gray-300 rounded-b-lg overflow-hidden">
-            {/* Fill Level - Animated */}
+            {/* Fill Level - Animated with dynamic color */}
             <motion.div 
-              className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-pink-400 to-pink-300"
+              className="absolute bottom-0 left-0 right-0"
               style={{ 
                 height: `${fillPercentage}%`,
+                backgroundColor: displayColor,
                 transition: "height 0.5s ease-in-out" 
               }}
             />
@@ -71,8 +88,11 @@ const NailPolishLoader: React.FC<NailPolishLoaderProps> = ({ text, timeoutMessag
           {/* Brush Handle */}
           <div className="absolute top-5 left-0 right-0 mx-auto w-2 h-14 bg-gray-200 z-5" />
           
-          {/* Brush */}
-          <div className="absolute top-19 left-0 right-0 mx-auto w-3 h-5 bg-gradient-to-b from-pink-300 to-pink-400 rounded-b-lg z-5" />
+          {/* Brush with dynamic color */}
+          <div 
+            className="absolute top-19 left-0 right-0 mx-auto w-3 h-5 rounded-b-lg z-5"
+            style={{ backgroundColor: displayColor }}
+          />
         </div>
       </div>
       
@@ -89,7 +109,10 @@ const NailPolishLoader: React.FC<NailPolishLoaderProps> = ({ text, timeoutMessag
         
         <div className="w-64 mx-auto">
           <Progress value={fillPercentage} className="h-2 bg-pink-100">
-            <div className="h-full bg-gradient-to-r from-pink-300 to-pink-500" />
+            <div 
+              className={`h-full ${progressColor}`} 
+              style={!progressColor ? { backgroundColor: displayColor } : {}}
+            />
           </Progress>
         </div>
       </div>

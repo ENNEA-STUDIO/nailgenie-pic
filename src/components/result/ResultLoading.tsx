@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import NailPolishLoader from '../loaders/NailPolishLoader';
+import { useApp } from '@/context/AppContext';
 
 interface ResultLoadingProps {
   prompt: string;
@@ -11,6 +12,7 @@ interface ResultLoadingProps {
 const ResultLoading: React.FC<ResultLoadingProps> = ({ prompt }) => {
   const { t } = useLanguage();
   const [showTimeoutMessage, setShowTimeoutMessage] = useState(false);
+  const { nailColor } = useApp();
   
   // Show timeout message after 10 seconds
   useEffect(() => {
@@ -28,7 +30,11 @@ const ResultLoading: React.FC<ResultLoadingProps> = ({ prompt }) => {
       className="glass-card rounded-3xl overflow-hidden p-8 flex flex-col items-center justify-center max-w-md w-full"
       style={{ height: 'auto', minHeight: '320px' }}
     >
-      <NailPolishLoader text={t.result.working} timeoutMessage={showTimeoutMessage} />
+      <NailPolishLoader 
+        text={t.result.working} 
+        timeoutMessage={showTimeoutMessage} 
+        color={nailColor}
+      />
       
       <p className="text-sm text-muted-foreground text-center max-w-xs mt-2">
         {showTimeoutMessage 
