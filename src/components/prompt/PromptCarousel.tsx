@@ -8,8 +8,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 
 interface PromptCarouselProps {
@@ -80,10 +78,6 @@ const PromptCarousel: React.FC<PromptCarouselProps> = ({
             </CarouselItem>
           ))}
         </CarouselContent>
-        <div className="flex justify-center mt-4">
-          <CarouselPrevious className="relative inset-auto mr-2" />
-          <CarouselNext className="relative inset-auto ml-2" />
-        </div>
       </Carousel>
     </div>
   );
