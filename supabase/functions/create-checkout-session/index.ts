@@ -55,51 +55,72 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Get price info to determine if it's recurring
-    const price = await stripe.prices.retrieve(priceId);
-    const isRecurring = price.type === 'recurring';
-    
-    // Always honor the explicitly requested mode if provided
-    const mode = requestedMode || (isRecurring ? 'subscription' : 'payment');
-    
-    console.log(`Price ${priceId} is ${isRecurring ? 'recurring' : 'one-time'}, using mode: ${mode}`);
-    
-    // Validate mode and price type compatibility
-    if (mode === 'payment' && isRecurring) {
-      throw new Error('Cannot use payment mode with a recurring price. Use subscription mode instead.');
-    }
-    
-    if (mode === 'subscription' && !isRecurring) {
-      throw new Error('Cannot use subscription mode with a one-time price. Use payment mode instead.');
-    }
-    
-    // Create a checkout session with the appropriate mode
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      customer_email: customerId ? undefined : user.email,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: mode,
-      success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get('origin')}/buy-credits`,
-      metadata: {
-        userId: user.id,
-        mode: mode, // Store the mode in metadata
-      },
-    });
-
-    console.log('Payment session created:', session.id);
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
+    try {
+      // Get price info to determine if it's recurring
+      const price = await stripe.prices.retrieve(priceId);
+      const isRecurring = price.type === 'recurring';
+      
+      // Determine the appropriate mode based on price type
+      let mode;
+      
+      // If a mode was explicitly requested, use it
+      if (requestedMode) {
+        mode = requestedMode;
+        console.log(`Using explicitly requested mode: ${mode}`);
+        
+        // Validate mode and price type compatibility
+        if (mode === 'payment' && isRecurring) {
+          throw new Error('Cannot use payment mode with a recurring price. Use subscription mode instead.');
+        }
+        
+        if (mode === 'subscription' && !isRecurring) {
+          throw new Error('Cannot use subscription mode with a one-time price. Use payment mode instead.');
+        }
+      } else {
+        // Auto-detect mode based on price type if no mode was requested
+        mode = isRecurring ? 'subscription' : 'payment';
+        console.log(`Auto-detected mode: ${mode} based on price type: ${isRecurring ? 'recurring' : 'one-time'}`);
       }
-    );
+      
+      console.log(`Creating ${mode} session for price ${priceId}`);
+      
+      // Create a checkout session with the appropriate mode
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        customer_email: customerId ? undefined : user.email,
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        mode: mode,
+        success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.headers.get('origin')}/buy-credits`,
+        metadata: {
+          userId: user.id,
+          mode: mode, // Store the mode in metadata
+        },
+      });
+
+      console.log('Payment session created:', session.id);
+      return new Response(
+        JSON.stringify({ url: session.url }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    } catch (stripeError) {
+      console.error('Stripe API error:', stripeError);
+      return new Response(
+        JSON.stringify({ error: `Stripe error: ${stripeError.message}` }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400, // Use 400 for client errors
+        }
+      );
+    }
   } catch (error) {
     console.error('Error creating payment session:', error);
     return new Response(
