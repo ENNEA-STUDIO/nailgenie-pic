@@ -46,7 +46,13 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     bestValue: 'Meilleure valeur',
     comingSoon: 'Bientôt disponible',
     shareText: 'Rejoignez-moi sur GeNails et obtenez 5 crédits gratuits!',
-    errorGeneratingCode: 'Erreur lors de la génération du code d\'invitation'
+    errorGeneratingCode: 'Erreur lors de la génération du code d\'invitation',
+    // Add missing translations for unlimited subscription
+    unlimitedSubscription: 'Abonnement illimité',
+    unlimitedSubscriptionExplainer: 'Votre abonnement vous permet de générer un nombre illimité de designs',
+    unlimited: 'Illimité',
+    active: 'Actif',
+    alreadySubscribed: 'Déjà abonné'
   },
   en: {
     buyCredits: 'Buy Credits',
@@ -92,6 +98,12 @@ export const creditsTranslations: Record<Language, CreditsTranslations> = {
     bestValue: 'Best value',
     comingSoon: 'Coming soon',
     shareText: 'Join me on GeNails and get 5 free credits!',
-    errorGeneratingCode: 'Error generating invitation code'
+    errorGeneratingCode: 'Error generating invitation code',
+    // Add missing translations for unlimited subscription
+    unlimitedSubscription: 'Unlimited Subscription',
+    unlimitedSubscriptionExplainer: 'Your subscription allows you to generate unlimited designs',
+    unlimited: 'Unlimited',
+    active: 'Active',
+    alreadySubscribed: 'Already subscribed'
   }
 };

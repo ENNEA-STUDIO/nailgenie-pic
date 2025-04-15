@@ -38,6 +38,7 @@ interface AppContextType {
   nailLength: NailLength;
   nailColor: string;
   credits: number;
+  hasUnlimitedSubscription: boolean;
   setHandImage: (image: string | null) => void;
   setGeneratedDesign: (design: string | null) => void;
   setPrompt: (prompt: string) => void;
@@ -91,9 +92,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [nailColor, setNailColor] = useState<string>("#E6CCAF"); // Beige as default
   const [credits, setCredits] = useState<number>(0);
   const [isProcessingInvitation, setIsProcessingInvitation] = useState<boolean>(false);
+  const [hasUnlimitedSubscription, setHasUnlimitedSubscription] = useState<boolean>(false);
 
   useEffect(() => {
     checkCredits();
+    checkSubscription();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -150,9 +153,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           } else {
             // No invite code, just check credits
             checkCredits();
+            checkSubscription();
           }
         } else if (event === "SIGNED_OUT") {
           setCredits(0);
+          setHasUnlimitedSubscription(false);
         }
       }
     );
@@ -160,6 +165,37 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     return () => {
       authListener.subscription.unsubscribe();
     };
+  }, []);
+
+  // Check if the user has an active unlimited subscription
+  const checkSubscription = useCallback(async (): Promise<void> => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setHasUnlimitedSubscription(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user_subscriptions")
+        .select("status, price_id")
+        .eq("user_id", sessionData.session.user.id)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking subscription:", error);
+        setHasUnlimitedSubscription(false);
+        return;
+      }
+
+      // If user has an active subscription, set hasUnlimitedSubscription to true
+      setHasUnlimitedSubscription(!!data);
+      console.log("User subscription status:", data ? "Active" : "None");
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+      setHasUnlimitedSubscription(false);
+    }
   }, []);
 
   const checkCredits = useCallback(async (): Promise<number> => {
@@ -593,6 +629,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     nailLength,
     nailColor,
     credits,
+    hasUnlimitedSubscription,
     setHandImage,
     setGeneratedDesign,
     setPrompt,

@@ -194,4 +194,11 @@ export interface CreditsTranslations {
   comingSoon: string;
   shareText: string;
   errorGeneratingCode: string;
+  // Add missing properties for unlimited subscription
+  unlimitedSubscription: string;
+  unlimitedSubscriptionExplainer: string;
+  unlimited: string;
+  active: string;
+  alreadySubscribed: string;
 }
+
