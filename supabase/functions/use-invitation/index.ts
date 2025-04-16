@@ -131,33 +131,17 @@ serve(async (req) => {
       );
     }
 
-    // Add or update credits
-    if (existingCredits) {
-      // Update existing credits - ajout de seulement 5 crédits bonus
-      const { error: updateError } = await supabaseClient.rpc(
-        "add_user_credits",
-        {
-          user_id_param: newUserId,
-          credits_to_add: 5,
-        }
-      );
-
-      if (updateError) {
-        throw new Error(
-          `Failed to update user credits: ${updateError.message}`
-        );
+    // Toujours ajouter 10 crédits pour une invitation, peu importe si l'utilisateur en a déjà
+    const { error: updateError } = await supabaseClient.rpc(
+      "add_user_credits",
+      {
+        user_id_param: newUserId,
+        credits_to_add: 10,
       }
-    } else {
-      // Create new credits entry - 10 crédits au total (5 base + 5 bonus)
-      const { error: newUserError } = await supabaseClient
-        .from("user_credits")
-        .insert({ user_id: newUserId, credits: 10 });
+    );
 
-      if (newUserError) {
-        throw new Error(
-          `Failed to add credits to new user: ${newUserError.message}`
-        );
-      }
+    if (updateError) {
+      throw new Error(`Failed to update user credits: ${updateError.message}`);
     }
 
     // Add credits to referrer
