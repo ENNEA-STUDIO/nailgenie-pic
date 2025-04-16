@@ -28,10 +28,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
   if (!generatedDesign) return null;
   
   const showFeedback = (type: 'success' | 'error', message: string) => {
-    setFeedback({ type, message, visible: true });
-    setTimeout(() => {
-      setFeedback(prev => prev ? { ...prev, visible: false } : null);
-    }, 2000);
+    console.log(message);
   };
   
   const handleShare = async () => {
@@ -125,10 +122,10 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
     try {
       await downloadDesignImage(generatedDesign, 0);
       
-      showFeedback('success', t.result.downloadSuccess);
+      console.log(t.result.downloadSuccess);
     } catch (error) {
       console.error("Error during download:", error);
-      showFeedback('error', t.result.downloadError || "Erreur lors du téléchargement");
+      console.log(t.result.downloadError || "Erreur lors du téléchargement");
     }
   };
   
@@ -138,7 +135,7 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
       
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
-        showFeedback('error', t.common.connectionRequired);
+        console.log(t.common.connectionRequired);
         setSaving(false);
         return;
       }
@@ -160,10 +157,10 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
         
       if (error) throw error;
       
-      showFeedback('success', t.result.savedSuccess);
+      console.log(t.result.savedSuccess);
     } catch (error) {
       console.error("Error saving design:", error);
-      showFeedback('error', t.result.savedError);
+      console.log(t.result.savedError);
     } finally {
       setSaving(false);
     }
@@ -287,26 +284,6 @@ const ResultPreview: React.FC<ResultPreviewProps> = ({ onTryAgain }) => {
           </AnimatePresence>
         </Button>
       </div>
-      
-      <AnimatePresence>
-        {feedback && feedback.visible && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className={`absolute bottom-[-40px] left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full shadow-lg flex items-center space-x-2 ${
-              feedback.type === 'success' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-            }`}
-          >
-            {feedback.type === 'success' ? (
-              <CheckCircle className="w-5 h-5 text-green-600" />
-            ) : (
-              <XCircle className="w-5 h-5 text-red-600" />
-            )}
-            <span className="text-sm font-medium">{feedback.message}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 };
