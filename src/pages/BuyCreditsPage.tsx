@@ -21,7 +21,7 @@ import LogoutButton from '@/components/auth/LogoutButton';
 type OfferType = 'credits' | 'subscription';
 
 const CREDITS_PRICE_ID = 'price_1RFhQsRPaiGxQ05lwHGqPB1j';
-const PREMIUM_CREDITS_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
+const PREMIUM_CREDITS_PRICE_ID = 'price_1RFhRPRPaiGxQ05levZDTe5z';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, hasUnlimitedSubscription, subscriptionStart, subscriptionEnd, checkCredits, checkSubscription } = useApp();
@@ -81,7 +81,7 @@ const BuyCreditsPage: React.FC = () => {
             
             <CardContent className="pb-2">
               <div className="flex items-center mb-3">
-                <span className="text-3xl font-bold text-primary">{t.credits.creditPackPrice}</span>
+                <span className="text-3xl font-bold text-primary">2,99 €</span>
               </div>
               
               <ul className="space-y-2">
@@ -95,7 +95,7 @@ const BuyCreditsPage: React.FC = () => {
             <CardFooter>
               <StripeCheckout
                 priceId={CREDITS_PRICE_ID}
-                buttonText={t.credits.creditPackPrice}
+                buttonText="2,99 €"
                 isProcessing={isProcessing && processingOption === 'credits'}
                 showSuccess={showSuccess}
               />
@@ -125,7 +125,8 @@ const BuyCreditsPage: React.FC = () => {
           
           <CardContent className="pb-2">
             <div className="flex items-center mb-3">
-              <span className="text-3xl font-bold text-primary">{t.credits.unlimitedPlanPrice}</span>
+              <span className="text-3xl font-bold text-primary">8,99 €</span>
+              <span className="text-sm text-muted-foreground ml-2">/mois</span>
             </div>
             
             <ul className="space-y-2">
@@ -162,7 +163,7 @@ const BuyCreditsPage: React.FC = () => {
             ) : (
               <StripeSubscription
                 priceId={PREMIUM_CREDITS_PRICE_ID}
-                buttonText={t.credits.unlimitedPlanPrice}
+                buttonText="8,99 €/mois"
                 isProcessing={isProcessing && processingOption === 'subscription'}
                 showSuccess={showSuccess}
               />
