@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -21,7 +20,7 @@ import LogoutButton from '@/components/auth/LogoutButton';
 
 type OfferType = 'credits' | 'subscription';
 
-const CREDITS_PRICE_ID = 'price_1R93tLGpMCOJlOLHI0oU3mkY';
+const CREDITS_PRICE_ID = 'price_1RFhQsRPaiGxQ05lwHGqPB1j';
 const PREMIUM_CREDITS_PRICE_ID = 'price_1RDnGiGpMCOJlOLHek9KvjVv';
 
 const BuyCreditsPage: React.FC = () => {
