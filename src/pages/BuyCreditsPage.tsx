@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -15,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import LogoutButton from '@/components/auth/LogoutButton';
-import MollieCardSetupForm from '@/components/credits/MollieCardSetupForm';
+import MollieSubscriptionDialog from '@/components/credits/MollieSubscriptionDialog';
 
 type OfferType = 'credits' | 'subscription';
 
@@ -26,6 +25,7 @@ const BuyCreditsPage: React.FC = () => {
   const [selectedOffer, setSelectedOffer] = useState<OfferType | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
   
   const formatDate = (dateString: string | null) => {
     if (!dateString) return null;
@@ -41,28 +41,25 @@ const BuyCreditsPage: React.FC = () => {
   
   const handlePaymentClick = (type: OfferType) => {
     setSelectedOffer(type);
+    setShowDialog(true);
   };
   
   const handlePaymentSuccess = () => {
     setIsProcessing(false);
     setShowSuccess(true);
     
-    // Mettre à jour les crédits ou l'abonnement
+    // Update credits or subscription info
     if (selectedOffer === 'credits') {
       checkCredits();
     } else {
       checkSubscription();
     }
     
-    // Réinitialiser après un moment
+    // Reset after a moment
     setTimeout(() => {
       setShowSuccess(false);
       setSelectedOffer(null);
     }, 3000);
-  };
-  
-  const handleCancelPayment = () => {
-    setSelectedOffer(null);
   };
   
   return (
@@ -86,43 +83,8 @@ const BuyCreditsPage: React.FC = () => {
       </div>
       
       <div className="flex-1 space-y-6">
-        {/* Affichage du formulaire de paiement s'il y a une offre sélectionnée */}
-        {selectedOffer && (
-          <Card className="border-2 border-primary">
-            <CardHeader>
-              <CardTitle>
-                {selectedOffer === 'credits' 
-                  ? (language === 'fr' ? 'Pack de 10 crédits' : '10 Credits Pack') 
-                  : (language === 'fr' ? 'Abonnement Illimité' : 'Unlimited Subscription')}
-              </CardTitle>
-              <CardDescription>
-                {selectedOffer === 'credits'
-                  ? (language === 'fr' ? 'Paiement unique de 2,99 €' : 'One-time payment of €2.99')
-                  : (language === 'fr' ? 'Abonnement mensuel à 8,99 €' : 'Monthly subscription at €8.99')}
-              </CardDescription>
-            </CardHeader>
-            
-            <CardContent>
-              <MollieCardSetupForm 
-                isSubscription={selectedOffer === 'subscription'} 
-                onSuccess={handlePaymentSuccess}
-                amount={selectedOffer === 'credits' ? '2,99 €' : '8,99 €'}
-              />
-            </CardContent>
-            
-            <CardFooter>
-              <Button 
-                variant="ghost"
-                className="w-full"
-                onClick={handleCancelPayment}
-              >
-                {language === 'fr' ? 'Annuler' : 'Cancel'}
-              </Button>
-            </CardFooter>
-          </Card>
-        )}
-        
-        {!selectedOffer && !hasUnlimitedSubscription && (
+        {/* Credit Pack Card */}
+        {!hasUnlimitedSubscription && (
           <Card className="border-2 overflow-hidden">
             <CardHeader className="pb-2">
               <Badge variant="outline" className="w-fit mb-2">
@@ -175,6 +137,7 @@ const BuyCreditsPage: React.FC = () => {
           </Card>
         )}
         
+        {/* Subscription Card */}
         <Card className={`border-2 ${hasUnlimitedSubscription ? 'border-green-500' : 'border-primary/50'} overflow-hidden relative`}>
           <div className="absolute top-0 right-0">
             <Badge className="m-2 bg-primary">
@@ -259,6 +222,14 @@ const BuyCreditsPage: React.FC = () => {
         
         <InvitationSection />
       </div>
+      
+      {/* Payment Dialog */}
+      <MollieSubscriptionDialog 
+        open={showDialog}
+        onOpenChange={setShowDialog}
+        isSubscription={selectedOffer === 'subscription'}
+        onSuccess={handlePaymentSuccess}
+      />
       
       <div className="flex justify-center mb-20">
         <LogoutButton 

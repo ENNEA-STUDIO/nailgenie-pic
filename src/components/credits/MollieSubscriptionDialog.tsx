@@ -5,7 +5,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useMollie } from '@/hooks/useMollie';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
@@ -22,102 +22,57 @@ type Props = {
 export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscription, onSuccess }: Props) {
   const { t, language } = useLanguage();
   const { checkCredits, checkSubscription } = useApp();
-  const { mollie, error: mollieErr } = useMollie();
-
-  const holder = useRef<HTMLDivElement>(null);
-  const number = useRef<HTMLDivElement>(null);
-  const expiry = useRef<HTMLDivElement>(null);
-  const cvc    = useRef<HTMLDivElement>(null);
-
-  const [mounted, setMounted] = useState(false);
+  
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', email: '' });
 
-  useEffect(() => {
-    // Reset form and error states when dialog opens/closes
-    if (!open) {
-      setMounted(false);
-      setError(null);
-    }
-  }, [open]);
-
-  // Mount Mollie components when dialog opens
-  function mountMollie() {
-    if (!open || mounted || !mollie) return;
-    
-    try {
-      const components = {
-        holder: mollie.createComponent('cardHolder'),
-        number: mollie.createComponent('cardNumber'),
-        expiry: mollie.createComponent('expiryDate'),
-        cvc:    mollie.createComponent('verificationCode'),
-      };
-      
-      components.holder.mount(holder.current);
-      components.number.mount(number.current);
-      components.expiry.mount(expiry.current);
-      components.cvc.mount(cvc.current);
-      
-      setMounted(true);
-    } catch (err) {
-      console.error('Error mounting Mollie components:', err);
-      setError(language === 'fr' 
-        ? "Erreur lors du chargement des composants de paiement." 
-        : "Error loading payment components.");
-    }
-  }
-
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!mollie) return;
-
     setPending(true);
     setError(null);
 
     try {
-      const { token } = await mollie.createToken();
-      console.log('Card token created:', token);
+      const endpoint = isSubscription ? 'mollie-setup-subscription' : 'mollie-create-payment';
       
-      // Call appropriate Edge Function based on product type
-      const functionName = isSubscription ? 'mollie-setup-subscription' : 'mollie-create-payment';
-      const amount = isSubscription ? '8.99' : '2.99';
-      const description = isSubscription 
-        ? 'GeNails Unlimited Monthly Subscription' 
-        : 'GeNails 10 Credits Pack';
+      console.log(`Calling ${endpoint} endpoint with:`, form);
       
-      const { data, error: fnError } = await supabase.functions.invoke(
-        functionName,
-        {
-          body: {
-            name: form.name,
-            email: form.email,
-            cardToken: token,
-            amountValue: amount,
-            amountCurrency: 'EUR',
-            description: description,
-            interval: isSubscription ? '1 month' : undefined,
-            webhookUrl: "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook",
-          },
-        },
-      );
+      const { data, error } = await supabase.functions.invoke(endpoint, {
+        body: { 
+          name: form.name,
+          email: form.email
+        }
+      });
       
-      if (fnError) {
-        throw fnError;
+      console.log(`${endpoint} response:`, data, error);
+      
+      if (error) {
+        console.error(`Error calling ${endpoint}:`, error);
+        throw new Error(error.message || `Failed to process ${isSubscription ? 'subscription' : 'payment'}`);
       }
       
-      console.info(isSubscription ? 'Subscription created:' : 'Payment created:', data);
+      if (!data?.success) {
+        throw new Error(data?.error || `Unknown error processing ${isSubscription ? 'subscription' : 'payment'}`);
+      }
       
-      // Refresh user credits/subscription status
+      // If we get a payment URL, redirect to it
+      if (data.url) {
+        console.log("Received Mollie payment URL:", data.url);
+        window.location.href = data.url;
+        return;
+      }
+      
+      // Update credits/subscription status and close the modal
       if (isSubscription) {
         await checkSubscription();
       } else {
         await checkCredits();
       }
       
-      // Close modal and notify user
+      // Close modal
       onOpenChange(false);
       
+      // Show success message
       toast.success(language === 'fr' 
         ? (isSubscription ? 'Abonnement activé avec succès !' : 'Crédits ajoutés avec succès !') 
         : (isSubscription ? 'Subscription activated successfully!' : 'Credits added successfully!'));
@@ -129,35 +84,14 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
       
       // Handle error response
       let errorMessage = typeof err === 'object' ? (err.message || String(err)) : String(err);
-      
-      // Try to extract more detailed error message if available
-      try {
-        if (err && typeof err === 'object' && 'message' in err) {
-          errorMessage = err.message;
-        }
-      } catch {
-        // If anything fails, use generic error message
-        errorMessage = language === 'fr' 
-          ? "Une erreur s'est produite lors du traitement du paiement." 
-          : "An error occurred while processing the payment.";
-      }
-      
       setError(errorMessage);
     } finally {
       setPending(false);
     }
   }
 
-  // Setup dialog open event handler that will mount Mollie components
-  const handleDialogOpenChange = (open: boolean) => {
-    onOpenChange(open);
-    if (open) {
-      setTimeout(mountMollie, 100); // Small delay to ensure dialog is rendered
-    }
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
@@ -176,7 +110,6 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
           </DialogDescription>
         </DialogHeader>
 
-        {mollieErr && <p className="text-destructive">{mollieErr}</p>}
         {error && <p className="text-destructive">{error}</p>}
 
         <form onSubmit={submit} className="grid gap-4">
@@ -194,35 +127,8 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
 
-          <div className="space-y-2">
-            <label className="text-sm text-muted-foreground">
-              {language === 'fr' ? 'Titulaire de la carte' : 'Card holder'}
-            </label>
-            <div ref={holder} className="h-10 border rounded-md p-2" />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm text-muted-foreground">
-              {language === 'fr' ? 'Numéro de carte' : 'Card number'}
-            </label>
-            <div ref={number} className="h-10 border rounded-md p-2" />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">
-                {language === 'fr' ? 'Date d\'expiration' : 'Expiry date'}
-              </label>
-              <div ref={expiry} className="h-10 border rounded-md p-2" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">CVC</label>
-              <div ref={cvc} className="h-10 border rounded-md p-2" />
-            </div>
-          </div>
-
           <DialogFooter className="mt-4">
-            <Button type="submit" disabled={!mollie || pending}>
+            <Button type="submit" disabled={pending}>
               {pending 
                 ? (language === 'fr' ? 'Traitement...' : 'Processing...') 
                 : (isSubscription 
