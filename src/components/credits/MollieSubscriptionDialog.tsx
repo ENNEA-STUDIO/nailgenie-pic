@@ -38,11 +38,15 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
       const productDetails = {
         amount: isSubscription ? "8.99" : "2.99",
         description: isSubscription ? "GeNails Unlimited Monthly Subscription" : "GeNails 10 Credits Pack",
-        redirectBasePath: window.location.origin + "/payment-success",
+        redirectUrl: `${window.location.origin}/payment-success?product=${isSubscription ? "subscription" : "credits"}`,
         productType: isSubscription ? "subscription" : "credits"
       };
       
-      console.log(`Calling ${endpoint} endpoint with:`, { ...form, ...productDetails });
+      console.log(`Calling ${endpoint} endpoint with:`, { 
+        name: form.name,
+        email: form.email,
+        ...productDetails
+      });
       
       const { data, error } = await supabase.functions.invoke(endpoint, {
         body: { 
@@ -50,8 +54,7 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
           email: form.email,
           amount: productDetails.amount,
           description: productDetails.description,
-          redirectUrl: `${productDetails.redirectBasePath}?product=${productDetails.productType}`,
-          // Include product type in metadata
+          redirectUrl: productDetails.redirectUrl,
           productType: productDetails.productType
         }
       });
@@ -64,6 +67,7 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
       }
       
       if (!data?.success) {
+        console.error(`Error in ${endpoint} response:`, data);
         throw new Error(data?.error || `Unknown error processing ${isSubscription ? 'subscription' : 'payment'}`);
       }
       
@@ -74,22 +78,8 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
         return;
       }
       
-      // Update credits/subscription status and close the modal
-      if (isSubscription) {
-        await checkSubscription();
-      } else {
-        await checkCredits();
-      }
-      
-      // Close modal
-      onOpenChange(false);
-      
-      // Show success message
-      toast.success(language === 'fr' 
-        ? (isSubscription ? 'Abonnement activé avec succès !' : 'Crédits ajoutés avec succès !') 
-        : (isSubscription ? 'Subscription activated successfully!' : 'Credits added successfully!'));
-      
-      if (onSuccess) onSuccess();
+      // If we get here without a URL, something went wrong
+      throw new Error(`No payment URL returned from ${endpoint}`);
       
     } catch (err: any) {
       console.error('Payment error:', err);
@@ -97,6 +87,11 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
       // Handle error response
       let errorMessage = typeof err === 'object' ? (err.message || String(err)) : String(err);
       setError(errorMessage);
+      
+      // Display error toast
+      toast.error(language === 'fr' 
+        ? `Erreur de paiement: ${errorMessage}` 
+        : `Payment error: ${errorMessage}`);
     } finally {
       setPending(false);
     }
