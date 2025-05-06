@@ -9,8 +9,14 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper for detailed logging
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[MOLLIE-SETUP-SUBSCRIPTION] ${step}${detailsStr}`);
+};
+
 serve(async (req) => {
-  console.log("mollie-setup-subscription function called");
+  logStep("Function called");
   
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -20,7 +26,7 @@ serve(async (req) => {
   try {
     const mollieApiKey = Deno.env.get("MOLLIE_API_KEY");
     if (!mollieApiKey) {
-      console.error("MOLLIE_API_KEY is not configured");
+      logStep("Error: MOLLIE_API_KEY is not configured");
       return new Response(
         JSON.stringify({ success: false, error: "MOLLIE_API_KEY is not configured" }),
         {
@@ -53,7 +59,7 @@ serve(async (req) => {
     
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      console.error("Missing Authorization header");
+      logStep("Error: Missing Authorization header");
       return new Response(
         JSON.stringify({ success: false, error: "Missing Authorization header" }),
         {
@@ -67,7 +73,7 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     
     if (userError || !userData.user) {
-      console.error("User authentication error:", userError);
+      logStep("Error: User authentication failed", { error: userError });
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -83,7 +89,7 @@ serve(async (req) => {
     const user = userData.user;
     
     if (!user?.email) {
-      console.error("User email not available");
+      logStep("Error: User email not available");
       return new Response(
         JSON.stringify({ success: false, error: "User email not available" }),
         {
@@ -97,8 +103,12 @@ serve(async (req) => {
     let requestBody;
     try {
       requestBody = await req.json();
+      logStep("Request body parsed", { 
+        name: requestBody.name,
+        hasToken: !!requestBody.cardToken 
+      });
     } catch (error) {
-      console.error("Error parsing request body:", error);
+      logStep("Error parsing request body", { error });
       return new Response(
         JSON.stringify({ success: false, error: "Invalid request body" }),
         {
@@ -110,7 +120,7 @@ serve(async (req) => {
 
     const { name } = requestBody;
     
-    console.log(`Setting up subscription for user ${user.id} with email ${user.email}`);
+    logStep(`Setting up subscription for user ${user.id} with email ${user.email}`);
 
     try {
       // 1. Create or retrieve customer
@@ -120,18 +130,25 @@ serve(async (req) => {
       
       if (existingCustomer) {
         customerId = existingCustomer.id;
-        console.log(`Found existing customer with ID: ${customerId}`);
+        logStep(`Found existing customer with ID: ${customerId}`);
       } else {
         const customer = await mollie.customers.create({
           name: name || user.email.split("@")[0],
           email: user.email
         });
         customerId = customer.id;
-        console.log(`Created new customer with ID: ${customerId}`);
+        logStep(`Created new customer with ID: ${customerId}`);
       }
 
-      const webhookUrl = "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/express-webhook";
+      const webhookUrl = "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook";
       const origin = req.headers.get("origin") || "https://genails.app";
+      
+      logStep("Creating initial payment for subscription", {
+        amount: "8.99",
+        customerId,
+        origin,
+        webhookUrl
+      });
       
       // 2. Create the first payment for the subscription
       const payment = await mollie.payments.create({
@@ -143,13 +160,16 @@ serve(async (req) => {
         webhookUrl: webhookUrl,
         metadata: {
           user_id: user.id,
+          is_subscription: true
         },
       });
 
-      console.log(`Created initial payment with ID: ${payment.id}`);
+      logStep(`Created initial payment with ID: ${payment.id}`);
 
       // 3. Create subscription once the first payment is successful
       if (payment.id) {
+        logStep("Setting up recurring subscription");
+        
         // Create a subscription
         const subscription = await mollie.customers_subscriptions.create({
           customerId,
@@ -162,7 +182,7 @@ serve(async (req) => {
           },
         });
         
-        console.log(`Created subscription with ID: ${subscription.id}`);
+        logStep(`Created subscription with ID: ${subscription.id}`);
 
         // Record the subscription in the database
         const { error: subscriptionError } = await supabaseAdmin
@@ -180,8 +200,10 @@ serve(async (req) => {
           });
 
         if (subscriptionError) {
-          console.error("Error recording subscription:", subscriptionError);
+          logStep("Error recording subscription", { error: subscriptionError });
           // Continue anyway, as the subscription is created in Mollie
+        } else {
+          logStep("Subscription recorded in database");
         }
       }
 
@@ -198,7 +220,7 @@ serve(async (req) => {
         }
       );
     } catch (mollieError) {
-      console.error("Mollie API error:", mollieError);
+      logStep("Mollie API error", { error: mollieError.message || mollieError });
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -211,7 +233,7 @@ serve(async (req) => {
       );
     }
   } catch (error) {
-    console.error("General error in setup subscription:", error);
+    logStep("General error", { error: error.message || error });
     return new Response(
       JSON.stringify({ 
         success: false, 

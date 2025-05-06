@@ -9,8 +9,14 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper for detailed logging
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[MOLLIE-CHECK-PAYMENT] ${step}${detailsStr}`);
+};
+
 serve(async (req) => {
-  console.log("mollie-check-payment function called");
+  logStep("Function called");
   
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -20,7 +26,7 @@ serve(async (req) => {
   try {
     const mollieApiKey = Deno.env.get("MOLLIE_API_KEY");
     if (!mollieApiKey) {
-      console.error("MOLLIE_API_KEY is not configured");
+      logStep("Error: MOLLIE_API_KEY is not configured");
       return new Response(
         JSON.stringify({ success: false, error: "MOLLIE_API_KEY is not configured" }),
         {
@@ -37,8 +43,9 @@ serve(async (req) => {
     let requestBody;
     try {
       requestBody = await req.json();
+      logStep("Request body parsed", requestBody);
     } catch (error) {
-      console.error("Error parsing request body:", error);
+      logStep("Error parsing request body", { error });
       return new Response(
         JSON.stringify({ success: false, error: "Invalid request body" }),
         {
@@ -51,7 +58,7 @@ serve(async (req) => {
     // Get the payment ID from the request
     const { paymentId } = requestBody;
     if (!paymentId) {
-      console.error("Payment ID is required");
+      logStep("Error: Payment ID is required");
       return new Response(
         JSON.stringify({ success: false, error: "Payment ID is required" }),
         {
@@ -61,12 +68,16 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Checking payment ID: ${paymentId}`);
+    logStep(`Checking payment ID: ${paymentId}`);
 
     try {
       // Get the payment details from Mollie
       const payment = await mollie.payments.get(paymentId);
-      console.log(`Payment status: ${payment.status}`);
+      logStep(`Payment status: ${payment.status}`, { 
+        id: payment.id, 
+        amount: payment.amount,
+        metadata: payment.metadata
+      });
       
       // Initialize Supabase admin client
       const supabaseAdmin = createClient(
@@ -86,6 +97,7 @@ serve(async (req) => {
         // Try to find the user from the payment metadata
         if (payment.metadata?.user_id) {
           const userId = payment.metadata.user_id;
+          logStep(`Payment successful, adding credits to user: ${userId}`);
           
           // Add credits to the user
           const { data, error } = await supabaseAdmin.rpc("add_user_credits", {
@@ -94,11 +106,13 @@ serve(async (req) => {
           });
           
           if (error) {
-            console.error("Error adding credits:", error);
+            logStep("Error adding credits", { error });
           } else {
-            console.log(`Added 10 credits to user ${userId}`);
+            logStep(`Added 10 credits to user ${userId}`, data);
             creditsAdded = true;
           }
+        } else {
+          logStep("Payment successful but no user_id in metadata", payment.metadata);
         }
       }
 
@@ -119,7 +133,7 @@ serve(async (req) => {
         }
       );
     } catch (mollieError) {
-      console.error("Mollie API error:", mollieError);
+      logStep("Mollie API error", { error: mollieError.message || mollieError });
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -132,7 +146,7 @@ serve(async (req) => {
       );
     }
   } catch (error) {
-    console.error("General error in check payment:", error);
+    logStep("General error", { error: error.message || error });
     return new Response(
       JSON.stringify({ 
         success: false, 
