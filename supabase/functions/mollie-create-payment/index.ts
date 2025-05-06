@@ -68,6 +68,9 @@ serve(async (req) => {
       sequenceType: "first",
       redirectUrl: `${req.headers.get("origin")}/payment-success?payment_id={id}`,
       webhookUrl: `${req.headers.get("origin")}/api/webhook`,
+      metadata: {
+        user_id: user.id, // Include user ID in metadata for webhook processing
+      }
     });
 
     console.log(`Created payment with ID: ${payment.id}`);

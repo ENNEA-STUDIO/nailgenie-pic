@@ -24,7 +24,19 @@ serve(async (req) => {
     // Initialize Mollie client
     const mollie = createMollieClient({ apiKey: mollieApiKey });
 
-    // Retrieve authenticated user
+    // Initialize Supabase client
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
+
+    // Get the authenticated user
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
@@ -39,8 +51,8 @@ serve(async (req) => {
       throw new Error("User not authenticated or email not available");
     }
 
-    const { name, cardToken } = await req.json();
-
+    const { name } = await req.json();
+    
     console.log(`Setting up subscription for user ${user.id} with email ${user.email}`);
 
     // 1. Create or retrieve customer
@@ -60,70 +72,64 @@ serve(async (req) => {
       console.log(`Created new customer with ID: ${customerId}`);
     }
 
-    // 2. Create mandate (creditcard)
-    const mandate = await mollie.customers_mandates.create({
-      customerId,
-      method: "creditcard",
-      cardToken
-    });
-
-    console.log(`Created mandate with status: ${mandate.status}`);
-
-    if (mandate.status !== "valid") {
-      throw new Error(`Invalid mandate status: ${mandate.status}`);
-    }
-
-    // 3. Create subscription
-    const subscription = await mollie.customers_subscriptions.create({
-      customerId,
+    // 2. Create the first payment for the subscription
+    const payment = await mollie.payments.create({
       amount: { currency: "EUR", value: "8.99" },
-      interval: "1 month",
-      description: "GeNails Unlimited Designs Subscription",
+      description: "GeNails Unlimited Monthly Subscription",
+      customerId,
+      sequenceType: "first",
+      redirectUrl: `${req.headers.get("origin")}/payment-success?payment_id={id}`,
       webhookUrl: `${req.headers.get("origin")}/api/webhook`,
+      metadata: {
+        user_id: user.id,
+      },
     });
 
-    console.log(`Created subscription with ID: ${subscription.id}`);
+    console.log(`Created initial payment with ID: ${payment.id}`);
 
-    // Create a record in the user_subscriptions table
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
+    // 3. Create subscription once the first payment is successful
+    if (payment.id) {
+      // Create a subscription
+      const subscription = await mollie.customers_subscriptions.create({
+        customerId,
+        amount: { currency: "EUR", value: "8.99" },
+        interval: "1 month",
+        description: "GeNails Unlimited Monthly Subscription",
+        webhookUrl: `${req.headers.get("origin")}/api/webhook`,
+        metadata: {
+          user_id: user.id,
         },
-      }
-    );
-
-    const { error: subscriptionError } = await supabaseAdmin
-      .from("user_subscriptions")
-      .insert({
-        user_id: user.id,
-        provider: "mollie",
-        provider_id: subscription.id,
-        status: "active",
-        price_id: "unlimited_subscription",
-        created_at: new Date().toISOString(),
-        current_period_end: new Date(
-          new Date().setMonth(new Date().getMonth() + 1)
-        ).toISOString(),
       });
+      
+      console.log(`Created subscription with ID: ${subscription.id}`);
 
-    if (subscriptionError) {
-      console.error("Error recording subscription:", subscriptionError);
+      // Record the subscription in the database
+      const { error: subscriptionError } = await supabaseAdmin
+        .from("user_subscriptions")
+        .insert({
+          user_id: user.id,
+          provider: "mollie",
+          provider_id: subscription.id,
+          customer_id: customerId,
+          status: subscription.status,
+          price_id: "mollie_unlimited_monthly",
+          current_period_end: subscription.nextPaymentDate,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+      if (subscriptionError) {
+        console.error("Error recording subscription:", subscriptionError);
+        throw new Error(`Error recording subscription: ${subscriptionError.message}`);
+      }
     }
 
-    // Add credits for the subscription
-    await supabaseAdmin.rpc("add_user_credits", {
-      user_id_param: user.id,
-      credits_to_add: 1000000,
-    });
-
+    // Return the payment URL for the frontend to redirect to
     return new Response(
       JSON.stringify({
         success: true,
-        subscription: subscription.id,
+        url: payment.getPaymentUrl(),
+        paymentId: payment.id,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -131,7 +137,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error in setup subscription:", error);
+    console.error("Error setting up subscription:", error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       {

@@ -138,6 +138,7 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess }: Molli
       });
       
       if (error) {
+        console.error(`Error calling ${endpoint}:`, error);
         throw new Error(error.message);
       }
       

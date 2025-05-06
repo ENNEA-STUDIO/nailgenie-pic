@@ -47,25 +47,17 @@ serve(async (req) => {
 
     // If payment is successful, add credits to the user
     if (payment.status === "paid") {
-      // Find the user by customer ID
-      const { data: userData } = await supabaseAdmin.auth
-        .admin
-        .listUsers();
+      // Try to find the user from the payment metadata
+      if (payment.metadata?.user_id) {
+        const userId = payment.metadata.user_id;
         
-      // Find the user by email
-      const user = userData?.users.find(u => {
-        const customerInfo = payment.metadata?.customer_id || payment.customerId;
-        return customerInfo && customerInfo.includes(u.email);
-      });
-      
-      if (user) {
         // Add credits to the user
         await supabaseAdmin.rpc("add_user_credits", {
-          user_id_param: user.id,
+          user_id_param: userId,
           credits_to_add: 10, // 10 credits for one-time payment
         });
         
-        console.log(`Added 10 credits to user ${user.id}`);
+        console.log(`Added 10 credits to user ${userId}`);
       }
     }
 
