@@ -21,10 +21,25 @@ interface MollieCardSetupFormProps {
 
 export default function MollieCardSetupForm({ isSubscription, onSuccess, amount }: MollieCardSetupFormProps) {
   const { t, language } = useLanguage();
-  const { checkCredits, checkSubscription, session } = useApp();
+  const { checkCredits, checkSubscription } = useApp();
   const [isProcessing, setIsProcessing] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [showRedirectSheet, setShowRedirectSheet] = useState(false);
+  
+  // Get the current user's email
+  const [userEmail, setUserEmail] = useState<string>('');
+  
+  // Get the user email on component mount
+  useEffect(() => {
+    const getUserEmail = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user?.email) {
+        setUserEmail(data.session.user.email);
+      }
+    };
+    
+    getUserEmail();
+  }, []);
   
   // Créer un schéma de validation avec Zod
   const formSchema = z.object({
@@ -45,9 +60,16 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess, amount 
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      email: session?.user?.email || '',
+      email: userEmail || '',
     }
   });
+  
+  // Update email field when userEmail changes
+  useEffect(() => {
+    if (userEmail) {
+      form.setValue('email', userEmail);
+    }
+  }, [userEmail, form]);
 
   // Gérer la fermeture du sheet de redirection
   const handleCloseRedirectSheet = () => {
@@ -74,7 +96,7 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess, amount 
       const { data, error } = await supabase.functions.invoke(endpoint, {
         body: { 
           name: values.name,
-          email: values.email || session?.user?.email
+          email: values.email || userEmail
         }
       });
       
@@ -156,7 +178,7 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess, amount 
                   <Input 
                     {...field} 
                     type="email"
-                    placeholder={user?.email || (language === 'fr' ? 'Votre email' : 'Your email')}
+                    placeholder={userEmail || (language === 'fr' ? 'Votre email' : 'Your email')}
                     disabled={isProcessing}
                     className="w-full"
                   />
