@@ -15,13 +15,17 @@ import {
 const FUNCTION_NAME = "mollie-setup-subscription";
 const WEBHOOK_URL = "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook";
 
-// Input validation schema with all required fields
+// Updated input validation schema to match our new format
 const requestSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Valid email is required"),
-  amount: z.string().min(1, "Amount is required"),
+  amount: z.object({
+    value: z.string().min(1, "Amount value is required"),
+    currency: z.string().min(1, "Currency is required")
+  }),
   description: z.string().min(1, "Description is required"),
   redirectUrl: z.string().min(1, "Redirect URL is required"),
+  webhookUrl: z.string().optional(),
   productType: z.string().default("subscription")
 });
 
@@ -74,20 +78,17 @@ serve(async (req) => {
       return createErrorResponse("Invalid input data", 422);
     }
 
-    const { name, email, amount, description, redirectUrl, productType } = requestBody;
+    const { name, email, amount, description, redirectUrl, webhookUrl, productType } = requestBody;
     
     logStep(FUNCTION_NAME, `Setting up subscription for user ${user.id}`);
     
     try {
       // Create a first payment that will set up the subscription
       const firstPayment = await mollie.payments.create({
-        amount: { 
-          currency: "EUR", 
-          value: amount 
-        },
+        amount: amount,
         description,
         redirectUrl,
-        webhookUrl: WEBHOOK_URL,
+        webhookUrl: webhookUrl || WEBHOOK_URL,
         metadata: { 
           user_id: user.id,
           product_type: productType,

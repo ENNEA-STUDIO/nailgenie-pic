@@ -17,14 +17,14 @@ export function logStep(functionName: string, step: string, details?: any) {
 
 // Initialiser le client Mollie
 export function initializeMollie() {
-  const mollieApiKey = Deno.env.get("MOLLIE_API_KEY");
+  const mollieApiKey = Deno.env.get("MOLLIE_API_KEY") || "test_dHar4XY7LxsDOtmnkVtjNVWXLSlXsM";
   if (!mollieApiKey) {
     throw new Error("MOLLIE_API_KEY n'est pas configuré");
   }
   return createMollieClient({ apiKey: mollieApiKey });
 }
 
-// Initialiser le client Supabase admin
+// Initialize the Supabase admin client
 export function initializeSupabaseAdmin() {
   const url = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -41,7 +41,7 @@ export function initializeSupabaseAdmin() {
   });
 }
 
-// Authentifier l'utilisateur à partir de la requête
+// Authenticate the user from the request
 export async function authenticateUser(req: Request) {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
@@ -66,12 +66,12 @@ export async function authenticateUser(req: Request) {
   return userData.user;
 }
 
-// Gérer les requêtes OPTIONS pour CORS
+// Handle OPTIONS requests for CORS
 export function handleOptionsRequest() {
   return new Response(null, { headers: corsHeaders });
 }
 
-// Créer une réponse d'erreur avec les bons en-têtes
+// Create an error response with the appropriate headers
 export function createErrorResponse(error: string, status: number = 400) {
   return new Response(
     JSON.stringify({ success: false, error }),
@@ -82,7 +82,7 @@ export function createErrorResponse(error: string, status: number = 400) {
   );
 }
 
-// Créer une réponse de succès avec les bons en-têtes
+// Create a success response with the appropriate headers
 export function createSuccessResponse(data: any, status: number = 200) {
   return new Response(
     JSON.stringify({ success: true, ...data }),
@@ -93,7 +93,7 @@ export function createSuccessResponse(data: any, status: number = 200) {
   );
 }
 
-// Parser les données du webhook à partir de la requête
+// Parse webhook data from the request
 export async function parseWebhookData(req: Request) {
   try {
     const formData = await req.formData();
