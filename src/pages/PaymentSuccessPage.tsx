@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
-import { CheckCircle, CreditCard, Infinity } from 'lucide-react';
+import { CheckCircle, CreditCard, InfinityIcon } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
@@ -19,12 +19,17 @@ const PaymentSuccessPage = () => {
   const [creditsAdded, setCreditsAdded] = useState(0);
   
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
-    const paymentMode = searchParams.get('mode') || 'payment';
-    
     const verifyPayment = async () => {
       try {
-        if (!sessionId) {
+        setIsVerifying(true);
+        
+        // Check if we have a Stripe session ID
+        const sessionId = searchParams.get('session_id');
+        
+        // Check if we have a Mollie payment ID
+        const paymentId = searchParams.get('payment_id') || sessionStorage.getItem('mollie_payment_id');
+        
+        if (!sessionId && !paymentId) {
           toast.error(language === 'fr' 
             ? "Session de paiement invalide" 
             : "Invalid payment session");
@@ -32,27 +37,65 @@ const PaymentSuccessPage = () => {
           return;
         }
         
-        const { data, error } = await supabase.functions.invoke('payment-success', {
-          body: { session_id: sessionId }
-        });
+        let success = false;
+        let isSubscriptionPayment = false;
+        let creditsAmount = 0;
         
-        if (error) {
-          console.error('Payment verification error:', error);
-          toast.error(language === 'fr' 
-            ? "Erreur lors de la vérification du paiement" 
-            : "Error verifying payment");
-          navigate('/buy-credits');
-          return;
+        if (sessionId) {
+          // Handle Stripe payment
+          const { data, error } = await supabase.functions.invoke('payment-success', {
+            body: { session_id: sessionId }
+          });
+          
+          if (error) {
+            console.error('Payment verification error:', error);
+            toast.error(language === 'fr' 
+              ? "Erreur lors de la vérification du paiement" 
+              : "Error verifying payment");
+            navigate('/buy-credits');
+            return;
+          }
+          
+          if (data?.success) {
+            // Set subscription status
+            isSubscriptionPayment = data.isSubscription || data.mode === 'subscription';
+            
+            // Set credits added if one-time payment
+            if (data.creditsAdded) {
+              creditsAmount = data.creditsAdded;
+            }
+            
+            success = true;
+          }
+        } else if (paymentId) {
+          // Handle Mollie payment
+          const { data, error } = await supabase.functions.invoke('mollie-check-payment', {
+            body: { paymentId }
+          });
+          
+          if (error) {
+            console.error('Mollie payment verification error:', error);
+            toast.error(language === 'fr' 
+              ? "Erreur lors de la vérification du paiement" 
+              : "Error verifying payment");
+            navigate('/buy-credits');
+            return;
+          }
+          
+          if (data?.success && data?.isProcessed) {
+            // For Mollie, we currently only support one-time payments via this flow
+            creditsAmount = 10; // Fixed 10 credits for now
+            success = true;
+            
+            // Clear the stored payment ID
+            sessionStorage.removeItem('mollie_payment_id');
+          }
         }
         
-        if (data?.success) {
-          // Set subscription status
-          setIsSubscription(data.isSubscription || data.mode === 'subscription');
-          
-          // Set credits added if one-time payment
-          if (data.creditsAdded) {
-            setCreditsAdded(data.creditsAdded);
-          }
+        if (success) {
+          // Update state variables
+          setIsSubscription(isSubscriptionPayment);
+          setCreditsAdded(creditsAmount);
           
           // Trigger confetti effect
           confetti({
@@ -69,6 +112,11 @@ const PaymentSuccessPage = () => {
           setTimeout(() => {
             navigate('/camera');
           }, 3000);
+        } else {
+          toast.error(language === 'fr' 
+            ? "Le paiement n'a pas pu être vérifié" 
+            : "Payment could not be verified");
+          navigate('/buy-credits');
         }
       } catch (error) {
         console.error('Error:', error);
@@ -107,7 +155,7 @@ const PaymentSuccessPage = () => {
           {isSubscription ? (
             <>
               <div className="flex items-center mb-4">
-                <Infinity className="w-6 h-6 text-primary mr-2" />
+                <InfinityIcon className="w-6 h-6 text-primary mr-2" />
                 <p className="text-lg font-medium">
                   {language === 'fr' ? "Abonnement illimité activé" : "Unlimited subscription activated"}
                 </p>

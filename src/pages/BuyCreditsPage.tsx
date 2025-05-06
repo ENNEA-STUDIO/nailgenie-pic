@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -12,16 +13,20 @@ import InvitationSection from '@/components/credits/InvitationSection';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import StripeCheckout from '@/components/credits/StripeCheckout';
-import StripeSubscription from '@/components/credits/StripeSubscription';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import LogoutButton from '@/components/auth/LogoutButton';
+import MollieCardSetupForm from '@/components/credits/MollieCardSetupForm';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type OfferType = 'credits' | 'subscription';
-
-const CREDITS_PRICE_ID = 'price_1RFhQsRPaiGxQ05lwHGqPB1j';
-const PREMIUM_CREDITS_PRICE_ID = 'price_1RFhRPRPaiGxQ05levZDTe5z';
 
 const BuyCreditsPage: React.FC = () => {
   const { credits, hasUnlimitedSubscription, subscriptionStart, subscriptionEnd, checkCredits, checkSubscription } = useApp();
@@ -30,6 +35,8 @@ const BuyCreditsPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentType, setPaymentType] = useState<OfferType>('credits');
   
   const formatDate = (dateString: string | null) => {
     if (!dateString) return null;
@@ -42,6 +49,17 @@ const BuyCreditsPage: React.FC = () => {
   
   const startDate = subscriptionStart ? formatDate(subscriptionStart) : null;
   const renewalDate = subscriptionEnd ? formatDate(subscriptionEnd) : null;
+  
+  const handlePaymentSuccess = () => {
+    setShowPaymentDialog(false);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  };
+  
+  const openPaymentDialog = (type: OfferType) => {
+    setPaymentType(type);
+    setShowPaymentDialog(true);
+  };
   
   return (
     <motion.div 
@@ -93,12 +111,26 @@ const BuyCreditsPage: React.FC = () => {
             </CardContent>
             
             <CardFooter>
-              <StripeCheckout
-                priceId={CREDITS_PRICE_ID}
-                buttonText="2,99 €"
-                isProcessing={isProcessing && processingOption === 'credits'}
-                showSuccess={showSuccess}
-              />
+              <Button 
+                className="w-full py-6 relative" 
+                size="lg"
+                onClick={() => openPaymentDialog('credits')}
+                disabled={isProcessing}
+              >
+                {isProcessing && processingOption === 'credits' ? (
+                  <span className="flex items-center">
+                    <NailPolishIcon className="animate-bounce mr-2" />
+                    {t.credits.processing}
+                  </span>
+                ) : showSuccess && processingOption === 'credits' ? (
+                  <span className="flex items-center">
+                    <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                    {t.credits.success}
+                  </span>
+                ) : (
+                  '2,99 €'
+                )}
+              </Button>
             </CardFooter>
           </Card>
         )}
@@ -161,12 +193,26 @@ const BuyCreditsPage: React.FC = () => {
                 </span>
               </Button>
             ) : (
-              <StripeSubscription
-                priceId={PREMIUM_CREDITS_PRICE_ID}
-                buttonText="8,99 €/mois"
-                isProcessing={isProcessing && processingOption === 'subscription'}
-                showSuccess={showSuccess}
-              />
+              <Button 
+                className="w-full py-6 relative" 
+                size="lg"
+                onClick={() => openPaymentDialog('subscription')}
+                disabled={isProcessing}
+              >
+                {isProcessing && processingOption === 'subscription' ? (
+                  <span className="flex items-center">
+                    <NailPolishIcon className="animate-bounce mr-2" />
+                    {t.credits.processing}
+                  </span>
+                ) : showSuccess && processingOption === 'subscription' ? (
+                  <span className="flex items-center">
+                    <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                    {t.credits.success}
+                  </span>
+                ) : (
+                  '8,99 €/mois'
+                )}
+              </Button>
             )}
           </CardFooter>
         </Card>
@@ -181,6 +227,28 @@ const BuyCreditsPage: React.FC = () => {
           className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-all"
         />
       </div>
+      
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {paymentType === 'subscription' 
+                ? (language === 'fr' ? 'S\'abonner' : 'Subscribe') 
+                : (language === 'fr' ? 'Acheter des crédits' : 'Buy credits')}
+            </DialogTitle>
+            <DialogDescription>
+              {paymentType === 'subscription'
+                ? (language === 'fr' ? 'Abonnement mensuel de 8,99 € pour des designs illimités' : 'Monthly subscription of €8.99 for unlimited designs')
+                : (language === 'fr' ? '10 crédits pour 2,99 €' : '10 credits for €2.99')}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <MollieCardSetupForm 
+            isSubscription={paymentType === 'subscription'}
+            onSuccess={handlePaymentSuccess}
+          />
+        </DialogContent>
+      </Dialog>
       
       <BottomNav />
     </motion.div>
