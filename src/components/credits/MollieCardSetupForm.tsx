@@ -21,7 +21,7 @@ interface MollieCardSetupFormProps {
 
 export default function MollieCardSetupForm({ isSubscription, onSuccess, amount }: MollieCardSetupFormProps) {
   const { t, language } = useLanguage();
-  const { checkCredits, checkSubscription, user } = useApp();
+  const { checkCredits, checkSubscription, session } = useApp();
   const [isProcessing, setIsProcessing] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [showRedirectSheet, setShowRedirectSheet] = useState(false);
@@ -45,7 +45,7 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess, amount 
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      email: user?.email || '',
+      email: session?.user?.email || '',
     }
   });
 
@@ -74,7 +74,7 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess, amount 
       const { data, error } = await supabase.functions.invoke(endpoint, {
         body: { 
           name: values.name,
-          email: values.email || user?.email
+          email: values.email || session?.user?.email
         }
       });
       
