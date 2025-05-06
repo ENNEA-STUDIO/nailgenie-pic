@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { useState, useRef, useEffect } from 'react';
 import { useMollie } from '@/hooks/useMollie';
 import { supabase } from '@/integrations/supabase/client';
-import { FunctionsHttpError } from '@supabase/supabase-js';
 import { useLanguage } from '@/context/LanguageContext';
 import { useApp } from '@/context/AppContext';
 import { toast } from 'sonner';
@@ -22,7 +21,7 @@ type Props = {
 
 export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscription, onSuccess }: Props) {
   const { t, language } = useLanguage();
-  const { user, checkCredits, checkSubscription } = useApp();
+  const { checkCredits, checkSubscription } = useApp();
   const { mollie, error: mollieErr } = useMollie();
 
   const holder = useRef<HTMLDivElement>(null);
@@ -128,24 +127,37 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
     } catch (err: any) {
       console.error('Payment error:', err);
       
-      if (err instanceof FunctionsHttpError) {
-        try {
-          const details = await err.response.json();
-          console.error('Edge error', err.status, details);
-          setError(details.error || `Error ${err.status}`);
-        } catch {
-          setError(`Error ${err.status || 500}`);
+      // Handle error response
+      let errorMessage = typeof err === 'object' ? (err.message || String(err)) : String(err);
+      
+      // Try to extract more detailed error message if available
+      try {
+        if (err && typeof err === 'object' && 'message' in err) {
+          errorMessage = err.message;
         }
-      } else {
-        setError(String(err));
+      } catch {
+        // If anything fails, use generic error message
+        errorMessage = language === 'fr' 
+          ? "Une erreur s'est produite lors du traitement du paiement." 
+          : "An error occurred while processing the payment.";
       }
+      
+      setError(errorMessage);
     } finally {
       setPending(false);
     }
   }
 
+  // Setup dialog open event handler that will mount Mollie components
+  const handleDialogOpenChange = (open: boolean) => {
+    onOpenChange(open);
+    if (open) {
+      setTimeout(mountMollie, 100); // Small delay to ensure dialog is rendered
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} onOpenAutoFocus={mountMollie}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
