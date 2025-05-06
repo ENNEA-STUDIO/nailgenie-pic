@@ -91,10 +91,7 @@ serve(async (req) => {
     let requestBody;
     try {
       requestBody = await req.json();
-      logStep("Request body parsed", { 
-        name: requestBody.name,
-        hasToken: !!requestBody.cardToken 
-      });
+      logStep("Request body parsed", requestBody);
     } catch (error) {
       logStep("Error parsing request body", { error });
       return new Response(
@@ -107,6 +104,18 @@ serve(async (req) => {
     }
 
     const { name } = requestBody;
+    
+    // Name is required
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      logStep("Error: Name is required");
+      return new Response(
+        JSON.stringify({ success: false, error: "Name is required" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 422,
+        }
+      );
+    }
     
     logStep(`Processing one-time payment for user ${user.id} with email ${user.email}`);
 
