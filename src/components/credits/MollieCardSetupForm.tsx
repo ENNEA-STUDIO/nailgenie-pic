@@ -32,9 +32,13 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess, amount 
   // Get the user email on component mount
   useEffect(() => {
     const getUserEmail = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session?.user?.email) {
-        setUserEmail(data.session.user.email);
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user?.email) {
+          setUserEmail(data.session.user.email);
+        }
+      } catch (error) {
+        console.error('Error fetching user session:', error);
       }
     };
     
@@ -93,10 +97,19 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess, amount 
       
       console.log(`Calling ${endpoint} endpoint with:`, values);
       
+      // Utiliser l'email du formulaire ou l'email de l'utilisateur connecté
+      const email = values.email || userEmail;
+      
+      if (!email) {
+        throw new Error(language === 'fr' 
+          ? 'Adresse email requise' 
+          : 'Email address required');
+      }
+      
       const { data, error } = await supabase.functions.invoke(endpoint, {
         body: { 
           name: values.name,
-          email: values.email || userEmail
+          email: email
         }
       });
       
@@ -128,7 +141,7 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess, amount 
           ? "Aucune URL de redirection fournie par le serveur de paiement"
           : "No redirect URL provided by payment server");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment error:', error);
       
       // Afficher un message d'erreur adapté

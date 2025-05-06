@@ -1,85 +1,117 @@
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { SharedDesign } from '@/types/shared-design';
+import { useParams } from 'react-router-dom';
+import { MetaData, SharedDesignData } from '@/types/shared-design';
 
-export const useSharedDesign = (id: string | undefined, language: string) => {
-  const [design, setDesign] = useState<SharedDesign | null>(null);
-  const [loading, setLoading] = useState(true);
+export const useSharedDesign = () => {
+  const { designId } = useParams<{ designId: string }>();
+  
+  const [design, setDesign] = useState<SharedDesignData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [metaData, setMetaData] = useState<MetaData>({
+    title: 'GeNails - Nail Design',
+    description: 'Découvrez ce design d\'ongles créé avec GeNails',
+    imageUrl: '',
+    creator: '',
+    url: window.location.href,
+  });
 
   useEffect(() => {
-    const fetchSharedDesign = async () => {
+    const fetchDesign = async () => {
       try {
-        console.log("Fetching shared design with ID:", id);
-        if (!id) {
-          setError('Design ID is missing');
+        setLoading(true);
+        
+        if (!designId) {
+          throw new Error('Design ID is required');
+        }
+        
+        // Try to find the design first in shared_views
+        const { data: sharedView, error: sharedViewError } = await supabase
+          .from('shared_views')
+          .select('*')
+          .eq('id', designId)
+          .maybeSingle();
+        
+        if (sharedViewError) {
+          console.error('Error fetching shared view:', sharedViewError);
+          throw sharedViewError;
+        }
+        
+        if (sharedView) {
+          setDesign({
+            id: sharedView.id,
+            invite_code: sharedView.invite_code,
+            nail_color: sharedView.nail_color || '',
+            nail_shape: sharedView.nail_shape || '',
+            nail_length: sharedView.nail_length || '',
+            prompt: sharedView.prompt || '',
+            image_url: sharedView.image_url,
+            created_at: sharedView.created_at,
+          });
+          
+          setMetaData({
+            title: 'GeNails - Beautiful Nail Design',
+            description: sharedView.prompt 
+              ? `Nail design: ${sharedView.prompt}` 
+              : 'Découvrez ce design d\'ongles créé avec GeNails',
+            imageUrl: sharedView.image_url,
+            creator: '',
+            url: window.location.href,
+          });
+          
           setLoading(false);
           return;
         }
-
-        // Fetch the shared design
-        const { data, error } = await supabase
-          .from('shared_views')
+        
+        // If not found in shared_views, look in shared_designs
+        const { data: sharedDesign, error: sharedDesignError } = await supabase
+          .from('shared_designs')
           .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) {
-          console.error("Supabase error:", error);
-          throw error;
+          .eq('id', designId)
+          .maybeSingle();
+          
+        if (sharedDesignError) {
+          console.error('Error fetching shared design:', sharedDesignError);
+          throw sharedDesignError;
         }
         
-        console.log("Fetched design data:", data);
-        
-        if (!data) {
-          setError('Design not found');
-        } else {
-          // Fetch the user's display name if user_id is available
-          let sharerName = language === 'fr' ? 'Quelqu\'un' : 'Someone';
-          
-          if (data.user_id) {
-            try {
-              console.log("Trying to fetch profile for user_id:", data.user_id);
-              // Try to get name from profiles table
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', data.user_id)
-                .maybeSingle();
-              
-              console.log("Profile fetch result:", { profileData, profileError });
-                
-              if (profileData && profileData.full_name) {
-                sharerName = profileData.full_name;
-                console.log("Using profile name:", sharerName);
-              } else {
-                console.log("Could not find profile or no full_name, falling back to default name");
-              }
-            } catch (profileError) {
-              console.error("Error fetching profile:", profileError);
-            }
-          }
-          
-          // Add the sharer name to the design data
-          const designWithSharerName = {
-            ...data as SharedDesign,
-            sharer_name: data.sharer_name || sharerName
-          };
-          
-          console.log("Final design data with sharer name:", designWithSharerName);
-          setDesign(designWithSharerName);
+        if (!sharedDesign) {
+          throw new Error('Design not found');
         }
-      } catch (err) {
-        console.error('Error fetching shared design:', err);
-        setError('Failed to load the shared design');
+        
+        setDesign({
+          id: sharedDesign.id,
+          invite_code: '', // Shared designs don't have invite codes
+          nail_color: sharedDesign.nail_color || '',
+          nail_shape: sharedDesign.nail_shape || '',
+          nail_length: sharedDesign.nail_length || '',
+          prompt: sharedDesign.prompt || '',
+          image_url: sharedDesign.image_url,
+          created_at: sharedDesign.created_at,
+        });
+        
+        setMetaData({
+          title: 'GeNails - Beautiful Nail Design',
+          description: sharedDesign.prompt 
+            ? `Nail design: ${sharedDesign.prompt}` 
+            : 'Découvrez ce design d\'ongles créé avec GeNails',
+          imageUrl: sharedDesign.image_url,
+          creator: '',
+          url: window.location.href,
+        });
+        
+      } catch (err: any) {
+        console.error('Error in useSharedDesign:', err);
+        setError(err.message || 'Failed to load design');
       } finally {
         setLoading(false);
       }
     };
-
-    fetchSharedDesign();
-  }, [id, language]);
-
-  return { design, loading, error };
+    
+    fetchDesign();
+  }, [designId]);
+  
+  return { design, loading, error, metaData };
 };

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -14,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import LogoutButton from '@/components/auth/LogoutButton';
-import MollieSubscriptionDialog from '@/components/credits/MollieSubscriptionDialog';
+import MollieCardSetupForm from '@/components/credits/MollieCardSetupForm';
 
 type OfferType = 'credits' | 'subscription';
 
@@ -22,11 +23,9 @@ const BuyCreditsPage: React.FC = () => {
   const { credits, hasUnlimitedSubscription, subscriptionStart, subscriptionEnd, checkCredits, checkSubscription } = useApp();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const [selectedOffer, setSelectedOffer] = useState<OfferType | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processingOption, setProcessingOption] = useState<OfferType | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [paymentType, setPaymentType] = useState<OfferType>('credits');
   
   const formatDate = (dateString: string | null) => {
     if (!dateString) return null;
@@ -40,15 +39,30 @@ const BuyCreditsPage: React.FC = () => {
   const startDate = subscriptionStart ? formatDate(subscriptionStart) : null;
   const renewalDate = subscriptionEnd ? formatDate(subscriptionEnd) : null;
   
-  const handlePaymentSuccess = () => {
-    setShowPaymentDialog(false);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+  const handlePaymentClick = (type: OfferType) => {
+    setSelectedOffer(type);
   };
   
-  const openPaymentDialog = (type: OfferType) => {
-    setPaymentType(type);
-    setShowPaymentDialog(true);
+  const handlePaymentSuccess = () => {
+    setIsProcessing(false);
+    setShowSuccess(true);
+    
+    // Mettre à jour les crédits ou l'abonnement
+    if (selectedOffer === 'credits') {
+      checkCredits();
+    } else {
+      checkSubscription();
+    }
+    
+    // Réinitialiser après un moment
+    setTimeout(() => {
+      setShowSuccess(false);
+      setSelectedOffer(null);
+    }, 3000);
+  };
+  
+  const handleCancelPayment = () => {
+    setSelectedOffer(null);
   };
   
   return (
@@ -72,7 +86,43 @@ const BuyCreditsPage: React.FC = () => {
       </div>
       
       <div className="flex-1 space-y-6">
-        {!hasUnlimitedSubscription && (
+        {/* Affichage du formulaire de paiement s'il y a une offre sélectionnée */}
+        {selectedOffer && (
+          <Card className="border-2 border-primary">
+            <CardHeader>
+              <CardTitle>
+                {selectedOffer === 'credits' 
+                  ? (language === 'fr' ? 'Pack de 10 crédits' : '10 Credits Pack') 
+                  : (language === 'fr' ? 'Abonnement Illimité' : 'Unlimited Subscription')}
+              </CardTitle>
+              <CardDescription>
+                {selectedOffer === 'credits'
+                  ? (language === 'fr' ? 'Paiement unique de 2,99 €' : 'One-time payment of €2.99')
+                  : (language === 'fr' ? 'Abonnement mensuel à 8,99 €' : 'Monthly subscription at €8.99')}
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent>
+              <MollieCardSetupForm 
+                isSubscription={selectedOffer === 'subscription'} 
+                onSuccess={handlePaymentSuccess}
+                amount={selectedOffer === 'credits' ? '2,99 €' : '8,99 €'}
+              />
+            </CardContent>
+            
+            <CardFooter>
+              <Button 
+                variant="ghost"
+                className="w-full"
+                onClick={handleCancelPayment}
+              >
+                {language === 'fr' ? 'Annuler' : 'Cancel'}
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
+        
+        {!selectedOffer && !hasUnlimitedSubscription && (
           <Card className="border-2 overflow-hidden">
             <CardHeader className="pb-2">
               <Badge variant="outline" className="w-fit mb-2">
@@ -104,15 +154,15 @@ const BuyCreditsPage: React.FC = () => {
               <Button 
                 className="w-full py-6 relative" 
                 size="lg"
-                onClick={() => openPaymentDialog('credits')}
+                onClick={() => handlePaymentClick('credits')}
                 disabled={isProcessing}
               >
-                {isProcessing && processingOption === 'credits' ? (
+                {isProcessing && selectedOffer === 'credits' ? (
                   <span className="flex items-center">
                     <NailPolishIcon className="animate-bounce mr-2" />
                     {t.credits.processing}
                   </span>
-                ) : showSuccess && processingOption === 'credits' ? (
+                ) : showSuccess && selectedOffer === 'credits' ? (
                   <span className="flex items-center">
                     <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
                     {t.credits.success}
@@ -186,15 +236,15 @@ const BuyCreditsPage: React.FC = () => {
               <Button 
                 className="w-full py-6 relative" 
                 size="lg"
-                onClick={() => openPaymentDialog('subscription')}
+                onClick={() => handlePaymentClick('subscription')}
                 disabled={isProcessing}
               >
-                {isProcessing && processingOption === 'subscription' ? (
+                {isProcessing && selectedOffer === 'subscription' ? (
                   <span className="flex items-center">
                     <NailPolishIcon className="animate-bounce mr-2" />
                     {t.credits.processing}
                   </span>
-                ) : showSuccess && processingOption === 'subscription' ? (
+                ) : showSuccess && selectedOffer === 'subscription' ? (
                   <span className="flex items-center">
                     <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
                     {t.credits.success}
@@ -217,13 +267,6 @@ const BuyCreditsPage: React.FC = () => {
           className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-all"
         />
       </div>
-      
-      <MollieSubscriptionDialog 
-        open={showPaymentDialog} 
-        onOpenChange={setShowPaymentDialog}
-        isSubscription={paymentType === 'subscription'}
-        onSuccess={handlePaymentSuccess}
-      />
       
       <BottomNav />
     </motion.div>
