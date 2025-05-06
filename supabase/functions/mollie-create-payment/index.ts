@@ -13,13 +13,16 @@ import {
 } from "../_shared/mollie-utils.ts";
 
 const FUNCTION_NAME = "mollie-create-payment";
-const REDIRECT_URL = "https://genails.app/payment-success?product=credits";
 const WEBHOOK_URL = "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook";
 
-// Input validation schema
+// Input validation schema with all required fields
 const requestSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Valid email is required"),
+  amount: z.string().min(1, "Amount is required"),
+  description: z.string().min(1, "Description is required"),
+  redirectUrl: z.string().min(1, "Redirect URL is required"),
+  productType: z.string().default("credits")
 });
 
 serve(async (req) => {
@@ -71,7 +74,7 @@ serve(async (req) => {
       return createErrorResponse("Invalid input data", 422);
     }
 
-    const { name, email } = requestBody;
+    const { name, email, amount, description, redirectUrl, productType } = requestBody;
     
     logStep(FUNCTION_NAME, `Processing one-time payment for user ${user.id}`);
 
@@ -80,14 +83,14 @@ serve(async (req) => {
       const payment = await mollie.payments.create({
         amount: { 
           currency: "EUR", 
-          value: "2.99" 
+          value: amount 
         },
-        description: "GeNails 10 Credits Pack",
-        redirectUrl: REDIRECT_URL,
+        description,
+        redirectUrl,
         webhookUrl: WEBHOOK_URL,
         metadata: { 
           user_id: user.id,
-          product_type: "credits",
+          product_type: productType,
           name,
           email
         }

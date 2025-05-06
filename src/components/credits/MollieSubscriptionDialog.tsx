@@ -34,12 +34,25 @@ export default function MollieSubscriptionDialog({ open, onOpenChange, isSubscri
     try {
       const endpoint = isSubscription ? 'mollie-setup-subscription' : 'mollie-create-payment';
       
-      console.log(`Calling ${endpoint} endpoint with:`, form);
+      // Determine product details based on type
+      const productDetails = {
+        amount: isSubscription ? "8.99" : "2.99",
+        description: isSubscription ? "GeNails Unlimited Monthly Subscription" : "GeNails 10 Credits Pack",
+        redirectBasePath: window.location.origin + "/payment-success",
+        productType: isSubscription ? "subscription" : "credits"
+      };
+      
+      console.log(`Calling ${endpoint} endpoint with:`, { ...form, ...productDetails });
       
       const { data, error } = await supabase.functions.invoke(endpoint, {
         body: { 
           name: form.name,
-          email: form.email
+          email: form.email,
+          amount: productDetails.amount,
+          description: productDetails.description,
+          redirectUrl: `${productDetails.redirectBasePath}?product=${productDetails.productType}`,
+          // Include product type in metadata
+          productType: productDetails.productType
         }
       });
       
