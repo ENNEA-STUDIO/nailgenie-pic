@@ -22,3 +22,6 @@ verify_jwt = false
 
 [functions.express-webhook]
 verify_jwt = false
+
+[functions.mollie-check-payment]
+verify_jwt = false
