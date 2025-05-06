@@ -103,7 +103,7 @@ serve(async (req) => {
       );
     }
 
-    const { name } = requestBody;
+    const { name, email } = requestBody;
     
     // Name is required
     if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -117,22 +117,25 @@ serve(async (req) => {
       );
     }
     
-    logStep(`Processing one-time payment for user ${user.id} with email ${user.email}`);
+    const customerEmail = email || user.email;
+    logStep(`Processing one-time payment for user ${user.id} with email ${customerEmail}`);
 
     // 1. Create or retrieve customer
     try {
       let customerId;
       try {
+        // Try to find existing customer by email
         const customers = await mollie.customers.page({ limit: 50 });
-        const existingCustomer = customers.find(customer => customer.email === user.email);
+        const existingCustomer = customers.find(customer => customer.email === customerEmail);
         
         if (existingCustomer) {
           customerId = existingCustomer.id;
           logStep(`Found existing customer with ID: ${customerId}`);
         } else {
+          // Create new customer
           const customer = await mollie.customers.create({
             name: name.trim(),
-            email: user.email
+            email: customerEmail
           });
           customerId = customer.id;
           logStep(`Created new customer with ID: ${customerId}`);
@@ -143,7 +146,7 @@ serve(async (req) => {
         try {
           const customer = await mollie.customers.create({
             name: name.trim(),
-            email: user.email
+            email: customerEmail
           });
           customerId = customer.id;
           logStep(`Created new customer as fallback with ID: ${customerId}`);
@@ -193,12 +196,12 @@ serve(async (req) => {
           status: 200,
         }
       );
-    } catch (molliError) {
-      logStep("Mollie API error", { error: molliError.message || molliError });
+    } catch (mollieError) {
+      logStep("Mollie API error", { error: mollieError.message || mollieError });
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: `Mollie API error: ${molliError.message || molliError}` 
+          error: `Mollie API error: ${mollieError.message || mollieError}` 
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },

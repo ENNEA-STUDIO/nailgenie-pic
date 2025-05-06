@@ -115,7 +115,7 @@ serve(async (req) => {
       );
     }
 
-    const { name } = requestBody;
+    const { name, email } = requestBody;
     
     if (!name || typeof name !== 'string' || name.trim() === '') {
       logStep("Error: Name is required");
@@ -127,15 +127,16 @@ serve(async (req) => {
         }
       );
     }
-    
-    logStep(`Setting up subscription for user ${user.id} with email ${user.email}`);
+
+    const customerEmail = email || user.email;
+    logStep(`Setting up subscription for user ${user.id} with email ${customerEmail}`);
 
     try {
       // 1. Create or retrieve customer
       let customerId;
       try {
         const customers = await mollie.customers.page({ limit: 50 });
-        const existingCustomer = customers.find(customer => customer.email === user.email);
+        const existingCustomer = customers.find(customer => customer.email === customerEmail);
         
         if (existingCustomer) {
           customerId = existingCustomer.id;
@@ -143,7 +144,7 @@ serve(async (req) => {
         } else {
           const customer = await mollie.customers.create({
             name: name.trim(),
-            email: user.email
+            email: customerEmail
           });
           customerId = customer.id;
           logStep(`Created new customer with ID: ${customerId}`);
@@ -154,7 +155,7 @@ serve(async (req) => {
         try {
           const customer = await mollie.customers.create({
             name: name.trim(),
-            email: user.email
+            email: customerEmail
           });
           customerId = customer.id;
           logStep(`Created new customer as fallback with ID: ${customerId}`);
@@ -170,7 +171,8 @@ serve(async (req) => {
         amount: "8.99",
         customerId,
         origin,
-        webhookUrl
+        webhookUrl,
+        customerName: name.trim()
       });
       
       // 2. Create the first payment for the subscription
