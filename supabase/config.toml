@@ -27,7 +27,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.mollie-create-payment]
-verify_jwt = false
+verify_jwt = true
 
 [functions.mollie-setup-subscription]
-verify_jwt = false
+verify_jwt = true

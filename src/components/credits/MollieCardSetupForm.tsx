@@ -130,49 +130,66 @@ export default function MollieCardSetupForm({ isSubscription, onSuccess }: Molli
           : 'Could not generate payment token');
       }
       
+      console.log("Payment token created successfully");
+      
       // Call appropriate endpoint based on payment type
       const endpoint = isSubscription ? 'mollie-setup-subscription' : 'mollie-create-payment';
+      console.log(`Calling ${endpoint} endpoint`);
       
-      const { data, error } = await supabase.functions.invoke(endpoint, {
-        body: { name, cardToken: token }
-      });
-      
-      if (error) {
-        console.error(`Error calling ${endpoint}:`, error);
-        throw new Error(error.message);
-      }
-      
-      if (data.success) {
-        if (isSubscription) {
-          toast.success(language === 'fr'
-            ? 'Abonnement créé avec succès!'
-            : 'Subscription created successfully!');
-          
-          // Refresh subscription status
-          await checkSubscription();
-        } else if (data.url) {
-          // For one-time payment, redirect to Mollie checkout page if URL is provided
-          window.location.href = data.url;
-          return;
-        } else {
-          // If no URL is provided, we assume the payment is being processed
-          toast.success(language === 'fr'
-            ? 'Paiement en cours de traitement'
-            : 'Payment being processed');
-            
-          // Store payment ID in session storage for verification on success page
-          if (data.paymentId) {
-            sessionStorage.setItem('mollie_payment_id', data.paymentId);
-          }
-          
-          // Refresh credits
-          await checkCredits();
+      try {
+        const { data, error } = await supabase.functions.invoke(endpoint, {
+          body: { name, cardToken: token }
+        });
+        
+        console.log(`${endpoint} response:`, data, error);
+        
+        if (error) {
+          console.error(`Error calling ${endpoint}:`, error);
+          throw new Error(error.message || `Failed to process ${isSubscription ? 'subscription' : 'payment'}`);
         }
         
-        // Call success callback if provided
-        if (onSuccess) {
-          onSuccess();
+        if (!data?.success) {
+          throw new Error(data?.error || `Unknown error processing ${isSubscription ? 'subscription' : 'payment'}`);
         }
+        
+        if (data.success) {
+          if (isSubscription) {
+            toast.success(language === 'fr'
+              ? 'Abonnement créé avec succès!'
+              : 'Subscription created successfully!');
+            
+            // Refresh subscription status
+            await checkSubscription();
+          } else if (data.url) {
+            // For one-time payment, redirect to Mollie checkout page if URL is provided
+            console.log("Redirecting to payment URL:", data.url);
+            window.location.href = data.url;
+            return;
+          } else {
+            // If no URL is provided, we assume the payment is being processed
+            toast.success(language === 'fr'
+              ? 'Paiement en cours de traitement'
+              : 'Payment being processed');
+              
+            // Store payment ID in session storage for verification on success page
+            if (data.paymentId) {
+              sessionStorage.setItem('mollie_payment_id', data.paymentId);
+            }
+            
+            // Refresh credits
+            await checkCredits();
+          }
+          
+          // Call success callback if provided
+          if (onSuccess) {
+            onSuccess();
+          }
+        }
+      } catch (supabaseError) {
+        console.error("Supabase functions invoke error:", supabaseError);
+        throw new Error(language === 'fr'
+          ? `Erreur lors de l'appel à l'API: ${supabaseError.message}`
+          : `API call error: ${supabaseError.message}`);
       }
     } catch (error) {
       console.error('Payment error:', error);
