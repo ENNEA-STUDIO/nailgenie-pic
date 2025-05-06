@@ -3,3 +3,4 @@ project_id = "yvtdpfampfndlnjqoocm"
 
 [functions.mollie-webhook]
 verify_jwt = false
+

@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from "https://esm.sh/zod@3.22.4";
 import {
   logStep,
   initializeMollie, 
@@ -14,6 +15,12 @@ import {
 const FUNCTION_NAME = "mollie-setup-subscription";
 const REDIRECT_URL = "https://genails.app/payment-success?product=subscription";
 const WEBHOOK_URL = "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook";
+
+// Input validation schema
+const requestSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Valid email is required"),
+});
 
 serve(async (req) => {
   logStep(FUNCTION_NAME, "Function called");
@@ -49,19 +56,22 @@ serve(async (req) => {
       logStep(FUNCTION_NAME, "Error parsing request body", { error });
       return createErrorResponse("Invalid request body", 400);
     }
+    
+    // Validate input
+    try {
+      requestSchema.parse(requestBody);
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        logStep(FUNCTION_NAME, "Validation error", { issues: validationError.issues });
+        return createErrorResponse(
+          `Validation error: ${validationError.issues.map(i => i.message).join(", ")}`, 
+          422
+        );
+      }
+      return createErrorResponse("Invalid input data", 422);
+    }
 
     const { name, email } = requestBody;
-    
-    // Validate required fields
-    if (!name || typeof name !== 'string' || name.trim() === '') {
-      logStep(FUNCTION_NAME, "Error: Name is required");
-      return createErrorResponse("Name is required", 422);
-    }
-
-    if (!email || typeof email !== 'string' || email.trim() === '') {
-      logStep(FUNCTION_NAME, "Error: Email is required");
-      return createErrorResponse("Email is required", 422);
-    }
     
     logStep(FUNCTION_NAME, `Setting up subscription for user ${user.id}`);
     
@@ -78,7 +88,9 @@ serve(async (req) => {
         metadata: { 
           user_id: user.id,
           product_type: "subscription",
-          is_first_payment: true
+          is_first_payment: true,
+          name,
+          email
         },
         sequenceType: "first" // Mark this as first payment in a sequence
       });
@@ -86,6 +98,7 @@ serve(async (req) => {
       logStep(FUNCTION_NAME, `Created first payment with ID: ${firstPayment.id}`);
       
       return createSuccessResponse({
+        success: true,
         url: firstPayment.getPaymentUrl(),
         paymentId: firstPayment.id
       });
