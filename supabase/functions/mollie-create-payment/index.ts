@@ -103,13 +103,25 @@ serve(async (req) => {
       );
     }
 
-    const { name, email } = requestBody;
+    const { name, email, cardToken } = requestBody;
     
     // Name is required
     if (!name || typeof name !== 'string' || name.trim() === '') {
       logStep("Error: Name is required");
       return new Response(
         JSON.stringify({ success: false, error: "Name is required" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 422,
+        }
+      );
+    }
+
+    // Card token is required for direct processing
+    if (!cardToken) {
+      logStep("Error: Card token is required");
+      return new Response(
+        JSON.stringify({ success: false, error: "Card token is required" }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 422,
@@ -155,47 +167,99 @@ serve(async (req) => {
         }
       }
 
-      // 2. Create payment
-      const webhookUrl = "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook";
-      const origin = req.headers.get("origin") || "https://genails.app";
-      
-      logStep("Creating payment", {
-        amount: "2.99",
-        description: "GeNails 10 Credits Pack",
-        customerId,
-        origin,
-        webhookUrl
-      });
-      
-      const payment = await mollie.payments.create({
-        amount: { currency: "EUR", value: "2.99" },
-        description: "GeNails 10 Credits Pack",
-        customerId,
-        sequenceType: "first",
-        redirectUrl: `${origin}/payment-success?payment_id={id}`,
-        webhookUrl: webhookUrl,
-        metadata: {
-          user_id: user.id, // Include user ID in metadata for webhook processing
-        }
-      });
+      // 2. Create payment with card token
+      try {
+        logStep("Creating payment with card token", {
+          amount: "2.99",
+          description: "GeNails 10 Credits Pack",
+          customerId,
+          cardToken
+        });
+        
+        const payment = await mollie.customers_payments.create({
+          customerId: customerId,
+          amount: { currency: "EUR", value: "2.99" },
+          description: "GeNails 10 Credits Pack",
+          method: "creditcard",
+          cardToken: cardToken,
+          metadata: {
+            user_id: user.id,
+          }
+        });
 
-      logStep(`Created payment with ID: ${payment.id}`, {
-        paymentId: payment.id,
-        paymentUrl: payment.getPaymentUrl()
-      });
+        logStep(`Created payment with ID: ${payment.id}`);
 
-      // Return the payment URL for the frontend to redirect to
-      return new Response(
-        JSON.stringify({
-          success: true,
-          url: payment.getPaymentUrl(),
-          paymentId: payment.id,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
+        // Check payment status
+        if (payment.status === "paid") {
+          logStep("Payment was immediately successful");
+          // Add credits to the user
+          const supabaseAdmin = createClient(
+            Deno.env.get("SUPABASE_URL") ?? "",
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+            {
+              auth: {
+                autoRefreshToken: false,
+                persistSession: false,
+              },
+            }
+          );
+          
+          const { data, error } = await supabaseAdmin.rpc("add_user_credits", {
+            user_id_param: user.id,
+            credits_to_add: 10,
+          });
+          
+          if (error) {
+            logStep("Error adding credits", { error });
+          } else {
+            logStep(`Added 10 credits to user ${user.id}`, data);
+          }
+          
+          return new Response(
+            JSON.stringify({
+              success: true,
+              status: "paid",
+              message: "Payment successful and credits added",
+            }),
+            {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+              status: 200,
+            }
+          );
+        } else {
+          logStep(`Payment status is: ${payment.status}`);
+          // Return the payment status for the frontend to handle
+          return new Response(
+            JSON.stringify({
+              success: true,
+              status: payment.status,
+              paymentId: payment.id,
+            }),
+            {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+              status: 200,
+            }
+          );
         }
-      );
+      } catch (paymentError: any) {
+        logStep("Error creating payment", { error: paymentError });
+        
+        // Parse and return the exact Mollie error message if available
+        let errorMessage = "Failed to process payment";
+        if (paymentError && paymentError.details && paymentError.details.status) {
+          errorMessage = `Payment error: ${paymentError.details.title || paymentError.details.status}`;
+        } else if (paymentError.message) {
+          errorMessage = paymentError.message;
+        }
+        
+        return new Response(
+          JSON.stringify({ success: false, error: errorMessage }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          }
+        );
+      }
     } catch (mollieError) {
       logStep("Mollie API error", { error: mollieError.message || mollieError });
       return new Response(

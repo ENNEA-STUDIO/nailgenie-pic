@@ -12,18 +12,10 @@ import NailPolishIcon from '@/components/credits/NailPolishIcon';
 import InvitationSection from '@/components/credits/InvitationSection';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import LogoutButton from '@/components/auth/LogoutButton';
-import MollieCardSetupForm from '@/components/credits/MollieCardSetupForm';
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import MollieSubscriptionDialog from '@/components/credits/MollieSubscriptionDialog';
 
 type OfferType = 'credits' | 'subscription';
 
@@ -227,28 +219,12 @@ const BuyCreditsPage: React.FC = () => {
         />
       </div>
       
-      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl">
-              {paymentType === 'subscription' 
-                ? (language === 'fr' ? 'S\'abonner' : 'Subscribe') 
-                : (language === 'fr' ? 'Acheter des crédits' : 'Buy credits')}
-            </DialogTitle>
-            <DialogDescription className="text-base pt-2">
-              {paymentType === 'subscription'
-                ? (language === 'fr' ? 'Abonnement mensuel de 8,99 € pour des designs illimités' : 'Monthly subscription of €8.99 for unlimited designs')
-                : (language === 'fr' ? '10 crédits pour 2,99 €' : '10 credits for €2.99')}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <MollieCardSetupForm 
-            isSubscription={paymentType === 'subscription'}
-            onSuccess={handlePaymentSuccess}
-            amount={paymentType === 'subscription' ? '8,99 €/mois' : '2,99 €'}
-          />
-        </DialogContent>
-      </Dialog>
+      <MollieSubscriptionDialog 
+        open={showPaymentDialog} 
+        onOpenChange={setShowPaymentDialog}
+        isSubscription={paymentType === 'subscription'}
+        onSuccess={handlePaymentSuccess}
+      />
       
       <BottomNav />
     </motion.div>

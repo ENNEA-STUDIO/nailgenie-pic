@@ -115,12 +115,24 @@ serve(async (req) => {
       );
     }
 
-    const { name, email } = requestBody;
+    const { name, email, cardToken } = requestBody;
     
     if (!name || typeof name !== 'string' || name.trim() === '') {
       logStep("Error: Name is required");
       return new Response(
         JSON.stringify({ success: false, error: "Name is required" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 422,
+        }
+      );
+    }
+
+    // Card token is required for direct processing
+    if (!cardToken) {
+      logStep("Error: Card token is required");
+      return new Response(
+        JSON.stringify({ success: false, error: "Card token is required" }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 422,
@@ -164,86 +176,125 @@ serve(async (req) => {
         }
       }
 
-      const webhookUrl = "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook";
-      const origin = req.headers.get("origin") || "https://genails.app";
-      
-      logStep("Creating initial payment for subscription", {
-        amount: "8.99",
-        customerId,
-        origin,
-        webhookUrl,
-        customerName: name.trim()
-      });
-      
-      // 2. Create the first payment for the subscription
-      const payment = await mollie.payments.create({
-        amount: { currency: "EUR", value: "8.99" },
-        description: "GeNails Unlimited Monthly Subscription",
-        customerId,
-        sequenceType: "first",
-        redirectUrl: `${origin}/payment-success?payment_id={id}`,
-        webhookUrl: webhookUrl,
-        metadata: {
-          user_id: user.id,
-          is_subscription: true
-        },
-      });
-
-      logStep(`Created initial payment with ID: ${payment.id}`);
-
-      // 3. Create subscription once the first payment is successful
-      if (payment.id) {
-        logStep("Setting up recurring subscription");
-        
-        // Create a subscription
-        const subscription = await mollie.customers_subscriptions.create({
+      // 2. Create the first payment for the subscription using the card token
+      try {
+        logStep("Creating initial payment for subscription with card token", {
+          amount: "8.99",
           customerId,
-          amount: { currency: "EUR", value: "8.99" },
-          interval: "1 month",
-          description: "GeNails Unlimited Monthly Subscription",
-          webhookUrl: webhookUrl,
-          metadata: {
-            user_id: user.id,
-          },
+          cardToken
         });
         
-        logStep(`Created subscription with ID: ${subscription.id}`);
-
-        // Record the subscription in the database
-        const { error: subscriptionError } = await supabaseAdmin
-          .from("user_subscriptions")
-          .insert({
+        const payment = await mollie.customers_payments.create({
+          customerId: customerId,
+          amount: { currency: "EUR", value: "8.99" },
+          description: "GeNails Unlimited Monthly Subscription",
+          method: "creditcard",
+          cardToken: cardToken,
+          metadata: {
             user_id: user.id,
-            provider: "mollie",
-            provider_id: subscription.id,
-            customer_id: customerId,
-            status: subscription.status,
-            price_id: "mollie_unlimited_monthly",
-            current_period_end: subscription.nextPaymentDate,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
+            is_subscription: true
+          }
+        });
+
+        logStep(`Created initial payment with ID: ${payment.id}`);
+        
+        // 3. Create subscription once the first payment is processed 
+        if (payment.status === "paid") {
+          // First payment was successful, set up the recurring subscription
+          logStep("Initial payment successful, creating subscription");
+          
+          const subscription = await mollie.customers_subscriptions.create({
+            customerId,
+            amount: { currency: "EUR", value: "8.99" },
+            interval: "1 month",
+            description: "GeNails Unlimited Monthly Subscription",
+            webhookUrl: "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook",
+            metadata: {
+              user_id: user.id,
+            },
           });
+          
+          logStep(`Created subscription with ID: ${subscription.id}`);
 
-        if (subscriptionError) {
-          logStep("Error recording subscription", { error: subscriptionError });
-          // Continue anyway, as the subscription is created in Mollie
+          // Record the subscription in the database
+          const { error: subscriptionError } = await supabaseAdmin
+            .from("user_subscriptions")
+            .insert({
+              user_id: user.id,
+              provider: "mollie",
+              provider_id: subscription.id,
+              customer_id: customerId,
+              status: subscription.status,
+              price_id: "mollie_unlimited_monthly",
+              current_period_end: subscription.nextPaymentDate,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            });
+
+          if (subscriptionError) {
+            logStep("Error recording subscription", { error: subscriptionError });
+            // Continue anyway, as the subscription is created in Mollie
+          } else {
+            logStep("Subscription recorded in database");
+          }
+          
+          // Add credits to the user
+          const { data, error } = await supabaseAdmin.rpc("add_user_credits", {
+            user_id_param: user.id,
+            credits_to_add: 1000000, // Large number for "unlimited"
+          });
+          
+          if (error) {
+            logStep("Error adding credits", { error });
+          } else {
+            logStep(`Added unlimited credits to user ${user.id}`, data);
+          }
+          
+          return new Response(
+            JSON.stringify({
+              success: true,
+              status: "active",
+              message: "Subscription active and credits added"
+            }),
+            {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+              status: 200,
+            }
+          );
         } else {
-          logStep("Subscription recorded in database");
+          // First payment requires additional steps
+          logStep(`Initial payment status is: ${payment.status}`);
+          return new Response(
+            JSON.stringify({
+              success: true,
+              status: payment.status,
+              paymentId: payment.id
+            }),
+            {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+              status: 200,
+            }
+          );
         }
+      } catch (paymentError: any) {
+        logStep("Error creating payment", { error: paymentError });
+        
+        // Parse and return the exact Mollie error message if available
+        let errorMessage = "Failed to process payment";
+        if (paymentError && paymentError.details && paymentError.details.status) {
+          errorMessage = `Payment error: ${paymentError.details.title || paymentError.details.status}`;
+        } else if (paymentError.message) {
+          errorMessage = paymentError.message;
+        }
+        
+        return new Response(
+          JSON.stringify({ success: false, error: errorMessage }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          }
+        );
       }
-
-      // Return the payment URL for the frontend to redirect to
-      return new Response(
-        JSON.stringify({
-          success: true,
-          url: payment.getPaymentUrl(),
-          paymentId: payment.id,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
     } catch (mollieError) {
       logStep("Mollie API error", { error: mollieError.message || mollieError });
       return new Response(
