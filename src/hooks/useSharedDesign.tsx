@@ -1,13 +1,10 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useParams } from 'react-router-dom';
-import { MetaData, SharedDesignData } from '@/types/shared-design';
+import { SharedDesign, MetaData } from '@/types/shared-design';
 
-export const useSharedDesign = () => {
-  const { designId } = useParams<{ designId: string }>();
-  
-  const [design, setDesign] = useState<SharedDesignData | null>(null);
+export const useSharedDesign = (designId: string | undefined, language: string) => {
+  const [design, setDesign] = useState<SharedDesign | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [metaData, setMetaData] = useState<MetaData>({
@@ -55,7 +52,9 @@ export const useSharedDesign = () => {
             title: 'GeNails - Beautiful Nail Design',
             description: sharedView.prompt 
               ? `Nail design: ${sharedView.prompt}` 
-              : 'Découvrez ce design d\'ongles créé avec GeNails',
+              : language === 'fr' 
+                ? 'Découvrez ce design d\'ongles créé avec GeNails' 
+                : 'Check out this nail design created with GeNails',
             imageUrl: sharedView.image_url,
             creator: '',
             url: window.location.href,
@@ -96,7 +95,9 @@ export const useSharedDesign = () => {
           title: 'GeNails - Beautiful Nail Design',
           description: sharedDesign.prompt 
             ? `Nail design: ${sharedDesign.prompt}` 
-            : 'Découvrez ce design d\'ongles créé avec GeNails',
+            : language === 'fr' 
+              ? 'Découvrez ce design d\'ongles créé avec GeNails' 
+              : 'Check out this nail design created with GeNails',
           imageUrl: sharedDesign.image_url,
           creator: '',
           url: window.location.href,
@@ -111,7 +112,7 @@ export const useSharedDesign = () => {
     };
     
     fetchDesign();
-  }, [designId]);
+  }, [designId, language]);
   
   return { design, loading, error, metaData };
 };

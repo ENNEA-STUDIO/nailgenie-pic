@@ -15,7 +15,7 @@ import { useDesignSharing } from '@/hooks/useDesignSharing';
 const SharedDesignPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { language } = useLanguage();
-  const { design, loading, error } = useSharedDesign(id, language);
+  const { design, loading, error, metaData } = useSharedDesign(id, language);
   const { handleShare } = useDesignSharing(design);
 
   if (loading) {

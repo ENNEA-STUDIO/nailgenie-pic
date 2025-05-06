@@ -11,3 +11,11 @@ export interface SharedDesign {
   user_id?: string;
   created_at?: string;
 }
+
+export interface MetaData {
+  title: string;
+  description: string;
+  imageUrl: string;
+  creator: string;
+  url: string;
+}
