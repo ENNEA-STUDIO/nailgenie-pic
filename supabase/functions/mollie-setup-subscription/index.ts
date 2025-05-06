@@ -133,19 +133,34 @@ serve(async (req) => {
     try {
       // 1. Create or retrieve customer
       let customerId;
-      const customers = await mollie.customers.page({ limit: 10 });
-      const existingCustomer = customers.find(customer => customer.email === user.email);
-      
-      if (existingCustomer) {
-        customerId = existingCustomer.id;
-        logStep(`Found existing customer with ID: ${customerId}`);
-      } else {
-        const customer = await mollie.customers.create({
-          name: name || user.email.split("@")[0],
-          email: user.email
-        });
-        customerId = customer.id;
-        logStep(`Created new customer with ID: ${customerId}`);
+      try {
+        const customers = await mollie.customers.page({ limit: 50 });
+        const existingCustomer = customers.find(customer => customer.email === user.email);
+        
+        if (existingCustomer) {
+          customerId = existingCustomer.id;
+          logStep(`Found existing customer with ID: ${customerId}`);
+        } else {
+          const customer = await mollie.customers.create({
+            name: name.trim(),
+            email: user.email
+          });
+          customerId = customer.id;
+          logStep(`Created new customer with ID: ${customerId}`);
+        }
+      } catch (customerError) {
+        logStep("Error in customer lookup/creation", { error: customerError });
+        // Fall back to creating a new customer
+        try {
+          const customer = await mollie.customers.create({
+            name: name.trim(),
+            email: user.email
+          });
+          customerId = customer.id;
+          logStep(`Created new customer as fallback with ID: ${customerId}`);
+        } catch (fallbackError) {
+          throw new Error(`Failed to create customer: ${fallbackError.message}`);
+        }
       }
 
       const webhookUrl = "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook";

@@ -23,7 +23,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 type OfferType = 'credits' | 'subscription';
@@ -231,12 +230,12 @@ const BuyCreditsPage: React.FC = () => {
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-xl">
               {paymentType === 'subscription' 
                 ? (language === 'fr' ? 'S\'abonner' : 'Subscribe') 
                 : (language === 'fr' ? 'Acheter des crédits' : 'Buy credits')}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-base pt-2">
               {paymentType === 'subscription'
                 ? (language === 'fr' ? 'Abonnement mensuel de 8,99 € pour des designs illimités' : 'Monthly subscription of €8.99 for unlimited designs')
                 : (language === 'fr' ? '10 crédits pour 2,99 €' : '10 credits for €2.99')}
@@ -246,6 +245,7 @@ const BuyCreditsPage: React.FC = () => {
           <MollieCardSetupForm 
             isSubscription={paymentType === 'subscription'}
             onSuccess={handlePaymentSuccess}
+            amount={paymentType === 'subscription' ? '8,99 €/mois' : '2,99 €'}
           />
         </DialogContent>
       </Dialog>
