@@ -99,10 +99,14 @@ const BuyCreditsPage: React.FC = () => {
       }
 
       const res = await fetch(
-        "http://127.0.0.1:54321/functions/v1/create-mollie-payment",
+        "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/create-mollie-payment",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.session.access_token}`,
+          },
+
           body: JSON.stringify({
             amount,
             description,
