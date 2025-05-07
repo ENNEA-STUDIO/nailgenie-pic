@@ -8,7 +8,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MOLLIE_API_KEY = "test_rbBTTvzQwFaGkDsa3NUt2wHh5CAzzN";
+// const MOLLIE_API_KEY = "test_rbBTTvzQwFaGkDsa3NUt2wHh5CAzzN";
+const MOLLIE_API_KEY = Deno.env.get("MOLLIE_API_KEY");
 
 serve(async (req) => {
   console.log("[MOLLIE] Reçu une requête:", req.method, req.url);
