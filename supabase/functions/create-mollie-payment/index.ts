@@ -75,7 +75,7 @@ serve(async (req) => {
       webhookUrl,
       metadata: {
         user_id: body.user_id,
-        offerType,
+        product_type: offerType,
         name: body.name,
         email: body.email,
       },
