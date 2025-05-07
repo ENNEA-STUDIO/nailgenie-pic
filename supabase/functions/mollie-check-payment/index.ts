@@ -92,6 +92,7 @@ serve(async (req) => {
         );
       }
       const payment = await mollieRes.json();
+      logStep("Payment object from Mollie", payment);
       logStep(`Payment status: ${payment.status}`, {
         id: payment.id,
         amount: payment.amount,
@@ -141,11 +142,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: true,
-          payment: {
-            id: payment.id,
-            status: payment.status,
-            amount: payment.amount,
-          },
+          payment,
           isProcessed: payment.status === "paid",
           creditsAdded,
         }),
