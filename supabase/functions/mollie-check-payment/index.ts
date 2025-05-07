@@ -99,52 +99,11 @@ serve(async (req) => {
         metadata: payment.metadata,
       });
 
-      // Initialize Supabase admin client
-      const supabaseAdmin = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-        {
-          auth: {
-            autoRefreshToken: false,
-            persistSession: false,
-          },
-        }
-      );
-
-      // If payment is successful, add credits to the user
-      let creditsAdded = false;
-      if (payment.status === "paid") {
-        // Try to find the user from the payment metadata
-        if (payment.metadata?.user_id) {
-          const userId = payment.metadata.user_id;
-          logStep(`Payment successful, adding credits to user: ${userId}`);
-
-          // Add credits to the user
-          const { data, error } = await supabaseAdmin.rpc("add_user_credits", {
-            user_id_param: userId,
-            credits_to_add: 10, // 10 credits for one-time payment
-          });
-
-          if (error) {
-            logStep("Error adding credits", { error });
-          } else {
-            logStep(`Added 10 credits to user ${userId}`, data);
-            creditsAdded = true;
-          }
-        } else {
-          logStep(
-            "Payment successful but no user_id in metadata",
-            payment.metadata
-          );
-        }
-      }
-
       return new Response(
         JSON.stringify({
           success: true,
           payment,
           isProcessed: payment.status === "paid",
-          creditsAdded,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
