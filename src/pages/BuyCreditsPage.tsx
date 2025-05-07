@@ -135,7 +135,7 @@ const BuyCreditsPage: React.FC = () => {
       alert("Erreur paiement");
     }
   };
-
+ 
   return (
     <motion.div
       initial={{ opacity: 0 }}
