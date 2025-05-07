@@ -1,7 +1,5 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import createMollieClient from "https://esm.sh/@mollie/api-client@3.7.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,33 +9,34 @@ const corsHeaders = {
 
 // Helper for detailed logging
 const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
   console.log(`[MOLLIE-CHECK-PAYMENT] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
   logStep("Function called");
-  
+
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // const mollieApiKey = "test_rbBTTvzQwFaGkDsa3NUt2wHh5CAzzN";
     const mollieApiKey = Deno.env.get("MOLLIE_API_KEY");
     if (!mollieApiKey) {
       logStep("Error: MOLLIE_API_KEY is not configured");
       return new Response(
-        JSON.stringify({ success: false, error: "MOLLIE_API_KEY is not configured" }),
+        JSON.stringify({
+          success: false,
+          error: "MOLLIE_API_KEY is not configured",
+        }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 500,
         }
       );
     }
-
-    // Initialize Mollie client
-    const mollie = createMollieClient({ apiKey: mollieApiKey });
 
     // Parse the request body
     let requestBody;
@@ -71,14 +70,34 @@ serve(async (req) => {
     logStep(`Checking payment ID: ${paymentId}`);
 
     try {
-      // Get the payment details from Mollie
-      const payment = await mollie.payments.get(paymentId);
-      logStep(`Payment status: ${payment.status}`, { 
-        id: payment.id, 
+      const mollieRes = await fetch(
+        `https://api.mollie.com/v2/payments/${paymentId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${mollieApiKey}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!mollieRes.ok) {
+        const err = await mollieRes.text();
+        logStep("Mollie API error", { error: err });
+        return new Response(
+          JSON.stringify({ success: false, error: `Mollie API error: ${err}` }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 500,
+          }
+        );
+      }
+      const payment = await mollieRes.json();
+      logStep(`Payment status: ${payment.status}`, {
+        id: payment.id,
         amount: payment.amount,
-        metadata: payment.metadata
+        metadata: payment.metadata,
       });
-      
+
       // Initialize Supabase admin client
       const supabaseAdmin = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
@@ -98,13 +117,13 @@ serve(async (req) => {
         if (payment.metadata?.user_id) {
           const userId = payment.metadata.user_id;
           logStep(`Payment successful, adding credits to user: ${userId}`);
-          
+
           // Add credits to the user
           const { data, error } = await supabaseAdmin.rpc("add_user_credits", {
             user_id_param: userId,
             credits_to_add: 10, // 10 credits for one-time payment
           });
-          
+
           if (error) {
             logStep("Error adding credits", { error });
           } else {
@@ -112,7 +131,10 @@ serve(async (req) => {
             creditsAdded = true;
           }
         } else {
-          logStep("Payment successful but no user_id in metadata", payment.metadata);
+          logStep(
+            "Payment successful but no user_id in metadata",
+            payment.metadata
+          );
         }
       }
 
@@ -133,11 +155,13 @@ serve(async (req) => {
         }
       );
     } catch (mollieError) {
-      logStep("Mollie API error", { error: mollieError.message || mollieError });
+      logStep("Mollie API error", {
+        error: mollieError.message || mollieError,
+      });
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: `Mollie API error: ${mollieError.message || mollieError}` 
+        JSON.stringify({
+          success: false,
+          error: `Mollie API error: ${mollieError.message || mollieError}`,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -148,9 +172,9 @@ serve(async (req) => {
   } catch (error) {
     logStep("General error", { error: error.message || error });
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: `General error: ${error.message || error}` 
+      JSON.stringify({
+        success: false,
+        error: `General error: ${error.message || error}`,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

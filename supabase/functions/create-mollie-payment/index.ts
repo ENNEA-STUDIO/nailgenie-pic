@@ -142,7 +142,10 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ checkoutUrl: mollieData._links.checkout.href }),
+      JSON.stringify({
+        checkoutUrl: mollieData._links.checkout.href,
+        paymentId: mollieData.id,
+      }),
       {
         status: 200,
         headers: corsHeaders,

@@ -113,8 +113,9 @@ const BuyCreditsPage: React.FC = () => {
             offerType,
             creditsCount,
             interval,
-            redirectUrl: window.location.origin + "/paiement/success",
-            webhookUrl: "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook",
+            redirectUrl: window.location.origin + "/payment-success",
+            webhookUrl:
+              "https://yvtdpfampfndlnjqoocm.supabase.co/functions/v1/mollie-webhook",
             name: session.session.user.email,
             email: session.session.user.email,
             user_id: session.session.user.id,
@@ -122,7 +123,8 @@ const BuyCreditsPage: React.FC = () => {
         }
       );
       const data = await res.json();
-      if (data.checkoutUrl) {
+      if (data.checkoutUrl && data.paymentId) {
+        sessionStorage.setItem("mollie_payment_id", data.paymentId);
         window.location.href = data.checkoutUrl;
       } else {
         setIsProcessing(false);
