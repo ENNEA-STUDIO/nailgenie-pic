@@ -291,7 +291,7 @@ const BuyCreditsPage: React.FC = () => {
                 onClick={() =>
                   handleBuy({
                     amount: "8.99",
-                    description: "Abonnement illimité",
+                    description: "GeNails Unlimited Monthly Subscription",
                     offerType: "subscription",
                     interval: "1 month",
                   })
