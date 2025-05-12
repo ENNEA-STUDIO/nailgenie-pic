@@ -1,13 +1,47 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import {
   logStep,
-
   initializeSupabaseAdmin,
   parseWebhookData,
   corsHeaders,
 } from "../_shared/mollie-utils.ts";
 
 const FUNCTION_NAME = "mollie-webhook";
+
+// Helper function to send email via Resend
+async function sendEmail(to: string, subject: string, html: string) {
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+  if (!resendApiKey) {
+    logStep(FUNCTION_NAME, "RESEND_API_KEY not configured");
+    return;
+  }
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "GeNails <noreply@genails.com>",
+        to,
+        subject,
+        html,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      logStep(FUNCTION_NAME, "Error sending email", { error });
+      return;
+    }
+
+    logStep(FUNCTION_NAME, "Email sent successfully");
+  } catch (error) {
+    logStep(FUNCTION_NAME, "Error sending email", { error });
+  }
+}
 
 serve(async (req) => {
   logStep(FUNCTION_NAME, "Function called");
@@ -163,6 +197,18 @@ serve(async (req) => {
               credits_to_add: 1000000,
             });
             logStep(FUNCTION_NAME, `Added unlimited credits to user ${userId}`);
+
+            // Send subscription confirmation email
+            await sendEmail(
+              metadata.email,
+              "Bienvenue dans votre abonnement GeNails !",
+              `
+                <h1>Bienvenue dans votre abonnement GeNails !</h1>
+                <p>Votre abonnement illimité a été activé avec succès.</p>
+                <p>Vous pouvez maintenant générer autant de designs que vous voulez.</p>
+                <p>Merci de votre confiance !</p>
+              `
+            );
           } else {
             // C'est un paiement unique pour des crédits
             logStep(FUNCTION_NAME, "Processing one-time payment for credits", {
@@ -176,6 +222,18 @@ serve(async (req) => {
             });
 
             logStep(FUNCTION_NAME, `Added 10 credits to user ${userId}`);
+
+            // Send credits confirmation email
+            await sendEmail(
+              metadata.email,
+              "Vos crédits GeNails ont été ajoutés !",
+              `
+                <h1>Merci pour votre achat !</h1>
+                <p>10 crédits ont été ajoutés à votre compte GeNails.</p>
+                <p>Vous pouvez maintenant générer plus de designs.</p>
+                <p>À bientôt !</p>
+              `
+            );
           }
         } else {
           logStep(FUNCTION_NAME, `Payment not successful: ${payment.status}`);
